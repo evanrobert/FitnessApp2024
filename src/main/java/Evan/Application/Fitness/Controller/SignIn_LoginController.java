@@ -1,8 +1,14 @@
 package Evan.Application.Fitness.Controller;
 
+import Evan.Application.Fitness.Model.Roles;
+import Evan.Application.Fitness.Model.UserInformation;
+import Evan.Application.Fitness.Model.UserLoginDetails;
+import Evan.Application.Fitness.Repositorys.RoleRepository;
+import Evan.Application.Fitness.Repositorys.UserInformationRepository;
 import Evan.Application.Fitness.Repositorys.UserLoginDetailsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -13,12 +19,46 @@ import java.security.Principal;
 @Controller
 public class SignIn_LoginController {
     @Autowired
-    UserDetailsService userDetailsService;
+    PasswordEncoder passwordEncoder;
+    @Autowired
+    UserInformationRepository userInformationRepository;
     @Autowired
     UserLoginDetailsRepository userLoginDetailsRepository;
+    @Autowired
+    RoleRepository roleRepository;
     @GetMapping("/home")
     public String getSignUpPage(){
         return "home";
     }
-   
-}
+
+    @PostMapping("/signup")
+    public String SubmissionForSignUp(@ModelAttribute UserLoginDetails userLoginDetails, Principal principal, String username
+    , String password ) {
+        userLoginDetails.setUsername(username);
+        userLoginDetails.setPassword(passwordEncoder.encode(password));
+
+        UserInformation userInformation = new UserInformation();
+        userInformation.setName(userInformation.getName());
+        userInformation.setAge(userInformation.getAge());
+        userInformation.setWeight(userInformation.getWeight());
+        userInformation.setUserLoginDetails(userLoginDetails);
+
+        Roles defaultRole = roleRepository.findByName("ROLE_USER");
+        if (defaultRole == null) {
+            defaultRole = new Roles();
+            defaultRole.setName("ROLE_USER");
+            defaultRole = roleRepository.save(defaultRole);
+        }
+        userLoginDetails.getRoles().add(defaultRole);
+        userLoginDetailsRepository.save(userLoginDetails);
+        userInformationRepository.save(userInformation);
+
+        return "redirect:/login";
+    }
+    }
+
+
+
+
+
+
