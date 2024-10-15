@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,8 +31,14 @@ public class SignIn_LoginController {
     public String getSignUpPage(){
         return "home";
     }
+    @GetMapping("/signup")
+    public String getSignUpPage(Model model) {
+        model.addAttribute("userLoginDetails", new UserLoginDetails());
+        model.addAttribute("userInformation", new UserInformation());
+        return "signin"; // return the signup.html page
+    }
 
-    @PostMapping("/signup")
+    @PostMapping("/submitSignup")
     public String SubmissionForSignUp(@ModelAttribute UserLoginDetails userLoginDetails, Principal principal, String username
     , String password ) {
         userLoginDetails.setUsername(username);

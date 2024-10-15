@@ -23,6 +23,10 @@ public class UserLoginDetails {
     private String username;
     private String password;
 
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "user_information_id")
+    private UserInformation userInformation;
+
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(name = "users_roles",
             joinColumns = {@JoinColumn(name = "userLoginDetails_id", referencedColumnName = "id")},
