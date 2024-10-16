@@ -27,10 +27,12 @@ public class SignIn_LoginController {
     UserLoginDetailsRepository userLoginDetailsRepository;
     @Autowired
     RoleRepository roleRepository;
+
     @GetMapping("/home")
-    public String getSignUpPage(){
+    public String getSignUpPage() {
         return "home";
     }
+
     @GetMapping("/signup")
     public String getSignUpPage(Model model) {
         model.addAttribute("userLoginDetails", new UserLoginDetails());
@@ -39,35 +41,38 @@ public class SignIn_LoginController {
     }
 
     @PostMapping("/submitSignup")
-    public String SubmissionForSignUp(@ModelAttribute UserLoginDetails userLoginDetails,
-                                      Principal principal, String username
-    , String password ) {
+    public String SubmissionForSignUp(
+            @ModelAttribute UserLoginDetails userLoginDetails,
+            @ModelAttribute UserInformation userInformation,
+            Principal principal, String username, String password) {
+
+
         userLoginDetails.setUsername(username);
         userLoginDetails.setPassword(passwordEncoder.encode(password));
 
-        UserInformation userInformation = new UserInformation();
+
         userInformation.setName(userInformation.getName());
         userInformation.setAge(userInformation.getAge());
         userInformation.setWeight(userInformation.getWeight());
+
+
         userInformation.setUserLoginDetails(userLoginDetails);
         userLoginDetails.setUserInformation(userInformation);
 
+        // Handle roles
         Roles defaultRole = roleRepository.findByName("ROLE_USER");
         if (defaultRole == null) {
             defaultRole = new Roles();
             defaultRole.setName("ROLE_USER");
             defaultRole = roleRepository.save(defaultRole);
         }
+
+        // Assign role and save user
         userLoginDetails.getRoles().add(defaultRole);
         userLoginDetailsRepository.save(userLoginDetails);
         userInformationRepository.save(userInformation);
 
         return "redirect:/login";
     }
-    }
-
-
-
-
-
+}
 

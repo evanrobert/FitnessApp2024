@@ -14,7 +14,6 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-//@Table(name = "User Sign in Credentials")
 @Entity
 public class UserLoginDetails {
     @Id
