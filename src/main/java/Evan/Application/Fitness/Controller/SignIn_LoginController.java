@@ -39,7 +39,8 @@ public class SignIn_LoginController {
     }
 
     @PostMapping("/submitSignup")
-    public String SubmissionForSignUp(@ModelAttribute UserLoginDetails userLoginDetails, Principal principal, String username
+    public String SubmissionForSignUp(@ModelAttribute UserLoginDetails userLoginDetails,
+                                      Principal principal, String username
     , String password ) {
         userLoginDetails.setUsername(username);
         userLoginDetails.setPassword(passwordEncoder.encode(password));
@@ -49,6 +50,7 @@ public class SignIn_LoginController {
         userInformation.setAge(userInformation.getAge());
         userInformation.setWeight(userInformation.getWeight());
         userInformation.setUserLoginDetails(userLoginDetails);
+        userLoginDetails.setUserInformation(userInformation);
 
         Roles defaultRole = roleRepository.findByName("ROLE_USER");
         if (defaultRole == null) {

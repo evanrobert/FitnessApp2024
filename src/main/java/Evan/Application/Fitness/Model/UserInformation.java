@@ -12,7 +12,6 @@ import javax.persistence.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-//@Table(name = "user Details")
 @Entity
 public class UserInformation {
     @Id
