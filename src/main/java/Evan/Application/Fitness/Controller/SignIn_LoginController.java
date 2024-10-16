@@ -72,7 +72,7 @@ public class SignIn_LoginController {
         userLoginDetailsRepository.save(userLoginDetails);
         userInformationRepository.save(userInformation);
 
-        return "redirect:/login";
+        return "index";
     }
 }
 
