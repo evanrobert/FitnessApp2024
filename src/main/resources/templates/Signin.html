@@ -6,8 +6,8 @@
     <title>Sign Up</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #24527a, #74b9ff);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -16,70 +16,144 @@
         }
 
         .signup-container {
-            background-color: #ffffff;
-            border-radius: 10px;
-            padding: 30px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
             max-width: 400px;
             width: 100%;
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+            backdrop-filter: blur(10px);
+            position: relative;
+        }
+
+        .signup-container:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .signup-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 20px;
+            background: linear-gradient(45deg, rgba(36, 82, 122, 0.1), rgba(255, 255, 255, 0.3));
+            pointer-events: none;
+            z-index: 1;
         }
 
         h1 {
             color: #24527a;
-            font-size: 24px;
-            margin-bottom: 20px;
+            font-size: 30px;
+            margin-bottom: 30px;
             text-align: center;
+            letter-spacing: 1px;
+            position: relative;
+            z-index: 2;
         }
 
         label {
             display: block;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
             color: #333;
             font-weight: bold;
+            position: relative;
+            z-index: 2;
         }
 
         input[type="text"],
         input[type="password"],
         input[type="number"] {
             width: 100%;
-            padding: 10px;
-            margin-bottom: 15px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+            background-color: rgba(245, 245, 245, 0.8);
             box-sizing: border-box;
+            transition: all 0.3s ease;
+            font-size: 16px;
+            position: relative;
+            z-index: 2;
+        }
+
+        input[type="text"]:focus,
+        input[type="password"]:focus,
+        input[type="number"]:focus {
+            outline: none;
+            background-color: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 0 10px rgba(36, 82, 122, 0.5);
+            border: 1px solid #24527a;
         }
 
         input[type="submit"] {
-            background-color: #24527a;
-            color: #ffffff;
-            padding: 12px;
+            background: linear-gradient(135deg, #24527a, #1abc9c);
+            color: white;
+            padding: 15px;
             width: 100%;
             border: none;
-            border-radius: 5px;
+            border-radius: 10px;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 18px;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            z-index: 2;
         }
 
         input[type="submit"]:hover {
-            background-color: #1f3d6e;
+            background: linear-gradient(135deg, #1abc9c, #24527a);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
         }
 
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 25px;
         }
 
         .back-to-home {
-            margin-top: 20px;
+            margin-top: 25px;
             text-align: center;
+            position: relative;
+            z-index: 2;
         }
 
         .back-to-home a {
             color: #24527a;
             text-decoration: none;
+            font-size: 14px;
+            font-weight: bold;
         }
 
         .back-to-home a:hover {
             text-decoration: underline;
+        }
+
+        /* Floating effects for form fields */
+        input[type="text"]::placeholder,
+        input[type="password"]::placeholder,
+        input[type="number"]::placeholder {
+            color: rgba(100, 100, 100, 0.8);
+            font-style: italic;
+        }
+
+        /* Responsive layout for smaller screens */
+        @media (max-width: 600px) {
+            .signup-container {
+                padding: 20px;
+                max-width: 100%;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            input[type="submit"] {
+                font-size: 16px;
+            }
         }
     </style>
 </head>
@@ -90,27 +164,27 @@
     <form action="/submitSignup" method="post">
         <div class="form-group">
             <label for="username">Username:</label>
-            <input type="text" id="username" name="username" required>
+            <input type="text" id="username" name="username" placeholder="Enter your username" required>
         </div>
 
         <div class="form-group">
             <label for="password">Password:</label>
-            <input type="password" id="password" name="password" required>
+            <input type="password" id="password" name="password" placeholder="Enter your password" required>
         </div>
 
         <div class="form-group">
             <label for="name">Name:</label>
-            <input type="text" id="name" name="name" required>
+            <input type="text" id="name" name="name" placeholder="Enter your full name" required>
         </div>
 
         <div class="form-group">
             <label for="age">Age:</label>
-            <input type="number" id="age" name="age" required>
+            <input type="number" id="age" name="age" placeholder="Enter your age" required>
         </div>
 
         <div class="form-group">
             <label for="weight">Weight:</label>
-            <input type="number" id="weight" name="weight" required>
+            <input type="number" id="weight" name="weight" placeholder="Enter your weight in lbs" required>
         </div>
 
         <input type="submit" value="Sign Up">
