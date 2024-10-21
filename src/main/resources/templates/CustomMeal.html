@@ -1,10 +1,105 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
+    <meta charset="UTF-8">
+    <title>Log Custom Meal</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        h1 {
+            color: #24527a; /* Navy Blue for header */
+        }
+        form {
+            display: inline-block;
+            text-align: left;
+            margin-top: 20px;
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .submit-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #24527a; /* Navy Blue */
+            color: #ffffff; /* White */
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+            cursor: pointer;
+            border: none;
+            font-size: 16px;
+        }
+        .submit-btn:hover {
+            background-color: #1f3d6e; /* Darker Navy Blue on hover */
+        }
+    </style>
 </head>
 <body>
-$END$
+
+<h1>Log a Custom Meal</h1>
+
+<form th:action="@{/post/custom/meal}" th:object="${calorieInformation}" method="post">
+
+    <!-- Item Name -->
+    <label for="itemName">Meal Item Name:</label>
+    <input type="text" id="itemName" th:field="*{itemName}" required />
+
+    <!-- Calories -->
+    <label for="calories">Calories:</label>
+    <input type="number" id="calories" th:field="*{calories}" step="0.01" required />
+
+    <!-- Proteins -->
+    <label for="proteins">Proteins (g):</label>
+    <input type="number" id="proteins" th:field="*{proteins}" step="0.01" required />
+
+    <!-- Fats -->
+    <label for="fats">Fats (g):</label>
+    <input type="number" id="fats" th:field="*{fats}" step="0.01" required />
+
+    <!-- Carbohydrates -->
+    <label for="carbohydrates">Carbohydrates (g):</label>
+    <input type="number" id="carbohydrates" th:field="*{carbohydrates}" step="0.01" required />
+
+    <!-- Fiber -->
+    <label for="fiber">Fiber (g):</label>
+    <input type="number" id="fiber" th:field="*{fiber}" step="0.01" />
+
+    <!-- Sugars -->
+    <label for="sugars">Sugars (g):</label>
+    <input type="number" id="sugars" th:field="*{sugars}" step="0.01" />
+
+    <!-- Sodium -->
+    <label for="sodium">Sodium (mg):</label>
+    <input type="number" id="sodium" th:field="*{sodium}" step="0.01" />
+
+    <!-- Cholesterol -->
+    <label for="cholesterol">Cholesterol (mg):</label>
+    <input type="number" id="cholesterol" th:field="*{cholesterol}" step="0.01" />
+
+    <!-- Meal Type (Dropdown) -->
+    <label for="mealType">Meal Type:</label>
+    <select id="mealType" th:field="*{MealType}">
+        <option value="BREAKFAST">Breakfast</option>
+        <option value="LUNCH">Lunch</option>
+        <option value="DINNER">Dinner</option>
+        <option value="SNACK">Snack</option>
+    </select>
+
+    <!-- Submit Button -->
+    <button type="submit" class="submit-btn">Log Meal</button>
+
+</form>
+
 </body>
 </html>
