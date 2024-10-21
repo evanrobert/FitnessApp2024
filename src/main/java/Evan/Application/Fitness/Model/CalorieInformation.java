@@ -26,9 +26,8 @@ private String itemName;
     private double sugars;
     private double sodium;
     private double cholesterol;
-    private String breakfast;
-    private String lunch;
-    private String dinner;
+  private String MealType;
+    @Temporal(TemporalType.DATE)
     private Date date;
     @OneToOne
     @JoinColumn(name = "userid")
