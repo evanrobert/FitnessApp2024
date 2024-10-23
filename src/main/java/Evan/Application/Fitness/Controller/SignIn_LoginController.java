@@ -37,6 +37,10 @@ public class SignIn_LoginController {
     public String getLoginPage(){
         return "login";
     }
+    @GetMapping("/")
+    private String getIndex(){
+        return "index";
+    }
 
     @GetMapping("/signup")
     public String getSignUpPage(Model model) {
