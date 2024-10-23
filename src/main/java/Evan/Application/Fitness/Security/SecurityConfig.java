@@ -26,11 +26,10 @@ public class SecurityConfig {
         http.csrf().disable().authorizeRequests()
                 .antMatchers().permitAll()
                 .antMatchers("/home").authenticated()
-                // Adding Roles for users
                 .antMatchers("/").hasRole("USER")
                 .and()
                 .formLogin()
-                .loginPage("/home")
+                .loginPage("/")
                 .defaultSuccessUrl("/home")
                 .permitAll()
                 .and()

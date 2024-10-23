@@ -33,11 +33,10 @@ public class LogCustomMealController {
         calorieInformation.setDate(new Date());
        try{
         calorieInformationRepository.save(calorieInformation);
+        return "index";
        } catch (Exception e){
            e.printStackTrace();
        }
-       return "index";
-
-
+        return "redirect:/error";
     }
 }

@@ -33,6 +33,11 @@ public class SignIn_LoginController {
         return "home";
     }
 
+    @GetMapping("/login")
+    public String getLoginPage(){
+        return "login";
+    }
+
     @GetMapping("/signup")
     public String getSignUpPage(Model model) {
         model.addAttribute("userLoginDetails", new UserLoginDetails());
