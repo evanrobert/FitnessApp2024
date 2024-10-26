@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.Principal;
 import java.util.List;
@@ -33,10 +35,18 @@ public class ViewLoggedNutritionController {
         }
         return "error";
     }
+
+    @GetMapping("/filter/by/nutrition")
+    public String filterByMealType(@RequestParam("mealtype") String mealtype, Model model, RedirectAttributes redirectAttributes) {
+        List<CalorieInformation> filteredNutrition = calorieInformationRepository.findByMealType(mealtype);
+
+        if (filteredNutrition.isEmpty()) {
+            redirectAttributes.addFlashAttribute("error", "No entries found for this meal type.");
+            return "redirect:/view/Nutrition";
+        }
+
+        model.addAttribute("calorieInformation", filteredNutrition);
+        return "nutritionLog";
+    }
 }
-//    @GetMapping("/filter/by/nutrition")
-//    public String getAllMealTypes(String mealtype){
-//        List<CalorieInformation> calorieInformation = calorieInformationRepository.findAllByMealType(mealtype);
-//        return "nutritionlog";
-//    }
-//}
+

@@ -10,5 +10,5 @@ import java.util.List;
 @Repository
 public interface CalorieInformationRepository extends JpaRepository<CalorieInformation, Long> {
     List<CalorieInformation> findByUserLoginDetails(UserLoginDetails userLoginDetails);
-   // List<CalorieInformation> findAllByMealType(String mealtype);
+    List<CalorieInformation> findByMealType(String mealType);
 }

@@ -26,7 +26,7 @@ private String itemName;
     private double sugars;
     private double sodium;
     private double cholesterol;
-  private String MealType;
+  private String mealType;
     @Temporal(TemporalType.DATE)
     private Date date;
     @OneToOne
