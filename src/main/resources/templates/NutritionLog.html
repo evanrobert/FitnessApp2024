@@ -27,9 +27,46 @@
 
         h1 {
             color: #24527a;
-            font-size: 28px;
             text-align: center;
             margin-bottom: 20px;
+        }
+
+        form {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-weight: bold;
+            color: #24527a;
+        }
+
+        input[type="text"] {
+            padding: 8px;
+            margin: 0 10px;
+            border-radius: 5px;
+            border: 1px solid #24527a;
+        }
+
+        button[type="submit"] {
+            padding: 8px 12px;
+            color: white;
+            background-color: #24527a;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #1e3e5e;
+        }
+
+        .error-message {
+            color: red;
+            text-align: center;
+            font-size: 18px;
+            margin-top: 20px;
         }
 
         table {
@@ -48,7 +85,6 @@
         th {
             background-color: #24527a;
             color: white;
-            font-weight: bold;
         }
 
         tr:nth-child(even) {
@@ -58,13 +94,6 @@
         tr:hover {
             background-color: #d1e7ff;
         }
-
-        .error-message {
-            color: red;
-            text-align: center;
-            font-size: 18px;
-            margin-top: 20px;
-        }
     </style>
 </head>
 <body>
@@ -72,10 +101,24 @@
 <div class="container">
     <h1>Nutrition Log</h1>
 
+    <!-- Meal Type Filter Form -->
+    <form th:action="@{/filter/by/nutrition}" method="get">
+        <label for="mealtype">Filter by Meal Type:</label>
+        <input type="text" name="mealtype" id="mealtype" placeholder="Enter Meal Type">
+        <button type="submit">Search</button>
+    </form>
+
+    <!-- Error Message -->
+    <div th:if="${error}" class="error-message">
+        <p th:text="${error}"></p>
+    </div>
+
+    <!-- No Data Message -->
     <div th:if="${#lists.isEmpty(calorieInformation)}">
         <p class="error-message">No nutrition data found.</p>
     </div>
 
+    <!-- Nutrition Data Table -->
     <table th:if="${!#lists.isEmpty(calorieInformation)}">
         <thead>
         <tr>
