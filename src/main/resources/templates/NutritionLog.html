@@ -1,10 +1,114 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nutrition Log</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #24527a, #74b9ff);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 1200px;
+            overflow-x: auto;
+        }
+
+        h1 {
+            color: #24527a;
+            font-size: 28px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 16px;
+        }
+
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background-color: #24527a;
+            color: white;
+            font-weight: bold;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover {
+            background-color: #d1e7ff;
+        }
+
+        .error-message {
+            color: red;
+            text-align: center;
+            font-size: 18px;
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
-$END$
+
+<div class="container">
+    <h1>Nutrition Log</h1>
+
+    <div th:if="${#lists.isEmpty(calorieInformation)}">
+        <p class="error-message">No nutrition data found.</p>
+    </div>
+
+    <table th:if="${!#lists.isEmpty(calorieInformation)}">
+        <thead>
+        <tr>
+            <th>Item Name</th>
+            <th>Date</th>
+            <th>Calories</th>
+            <th>Proteins (g)</th>
+            <th>Fats (g)</th>
+            <th>Carbohydrates (g)</th>
+            <th>Fiber (g)</th>
+            <th>Sugars (g)</th>
+            <th>Sodium (mg)</th>
+            <th>Cholesterol (mg)</th>
+            <th>Meal Type</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="item : ${calorieInformation}">
+            <td th:text="${item.itemName}">Item Name</td>
+            <td th:text="${#dates.format(item.date, 'yyyy-MM-dd')}">Date</td>
+            <td th:text="${item.calories}">Calories</td>
+            <td th:text="${item.proteins}">Proteins</td>
+            <td th:text="${item.fats}">Fats</td>
+            <td th:text="${item.carbohydrates}">Carbohydrates</td>
+            <td th:text="${item.fiber}">Fiber</td>
+            <td th:text="${item.sugars}">Sugars</td>
+            <td th:text="${item.sodium}">Sodium</td>
+            <td th:text="${item.cholesterol}">Cholesterol</td>
+            <td th:text="${item.MealType}">Meal Type</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
 </body>
 </html>
