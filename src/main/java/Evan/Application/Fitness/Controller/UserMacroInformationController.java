@@ -33,6 +33,7 @@ public class UserMacroInformationController {
        userMacroInformation.setUserLoginDetails(userLoginDetails);
         try {
             userMacroInformationRepository.save(userMacroInformation);
+            return "home";
         } catch (Exception e){
             e.printStackTrace();
         }
