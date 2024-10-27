@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Macro Log</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #24527a, #74b9ff);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 600px;
+            overflow-x: auto;
+        }
+
+        h1 {
+            color: #24527a;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-weight: bold;
+            color: #24527a;
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .slider-value {
+            margin-left: 10px;
+            font-weight: bold;
+            color: #24527a;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            cursor: pointer;
+        }
+
+        button[type="submit"] {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            color: white;
+            background-color: #24527a;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #1e3e5e;
+        }
+    </style>
+    <script>
+        function updateSliderValue(slider, outputId) {
+            document.getElementById(outputId).textContent = slider.value;
+        }
+    </script>
+</head>
+<body>
+
+<div class="container">
+    <h1>Log Daily Macro Information</h1>
+
+    <form th:action="@{/log/custom/macro/information}" th:object="${macros}" method="post">
+        <div class="form-group">
+            <label for="dailyCalories">Daily Calories</label>
+            <div class="slider-container">
+                <input type="range" id="dailyCalories" name="dailyCalories" min="0" max="5000"
+                       th:value="${macros.dailyCalories}" oninput="updateSliderValue(this, 'caloriesValue')">
+                <span class="slider-value" id="caloriesValue" th:text="${macros.dailyCalories}">0</span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="dailyProtein">Daily Protein (g)</label>
+            <div class="slider-container">
+                <input type="range" id="dailyProtein" name="dailyProtein" min="0" max="300"
+                       th:value="${macros.dailyProtein}" oninput="updateSliderValue(this, 'proteinValue')">
+                <span class="slider-value" id="proteinValue" th:text="${macros.dailyProtein}">0</span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="dailyFat">Daily Fat (g)</label>
+            <div class="slider-container">
+                <input type="range" id="dailyFat" name="dailyFat" min="0" max="200"
+                       th:value="${macros.dailyFat}" oninput="updateSliderValue(this, 'fatValue')">
+                <span class="slider-value" id="fatValue" th:text="${macros.dailyFat}">0</span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="dailyCarbohydrates">Daily Carbohydrates (g)</label>
+            <div class="slider-container">
+                <input type="range" id="dailyCarbohydrates" name="dailyCarbohydrates" min="0" max="500"
+                       th:value="${macros.dailyCarbohydrates}" oninput="updateSliderValue(this, 'carbsValue')">
+                <span class="slider-value" id="carbsValue" th:text="${macros.dailyCarbohydrates}">0</span>
+            </div>
+        </div>
+
+        <button type="submit">Save Macro Information</button>
+    </form>
+</div>
+
+</body>
+</html>
