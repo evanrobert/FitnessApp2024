@@ -21,11 +21,23 @@ public class UserMacroInformationController {
     @Autowired
     UserMacroInformationRepository userMacroInformationRepository;
     @GetMapping("/user/macro/information")
-    public String logDailyMacroInformation(Model model){
+    public String logDailyMacroInformation(Model model, Principal principal){
+        String username = principal.getName();
+        UserLoginDetails userLoginDetails = userLoginDetailsRepository.findByUsername(username);
+        boolean ifDataIsLogged = userMacroInformationRepository.existsByUserLoginDetails(userLoginDetails);
+        if(ifDataIsLogged){
+            return "redirect:/ModifyDailyIntake";
+        }
+
         model.addAttribute("macros",new UserMacroInformation());
         return "dailyMacro";
 
     }
+    @GetMapping("/ModifyDailyIntake")
+    public String modifyDailyIntake() {
+        return "ModifyDailyIntake";
+    }
+
     @PostMapping("/log/custom/macro/information")
     public String setCustomMacroInformation(Principal principal, @ModelAttribute UserMacroInformation userMacroInformation){
         String username = principal.getName();
