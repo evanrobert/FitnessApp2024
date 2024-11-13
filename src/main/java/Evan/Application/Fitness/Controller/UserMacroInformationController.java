@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import java.security.Principal;
+import java.util.Optional;
 
 @Controller
 public class UserMacroInformationController {
@@ -34,9 +35,19 @@ public class UserMacroInformationController {
 
     }
     @GetMapping("/ModifyDailyIntake")
-    public String modifyDailyIntake() {
+    public String modifyDailyIntake(Model model, Principal principal) {
+        String username = principal.getName();
+        UserLoginDetails userLoginDetails = userLoginDetailsRepository.findByUsername(username);
+
+        // Retrieve the user's macro information
+        Optional<UserMacroInformation> userMacroInfo = Optional.ofNullable(userMacroInformationRepository.findByUserLoginDetails(userLoginDetails));
+
+        // Add macro information to the model if it exists
+        userMacroInfo.ifPresent(macroInfo -> model.addAttribute("userMacroInformation", macroInfo));
+
         return "ModifyDailyIntake";
     }
+
 
     @PostMapping("/log/custom/macro/information")
     public String setCustomMacroInformation(Principal principal, @ModelAttribute UserMacroInformation userMacroInformation){
@@ -51,4 +62,5 @@ public class UserMacroInformationController {
         }
         return "error";
     }
+
 }
