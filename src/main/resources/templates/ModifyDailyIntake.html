@@ -1,12 +1,129 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modify Daily Intake</title>
+    <style>
+        /* General reset and layout */
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f7fb;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #333;
+        }
+
+        /* Main container */
+        .container {
+            background-color: #ffffff;
+            border-radius: 8px;
+            padding: 30px;
+            width: 100%;
+            max-width: 600px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #24527a;
+            margin-bottom: 20px;
+            font-size: 2.5rem;
+        }
+
+        /* Form section */
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        label {
+            font-size: 1.2rem;
+            color: #24527a;
+            margin-bottom: 5px;
+        }
+
+        input[type="number"] {
+            padding: 12px;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            outline: none;
+            transition: border 0.3s ease;
+        }
+
+        input[type="number"]:focus {
+            border: 1px solid #24527a;
+        }
+
+        button {
+            padding: 12px;
+            font-size: 1.1rem;
+            color: white;
+            background-color: #24527a;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #1a3d59;
+        }
+
+        /* Display current values */
+        .daily-intake-info {
+            background-color: #eef2f7;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+
+        .daily-intake-info p {
+            font-size: 1.1rem;
+            margin: 5px 0;
+        }
+
+        .daily-intake-info span {
+            font-weight: bold;
+            color: #24527a;
+        }
+    </style>
 </head>
 <body>
-<!--Will add the user information to update there daily macro information-->
-<!--This will be the reroute option for the user if they already have data to update-->
+
+<div class="container">
+    <h1>Modify Your Daily Intake</h1>
+
+    <div th:if="${userMacroInformation}" class="daily-intake-info">
+        <p>Daily Calories: <span th:text="${userMacroInformation.dailyCalories}">0</span></p>
+        <p>Daily Protein: <span th:text="${userMacroInformation.dailyProtein}">0</span></p>
+        <p>Daily Fat: <span th:text="${userMacroInformation.dailyFat}">0</span></p>
+        <p>Daily Carbohydrates: <span th:text="${userMacroInformation.dailyCarbohydrates}">0</span></p>
+    </div>
+
+    <!-- Option to update or enter new values -->
+    <form action="/updateDailyIntake" method="post">
+        <label for="dailyCalories">Daily Calories:</label>
+        <input type="number" id="dailyCalories" name="dailyCalories" required>
+
+        <label for="dailyProtein">Daily Protein:</label>
+        <input type="number" id="dailyProtein" name="dailyProtein" required>
+
+        <label for="dailyFat">Daily Fat:</label>
+        <input type="number" id="dailyFat" name="dailyFat" required>
+
+        <label for="dailyCarbohydrates">Daily Carbohydrates:</label>
+        <input type="number" id="dailyCarbohydrates" name="dailyCarbohydrates" required>
+
+        <button type="submit">Update Daily Intake</button>
+    </form>
+</div>
 
 </body>
 </html>
