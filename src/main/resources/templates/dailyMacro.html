@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Daily Macro Log</title>
     <style>
+        /* General styling */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #24527a, #74b9ff);
@@ -32,7 +33,7 @@
         }
 
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 30px;
         }
 
         label {
@@ -40,6 +41,7 @@
             color: #24527a;
         }
 
+        /* Slider container */
         .slider-container {
             display: flex;
             align-items: center;
@@ -49,13 +51,60 @@
             margin-left: 10px;
             font-weight: bold;
             color: #24527a;
+            width: 50px;
+            text-align: center;
         }
 
+        /* Advanced slider styling */
         input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
             width: 100%;
+            height: 10px;
+            background: linear-gradient(90deg, #1abc9c 0%, #24527a 100%);
+            border-radius: 10px;
+            outline: none;
+            opacity: 0.9;
+            transition: opacity 0.2s;
             cursor: pointer;
+            box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.3);
         }
 
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background-color: #ffffff;
+            border: 2px solid #24527a;
+            border-radius: 50%;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s ease-in-out;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background-color: #ffffff;
+            border: 2px solid #24527a;
+            border-radius: 50%;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s ease-in-out;
+        }
+
+        input[type="range"]:hover {
+            opacity: 1;
+        }
+
+        input[type="range"]:active::-webkit-slider-thumb {
+            transform: scale(1.2);
+        }
+
+        input[type="range"]:active::-moz-range-thumb {
+            transform: scale(1.2);
+        }
+
+        /* Button styling */
         button[type="submit"] {
             width: 100%;
             padding: 12px;
@@ -66,10 +115,13 @@
             border-radius: 5px;
             cursor: pointer;
             margin-top: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s, box-shadow 0.3s;
         }
 
         button[type="submit"]:hover {
             background-color: #1e3e5e;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
         }
     </style>
     <script>
