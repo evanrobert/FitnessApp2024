@@ -10,7 +10,7 @@
             margin: 0;
             padding: 0;
             font-family: 'Arial', sans-serif;
-            background-color: #f4f7fb;
+            background: linear-gradient(135deg, #24527a, #1abc9c);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -99,22 +99,22 @@
     <div th:if="${userMacroInformation}" class="daily-intake-info">
         <div class="icon">🍏</div>
         <p class="label">Daily Calories:</p>
-        <p class="value" th:text="${userMacroInformation.dailyCalories}">0</p>
+        <p class="value" th:text="${userMacroInformation.dailyCalories} + ' Calories' ">0</p>
 
         <div class="divider"></div>
 
         <p class="label">Daily Protein:</p>
-        <p class="value" th:text="${userMacroInformation.dailyProtein}">0</p>
+        <p class="value" th:text="${userMacroInformation.dailyProtein} + (g) ">0</p>
 
         <div class="divider"></div>
 
         <p class="label">Daily Fat:</p>
-        <p class="value" th:text="${userMacroInformation.dailyFat}">0</p>
+        <p class="value" th:text="${userMacroInformation.dailyFat} + (g) ">0</p>
 
         <div class="divider"></div>
 
         <p class="label">Daily Carbohydrates:</p>
-        <p class="value" th:text="${userMacroInformation.dailyCarbohydrates}">0</p>
+        <p class="value" th:text="${userMacroInformation.dailyCarbohydrates} + (g) ">0</p>
     </div>
 
 </div>
