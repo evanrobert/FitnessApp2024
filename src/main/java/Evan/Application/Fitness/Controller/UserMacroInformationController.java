@@ -4,6 +4,7 @@ import Evan.Application.Fitness.Model.UserLoginDetails;
 import Evan.Application.Fitness.Model.UserMacroInformation;
 import Evan.Application.Fitness.Repositorys.UserLoginDetailsRepository;
 import Evan.Application.Fitness.Repositorys.UserMacroInformationRepository;
+import Evan.Application.Fitness.Service.DailyIntakeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.stereotype.Controller;
@@ -21,6 +22,8 @@ public class UserMacroInformationController {
     UserLoginDetailsRepository userLoginDetailsRepository;
     @Autowired
     UserMacroInformationRepository userMacroInformationRepository;
+    @Autowired
+    DailyIntakeService dailyIntakeService;
     @GetMapping("/user/macro/information")
     public String logDailyMacroInformation(Model model, Principal principal){
         String username = principal.getName();
@@ -63,4 +66,16 @@ public class UserMacroInformationController {
         return "error";
     }
 
+
+    @PostMapping("/edit/macro/information")
+    public String updateDailyCalorieIntake(
+            Principal principal,
+            @ModelAttribute UserMacroInformation userMacroInformation,
+            Model model) {
+        String result = dailyIntakeService.modifyDailyIntakeTracker(userMacroInformation, principal, model);
+        return result.equals("error") ? "error" : "redirect:/modify/daily/intake";
+    }
+
 }
+
+
