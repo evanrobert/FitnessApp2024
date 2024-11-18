@@ -80,6 +80,30 @@
             margin-bottom: 20px;
         }
 
+        /* Edit and Save buttons */
+        .edit-btn, .save-btn {
+            background-color: #24527a;
+            color: #ffffff;
+            padding: 5px 10px;
+            font-size: 0.9rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .edit-btn:hover, .save-btn:hover {
+            background-color: #1abc9c;
+        }
+
+        input[type="number"] {
+            padding: 5px;
+            font-size: 1rem;
+            width: 80px;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
         /* Decorative section */
         .divider {
             margin: 20px 0;
@@ -87,7 +111,6 @@
             background: #24527a;
             width: 100%;
         }
-
     </style>
 </head>
 <body>
@@ -95,29 +118,81 @@
 <div class="container">
     <h1>Modify Your Daily Intake</h1>
 
-
-    <div th:if="${userMacroInformation}" class="daily-intake-info">
+    <div class="daily-intake-info">
         <div class="icon">🍏🍓🍌</div>
-        <p class="label">Daily Calories:</p>
-        <p class="value" th:text="${userMacroInformation.dailyCalories} + ' Calories' ">0</p>
+
+        <!-- Calories -->
+        <div>
+            <p class="label">Daily Calories:</p>
+            <p class="value" id="calories-value">2000 Calories</p>
+            <input id="calories-input" type="number" style="display:none;" value="2000">
+            <button class="edit-btn" onclick="toggleEdit('calories')">Edit</button>
+            <button class="save-btn" onclick="saveEdit('calories')" style="display:none;">Save</button>
+        </div>
 
         <div class="divider"></div>
 
-        <p class="label">Daily Protein:</p>
-        <p class="value" th:text="${userMacroInformation.dailyProtein} + (g) ">0</p>
+        <!-- Protein -->
+        <div>
+            <p class="label">Daily Protein:</p>
+            <p class="value" id="protein-value">150g</p>
+            <input id="protein-input" type="number" style="display:none;" value="150">
+            <button class="edit-btn" onclick="toggleEdit('protein')">Edit</button>
+            <button class="save-btn" onclick="saveEdit('protein')" style="display:none;">Save</button>
+        </div>
 
         <div class="divider"></div>
 
-        <p class="label">Daily Fat:</p>
-        <p class="value" th:text="${userMacroInformation.dailyFat} + (g) ">0</p>
+        <!-- Fat -->
+        <div>
+            <p class="label">Daily Fat:</p>
+            <p class="value" id="fat-value">70g</p>
+            <input id="fat-input" type="number" style="display:none;" value="70">
+            <button class="edit-btn" onclick="toggleEdit('fat')">Edit</button>
+            <button class="save-btn" onclick="saveEdit('fat')" style="display:none;">Save</button>
+        </div>
 
         <div class="divider"></div>
 
-        <p class="label">Daily Carbohydrates:</p>
-        <p class="value" th:text="${userMacroInformation.dailyCarbohydrates} + (g) ">0</p>
+        <!-- Carbohydrates -->
+        <div>
+            <p class="label">Daily Carbohydrates:</p>
+            <p class="value" id="carbs-value">300g</p>
+            <input id="carbs-input" type="number" style="display:none;" value="300">
+            <button class="edit-btn" onclick="toggleEdit('carbs')">Edit</button>
+            <button class="save-btn" onclick="saveEdit('carbs')" style="display:none;">Save</button>
+        </div>
     </div>
-
 </div>
+
+<script>
+    function toggleEdit(category) {
+        const valueElement = document.getElementById(`${category}-value`);
+        const inputElement = document.getElementById(`${category}-input`);
+        const editBtn = inputElement.nextElementSibling;
+        const saveBtn = editBtn.nextElementSibling;
+
+        if (inputElement.style.display === "none") {
+            valueElement.style.display = "none";
+            inputElement.style.display = "inline-block";
+            editBtn.style.display = "none";
+            saveBtn.style.display = "inline-block";
+        } else {
+            inputElement.style.display = "none";
+            saveBtn.style.display = "none";
+            valueElement.style.display = "inline-block";
+            editBtn.style.display = "inline-block";
+        }
+    }
+
+    function saveEdit(category) {
+        const valueElement = document.getElementById(`${category}-value`);
+        const inputElement = document.getElementById(`${category}-input`);
+
+        valueElement.textContent = `${inputElement.value} ${category === 'calories' ? 'Calories' : 'g'}`;
+        toggleEdit(category);
+    }
+</script>
 
 </body>
 </html>
