@@ -14,6 +14,8 @@ public interface CalorieInformationRepository extends JpaRepository<CalorieInfor
     List<CalorieInformation> findByUserLoginDetails(UserLoginDetails userLoginDetails);
     List<CalorieInformation> findByMealType(String mealType);
 
+    List<CalorieInformation> findAllByUserLoginDetails(UserLoginDetails userLoginDetails);
+
 
 
 }
