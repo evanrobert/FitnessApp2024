@@ -17,7 +17,7 @@ public class CalorieInformation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-private String itemName;
+    private String itemName;
     private double calories;
     private double proteins;
     private double fats;

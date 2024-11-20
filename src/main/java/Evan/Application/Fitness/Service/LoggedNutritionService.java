@@ -4,13 +4,14 @@ import Evan.Application.Fitness.Model.CalorieInformation;
 import Evan.Application.Fitness.Model.Nutrition;
 import Evan.Application.Fitness.Model.UserLoginDetails;
 import Evan.Application.Fitness.Repositorys.CalorieInformationRepository;
-import Evan.Application.Fitness.Repositorys.NutritionRepository;
+
 import Evan.Application.Fitness.Repositorys.UserLoginDetailsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 
 import java.security.Principal;
+
 
 @Service
 public class LoggedNutritionService {
@@ -27,7 +28,7 @@ public class LoggedNutritionService {
             model.addAttribute("error", "User login credentials not found");
             return "error";
         }
-        CalorieInformation existingNutritionInformation = (CalorieInformation) calorieInformationRepository.findAllByUserLoginDetails(userLoginDetails);
+        CalorieInformation existingNutritionInformation = calorieInformationRepository.findByUserLoginDetails(userLoginDetails);
         existingNutritionInformation.setProteins(existingNutritionInformation.getProteins());
         existingNutritionInformation.setFats(existingNutritionInformation.getFats());
         existingNutritionInformation.setDate(existingNutritionInformation.getDate());

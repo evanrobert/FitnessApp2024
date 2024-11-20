@@ -33,7 +33,7 @@ public class ViewLoggedNutritionController {
         try {
             String username = principal.getName();
             UserLoginDetails userLoginDetails = userLoginDetailsRepository.findByUsername(username);
-            List<CalorieInformation> calorieInformation = calorieInformationRepository.findByUserLoginDetails(userLoginDetails);
+            List<CalorieInformation> calorieInformation = calorieInformationRepository.findAllByUserLoginDetails(userLoginDetails);
             model.addAttribute("calorieInformation", calorieInformation);
             return "nutritionLog";
         } catch (Exception e) {
