@@ -3,154 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nutrition Log</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #24527a, #74b9ff);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-        }
-
-        .container {
-            background-color: rgba(255, 255, 255, 0.95);
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            width: 90%;
-            max-width: 1200px;
-            overflow-x: auto;
-        }
-
-        h1 {
-            color: #24527a;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        form {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 20px;
-        }
-
-        label {
-            font-weight: bold;
-            color: #24527a;
-        }
-
-        input[type="text"] {
-            padding: 8px;
-            margin: 0 10px;
-            border-radius: 5px;
-            border: 1px solid #24527a;
-        }
-
-        button[type="submit"] {
-            padding: 8px 12px;
-            color: white;
-            background-color: #24527a;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        button[type="submit"]:hover {
-            background-color: #1e3e5e;
-        }
-
-        .error-message {
-            color: red;
-            text-align: center;
-            font-size: 18px;
-            margin-top: 20px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-            font-size: 16px;
-        }
-
-        th, td {
-            padding: 12px;
-            border-bottom: 1px solid #ddd;
-            text-align: left;
-        }
-
-        th {
-            background-color: #24527a;
-            color: white;
-        }
-
-        tr:nth-child(even) {
-            background-color: #f2f2f2;
-        }
-
-        tr:hover {
-            background-color: #d1e7ff;
-        }
-    </style>
+    <title>Editable Nutrition Log</title>
 </head>
 <body>
 
-<div class="container">
+<div>
     <h1>Nutrition Log</h1>
 
-    <!-- Meal Type Filter Form -->
-    <form th:action="@{/filter/by/nutrition}" method="get">
-        <label for="mealtype">Filter by Meal Type:</label>
-        <input type="text" name="mealtype" id="mealtype" placeholder="Enter Meal Type">
-        <button type="submit">Search</button>
+    <!-- Editable Nutrition Data Table -->
+    <form th:action="@{/edit/nutrition/information}" method="post">
+        <table>
+            <thead>
+            <tr>
+                <th>Item Name</th>
+                <th>Date</th>
+                <th>Calories</th>
+                <th>Proteins</th>
+                <th>Fats</th>
+                <th>Carbohydrates</th>
+                <th>Fiber</th>
+                <th>Sugars</th>
+                <th>Sodium</th>
+                <th>Cholesterol</th>
+                <th>Meal Type</th>
+            </tr>
+            </thead>
+            <tbody>
+            <!-- Iterate over the list of calorieInformation and create an editable row for each -->
+            <tr th:each="item : ${calorieInformation}">
+                <input type="hidden" name="id" th:value="${item.id}" /> <!-- Hidden ID field -->
+                <td><input type="text" name="itemName" th:value="${item.itemName}"></td>
+<!--                <td><input type="text" name="date" th:value="${item.date}"></td>-->
+                <td><input type="number" name="calories" th:value="${item.calories}"></td>
+                <td><input type="number" name="proteins" th:value="${item.proteins}"></td>
+                <td><input type="number" name="fats" th:value="${item.fats}"></td>
+                <td><input type="number" name="carbohydrates" th:value="${item.carbohydrates}"></td>
+                <td><input type="number" name="fiber" th:value="${item.fiber}"></td>
+                <td><input type="number" name="sugars" th:value="${item.sugars}"></td>
+                <td><input type="number" name="sodium" th:value="${item.sodium}"></td>
+                <td><input type="number" name="cholesterol" th:value="${item.cholesterol}"></td>
+                <td><input type="text" name="mealType" th:value="${item.mealType}"></td>
+            </tr>
+            </tbody>
+        </table>
+        <button type="submit">Save Changes</button>
     </form>
-
-    <!-- Error Message -->
-    <div th:if="${error}" class="error-message">
-        <p th:text="${error}"></p>
-    </div>
-
-    <!-- No Data Message -->
-    <div th:if="${#lists.isEmpty(calorieInformation)}">
-        <p class="error-message">No nutrition data found.</p>
-    </div>
-
-    <!-- Nutrition Data Table -->
-    <table th:if="${!#lists.isEmpty(calorieInformation)}">
-        <thead>
-        <tr>
-            <th>Item Name</th>
-            <th>Date</th>
-            <th>Calories</th>
-            <th>Proteins (g)</th>
-            <th>Fats (g)</th>
-            <th>Carbohydrates (g)</th>
-            <th>Fiber (g)</th>
-            <th>Sugars (g)</th>
-            <th>Sodium (mg)</th>
-            <th>Cholesterol (mg)</th>
-            <th>Meal Type</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="item : ${calorieInformation}">
-            <td th:text="${item.itemName}">Item Name</td>
-            <td th:text="${#dates.format(item.date, 'yyyy-MM-dd')}">Date</td>
-            <td th:text="${item.calories}">Calories</td>
-            <td th:text="${item.proteins}">Proteins</td>
-            <td th:text="${item.fats}">Fats</td>
-            <td th:text="${item.carbohydrates}">Carbohydrates</td>
-            <td th:text="${item.fiber}">Fiber</td>
-            <td th:text="${item.sugars}">Sugars</td>
-            <td th:text="${item.sodium}">Sodium</td>
-            <td th:text="${item.cholesterol}">Cholesterol</td>
-            <td th:text="${item.MealType}">Meal Type</td>
-        </tr>
-        </tbody>
-    </table>
 </div>
 
 </body>
