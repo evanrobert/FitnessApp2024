@@ -20,7 +20,7 @@ public class LoggedNutritionService {
     @Autowired
     CalorieInformationRepository calorieInformationRepository;
 
-    public String editLoggedNutritionInfo(Principal principal, Model model, CalorieInformation calorieInformation){
+    public String editLoggedNutritionInfo(Principal principal, Model model, CalorieInformation calorieInformation) {
         String username = principal.getName();
         UserLoginDetails userLoginDetails = userLoginDetailsRepository.findByUsername(username);
 
@@ -28,17 +28,29 @@ public class LoggedNutritionService {
             model.addAttribute("error", "User login credentials not found");
             return "error";
         }
+
         CalorieInformation existingNutritionInformation = calorieInformationRepository.findByUserLoginDetails(userLoginDetails);
-        existingNutritionInformation.setProteins(existingNutritionInformation.getProteins());
-        existingNutritionInformation.setFats(existingNutritionInformation.getFats());
-        existingNutritionInformation.setDate(existingNutritionInformation.getDate());
-        existingNutritionInformation.setCalories(existingNutritionInformation.getCalories());
-        existingNutritionInformation.setCholesterol(existingNutritionInformation.getCholesterol());
-        existingNutritionInformation.setFiber(existingNutritionInformation.getFiber());
-        existingNutritionInformation.setItemName(existingNutritionInformation.getItemName());
-        existingNutritionInformation.setSodium(existingNutritionInformation.getSodium());
-        existingNutritionInformation.setMealType(existingNutritionInformation.getMealType());
-        existingNutritionInformation.setCarbohydrates(existingNutritionInformation.getCarbohydrates());
-        return "home";
+
+        if (existingNutritionInformation == null) {
+            // Handle the case when no existing nutrition information is found
+            existingNutritionInformation = new CalorieInformation();
+            existingNutritionInformation.setUserLoginDetails(userLoginDetails); // Set the user
+        }
+
+        // Set the new values
+        existingNutritionInformation.setProteins(calorieInformation.getProteins());
+        existingNutritionInformation.setFats(calorieInformation.getFats());
+        existingNutritionInformation.setDate(calorieInformation.getDate());
+        existingNutritionInformation.setCalories(calorieInformation.getCalories());
+        existingNutritionInformation.setCholesterol(calorieInformation.getCholesterol());
+        existingNutritionInformation.setFiber(calorieInformation.getFiber());
+        existingNutritionInformation.setItemName(calorieInformation.getItemName());
+        existingNutritionInformation.setSodium(calorieInformation.getSodium());
+        existingNutritionInformation.setMealType(calorieInformation.getMealType());
+        existingNutritionInformation.setCarbohydrates(calorieInformation.getCarbohydrates());
+
+        // Save the entity
+        calorieInformationRepository.save(existingNutritionInformation);
+        return "redirect:/view/Nutrition";  // Redirect to the view page after saving
     }
 }

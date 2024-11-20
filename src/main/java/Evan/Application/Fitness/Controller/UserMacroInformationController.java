@@ -73,7 +73,7 @@ public class UserMacroInformationController {
             @ModelAttribute UserMacroInformation userMacroInformation,
             Model model) {
         String result = dailyIntakeService.modifyDailyIntakeTracker(userMacroInformation, principal, model);
-        return result.equals("error") ? "error" : "redirect:/modify/daily/intake";
+        return result.equals("error") ? "error" : "redirect:/home";
     }
 
 }
