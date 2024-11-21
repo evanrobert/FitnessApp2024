@@ -60,7 +60,7 @@ public class ViewLoggedNutritionController {
             @ModelAttribute CalorieInformation calorieInformation,
             Model model) {
         String result = loggedNutritionService.editLoggedNutritionInfo(principal,model,calorieInformation);
-        return result.equals("error") ? "error" : "redirect:/view/Nutrition";
+        return result.equals("error") ? "error" : "redirect:/home";
     }
 
 }
