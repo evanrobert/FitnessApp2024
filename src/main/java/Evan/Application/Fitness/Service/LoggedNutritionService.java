@@ -1,7 +1,6 @@
 package Evan.Application.Fitness.Service;
 
 import Evan.Application.Fitness.Model.CalorieInformation;
-import Evan.Application.Fitness.Model.Nutrition;
 import Evan.Application.Fitness.Model.UserLoginDetails;
 import Evan.Application.Fitness.Repositorys.CalorieInformationRepository;
 
