@@ -4,6 +4,7 @@ import Evan.Application.Fitness.Model.UserLoginDetails;
 import Evan.Application.Fitness.Model.UserMacroInformation;
 import Evan.Application.Fitness.Repositorys.UserLoginDetailsRepository;
 import Evan.Application.Fitness.Repositorys.UserMacroInformationRepository;
+import Evan.Application.Fitness.Service.CaloriesLeftService;
 import Evan.Application.Fitness.Service.DailyIntakeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
@@ -18,6 +19,8 @@ import java.util.Optional;
 
 @Controller
 public class UserMacroInformationController {
+    @Autowired
+    CaloriesLeftService caloriesLeftService;
     @Autowired
     UserLoginDetailsRepository userLoginDetailsRepository;
     @Autowired
@@ -76,6 +79,21 @@ public class UserMacroInformationController {
         return result.equals("error") ? "error" : "redirect:/home";
     }
 
-}
+
+
+    @GetMapping("/total")
+    public String getTotalCalories(Model model) {
+
+        double totalCalories = caloriesLeftService.getAllotedCalorieRemainder();
+
+
+        // Add the total calories to the model
+        model.addAttribute("totalCalories", totalCalories);
+
+        // Return the name of the view to render
+        return "CalorieSummary";
+    }
+        }
+
 
 
