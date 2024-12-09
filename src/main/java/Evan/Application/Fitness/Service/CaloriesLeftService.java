@@ -16,13 +16,10 @@ public class CaloriesLeftService {
     @Autowired
     private CalorieInformationRepository calorieInformationRepository;
 
-    @Autowired
-
-    private UserMacroInformationRepository userMacroInformationRepository;
-
     public double getAllotedCalorieRemainder() {
         // Retrieve all calorie information for today
         List<CalorieInformation> todaysCalories = calorieInformationRepository.findAllByToday();
+
 
         // Sum up the calories for all meals
         double totalCalories = todaysCalories.stream()
