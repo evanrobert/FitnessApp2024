@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
+    <title>Calories Summary</title>
 </head>
 <body>
-$END$
+<h1>Calories Consumed Today</h1>
+<p>Total Calories: <span th:text="${totalCalories}"></span></p>
 </body>
 </html>
