@@ -10,6 +10,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 
 import java.security.Principal;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 
 
 @Service
@@ -28,15 +31,25 @@ public class LoggedNutritionService {
             return "error";
         }
 
-        CalorieInformation existingNutritionInformation = calorieInformationRepository.findByUserLoginDetails(userLoginDetails);
+        // Fetch all matching nutrition records for the user
+        List<CalorieInformation> nutritionList = calorieInformationRepository.findAllByUserLoginDetails(userLoginDetails);
 
-        if (existingNutritionInformation == null) {
-            // Handle the case when no existing nutrition information is found
+        CalorieInformation existingNutritionInformation;
+        if (nutritionList.isEmpty()) {
+            // No existing record, create a new one
             existingNutritionInformation = new CalorieInformation();
-            existingNutritionInformation.setUserLoginDetails(userLoginDetails); // Set the user
+            existingNutritionInformation.setUserLoginDetails(userLoginDetails);
+        } else if (nutritionList.size() == 1) {
+            // Only one record exists
+            existingNutritionInformation = nutritionList.get(0);
+        } else {
+            // Handle multiple records (e.g., select the most recent record)
+            existingNutritionInformation = nutritionList.stream()
+                    .max(Comparator.comparing(CalorieInformation::getDate)) // Choose the latest by date
+                    .orElseThrow(() -> new IllegalStateException("Unexpected error while selecting the most recent record."));
         }
 
-        // Set the new values
+        // Update the entity with new values
         existingNutritionInformation.setProteins(calorieInformation.getProteins());
         existingNutritionInformation.setFats(calorieInformation.getFats());
         existingNutritionInformation.setDate(calorieInformation.getDate());
@@ -48,8 +61,8 @@ public class LoggedNutritionService {
         existingNutritionInformation.setMealType(calorieInformation.getMealType());
         existingNutritionInformation.setCarbohydrates(calorieInformation.getCarbohydrates());
 
-        // Save the entity
+        // Save the updated or newly created entity
         calorieInformationRepository.save(existingNutritionInformation);
-        return "redirect:/view/Nutrition";  // Redirect to the view page after saving
+        return "redirect:/view/Nutrition";  // Redirect after saving
     }
 }
