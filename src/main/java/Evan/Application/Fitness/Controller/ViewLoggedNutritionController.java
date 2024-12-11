@@ -57,11 +57,13 @@ public class ViewLoggedNutritionController {
     @PostMapping("/edit/nutrition/information")
     public String updateDailyCalorieIntake(
             Principal principal,
-            @ModelAttribute CalorieInformation calorieInformation,
+            @ModelAttribute("calorieInformation") List<CalorieInformation> calorieInformation,
             Model model) {
-        String result = loggedNutritionService.editLoggedNutritionInfo(principal,model,calorieInformation);
+        String result = loggedNutritionService.editLoggedNutritionInfo(principal, model, calorieInformation);
         return result.equals("error") ? "error" : "redirect:/home";
     }
+
+
 
 }
 

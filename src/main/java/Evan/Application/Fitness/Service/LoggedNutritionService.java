@@ -22,7 +22,7 @@ public class LoggedNutritionService {
     @Autowired
     CalorieInformationRepository calorieInformationRepository;
 
-    public String editLoggedNutritionInfo(Principal principal, Model model, CalorieInformation calorieInformation) {
+    public String editLoggedNutritionInfo(Principal principal, Model model, List<CalorieInformation> calorieInformationList) {
         String username = principal.getName();
         UserLoginDetails userLoginDetails = userLoginDetailsRepository.findByUsername(username);
 
@@ -32,37 +32,41 @@ public class LoggedNutritionService {
         }
 
         // Fetch all matching nutrition records for the user
-        List<CalorieInformation> nutritionList = calorieInformationRepository.findAllByUserLoginDetails(userLoginDetails);
+        List<CalorieInformation> nutritionList = calorieInformationRepository.findByUserLoginDetails(userLoginDetails);
 
-        CalorieInformation existingNutritionInformation;
-        if (nutritionList.isEmpty()) {
-            // No existing record, create a new one
-            existingNutritionInformation = new CalorieInformation();
-            existingNutritionInformation.setUserLoginDetails(userLoginDetails);
-        } else if (nutritionList.size() == 1) {
-            // Only one record exists
-            existingNutritionInformation = nutritionList.get(0);
-        } else {
-            // Handle multiple records (e.g., select the most recent record)
-            existingNutritionInformation = nutritionList.stream()
-                    .max(Comparator.comparing(CalorieInformation::getDate)) // Choose the latest by date
-                    .orElseThrow(() -> new IllegalStateException("Unexpected error while selecting the most recent record."));
+        // Iterate through the calorieInformationList and update each record
+        for (CalorieInformation calorieInformation : calorieInformationList) {
+            // Check if the entry already exists, otherwise create a new one
+            Optional<CalorieInformation> existingNutrition = nutritionList.stream()
+                    .filter(item -> item.getId().equals(calorieInformation.getId()))
+                    .findFirst();
+
+            CalorieInformation nutritionToSave;
+            if (existingNutrition.isPresent()) {
+                nutritionToSave = existingNutrition.get();  // Update the existing record
+            } else {
+                nutritionToSave = new CalorieInformation();  // Create a new one
+                nutritionToSave.setUserLoginDetails(userLoginDetails);
+            }
+
+            // Update the fields
+            nutritionToSave.setProteins(calorieInformation.getProteins());
+            nutritionToSave.setFats(calorieInformation.getFats());
+            nutritionToSave.setDate(calorieInformation.getDate());
+            nutritionToSave.setCalories(calorieInformation.getCalories());
+            nutritionToSave.setCholesterol(calorieInformation.getCholesterol());
+            nutritionToSave.setFiber(calorieInformation.getFiber());
+            nutritionToSave.setItemName(calorieInformation.getItemName());
+            nutritionToSave.setSodium(calorieInformation.getSodium());
+            nutritionToSave.setMealType(calorieInformation.getMealType());
+            nutritionToSave.setCarbohydrates(calorieInformation.getCarbohydrates());
+
+            // Save the updated or newly created entity
+            calorieInformationRepository.save(nutritionToSave);
         }
 
-        // Update the entity with new values
-        existingNutritionInformation.setProteins(calorieInformation.getProteins());
-        existingNutritionInformation.setFats(calorieInformation.getFats());
-        existingNutritionInformation.setDate(calorieInformation.getDate());
-        existingNutritionInformation.setCalories(calorieInformation.getCalories());
-        existingNutritionInformation.setCholesterol(calorieInformation.getCholesterol());
-        existingNutritionInformation.setFiber(calorieInformation.getFiber());
-        existingNutritionInformation.setItemName(calorieInformation.getItemName());
-        existingNutritionInformation.setSodium(calorieInformation.getSodium());
-        existingNutritionInformation.setMealType(calorieInformation.getMealType());
-        existingNutritionInformation.setCarbohydrates(calorieInformation.getCarbohydrates());
-
-        // Save the updated or newly created entity
-        calorieInformationRepository.save(existingNutritionInformation);
         return "redirect:/view/Nutrition";  // Redirect after saving
     }
+
+
 }
