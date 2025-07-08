@@ -1,6 +1,7 @@
 package Evan.Application.Fitness.Controller;
 
 import Evan.Application.Fitness.Model.CalorieInformation;
+import Evan.Application.Fitness.Model.CalorieInformationForm;
 import Evan.Application.Fitness.Model.UserLoginDetails;
 import Evan.Application.Fitness.Model.UserMacroInformation;
 import Evan.Application.Fitness.Repositorys.CalorieInformationRepository;
@@ -34,13 +35,20 @@ public class ViewLoggedNutritionController {
             String username = principal.getName();
             UserLoginDetails userLoginDetails = userLoginDetailsRepository.findByUsername(username);
             List<CalorieInformation> calorieInformation = calorieInformationRepository.findAllByUserLoginDetails(userLoginDetails);
-            model.addAttribute("calorieInformation", calorieInformation);
+
+            // Wrap in CalorieInformationForm
+            CalorieInformationForm form = new CalorieInformationForm();
+            form.setCalorieInformationList(calorieInformation);
+
+            model.addAttribute("calorieInformationForm", form);
+
             return "nutritionLog";
         } catch (Exception e) {
             e.printStackTrace();
+            return "error";
         }
-        return "error";
     }
+
 
     @GetMapping("/filter/by/nutrition")
     public String filterByMealType(@RequestParam("mealtype") String mealtype, Model model, RedirectAttributes redirectAttributes) {
@@ -51,17 +59,27 @@ public class ViewLoggedNutritionController {
             return "redirect:/view/Nutrition";
         }
 
-        model.addAttribute("calorieInformation", filteredNutrition);
+        // Wrap the list in CalorieInformationForm
+        CalorieInformationForm form = new CalorieInformationForm();
+        form.setCalorieInformationList(filteredNutrition);
+
+        model.addAttribute("calorieInformationForm", form);
+
         return "nutritionLog";
     }
+
     @PostMapping("/edit/nutrition/information")
     public String updateDailyCalorieIntake(
             Principal principal,
-            @ModelAttribute("calorieInformation") List<CalorieInformation> calorieInformation,
+            @ModelAttribute("calorieInformationForm") CalorieInformationForm form,
             Model model) {
+
+        List<CalorieInformation> calorieInformation = form.getCalorieInformationList();
         String result = loggedNutritionService.editLoggedNutritionInfo(principal, model, calorieInformation);
+
         return result.equals("error") ? "error" : "redirect:/home";
     }
+
 
 
 
