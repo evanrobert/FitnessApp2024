@@ -108,8 +108,8 @@
 <div>
     <h1>Nutrition Log</h1>
 
-    <!-- Editable Nutrition Data Table -->
-    <form th:action="@{/edit/nutrition/information}" method="post">
+    <!-- Form with wrapper object -->
+    <form th:action="@{/edit/nutrition/information}" th:object="${calorieInformationForm}" method="post">
         <table>
             <thead>
             <tr>
@@ -127,20 +127,21 @@
             </tr>
             </thead>
             <tbody>
-            <!-- Iterate over the list of calorieInformation and create an editable row for each -->
-            <tr th:each="item, stat : ${calorieInformation}" th:data-index="${stat.index}">
-                <input type="hidden" name="calorieInformation[__${stat.index}__].id" th:value="${item.id}" />
-                <td><input type="text" name="calorieInformation[__${stat.index}__].itemName" th:value="${item.itemName}"></td>
-                <td><input type="date" name="calorieInformation[__${stat.index}__].date" th:value="${#dates.format(item.date, 'yyyy-MM-dd')}"></td>
-                <td><input type="number" name="calorieInformation[__${stat.index}__].calories" th:value="${item.calories}" step="0.01"></td>
-                <td><input type="number" name="calorieInformation[__${stat.index}__].proteins" th:value="${item.proteins}" step="0.01"></td>
-                <td><input type="number" name="calorieInformation[__${stat.index}__].fats" th:value="${item.fats}" step="0.01"></td>
-                <td><input type="number" name="calorieInformation[__${stat.index}__].carbohydrates" th:value="${item.carbohydrates}" step="0.01"></td>
-                <td><input type="number" name="calorieInformation[__${stat.index}__].fiber" th:value="${item.fiber}" step="0.01"></td>
-                <td><input type="number" name="calorieInformation[__${stat.index}__].sugars" th:value="${item.sugars}" step="0.01"></td>
-                <td><input type="number" name="calorieInformation[__${stat.index}__].sodium" th:value="${item.sodium}" step="0.01"></td>
-                <td><input type="number" name="calorieInformation[__${stat.index}__].cholesterol" th:value="${item.cholesterol}" step="0.01"></td>
-                <td><input type="text" name="calorieInformation[__${stat.index}__].mealType" th:value="${item.mealType}"></td>
+            <tr th:each="item, stat : *{calorieInformationList}">
+                <!-- ID (hidden) -->
+                <input type="hidden" th:field="*{calorieInformationList[__${stat.index}__].id}" />
+
+                <td><input type="text" th:field="*{calorieInformationList[__${stat.index}__].itemName}" /></td>
+                <td><input type="date" th:field="*{calorieInformationList[__${stat.index}__].date}" /></td>
+                <td><input type="number" th:field="*{calorieInformationList[__${stat.index}__].calories}" step="0.01" /></td>
+                <td><input type="number" th:field="*{calorieInformationList[__${stat.index}__].proteins}" step="0.01" /></td>
+                <td><input type="number" th:field="*{calorieInformationList[__${stat.index}__].fats}" step="0.01" /></td>
+                <td><input type="number" th:field="*{calorieInformationList[__${stat.index}__].carbohydrates}" step="0.01" /></td>
+                <td><input type="number" th:field="*{calorieInformationList[__${stat.index}__].fiber}" step="0.01" /></td>
+                <td><input type="number" th:field="*{calorieInformationList[__${stat.index}__].sugars}" step="0.01" /></td>
+                <td><input type="number" th:field="*{calorieInformationList[__${stat.index}__].sodium}" step="0.01" /></td>
+                <td><input type="number" th:field="*{calorieInformationList[__${stat.index}__].cholesterol}" step="0.01" /></td>
+                <td><input type="text" th:field="*{calorieInformationList[__${stat.index}__].mealType}" /></td>
             </tr>
             </tbody>
         </table>
