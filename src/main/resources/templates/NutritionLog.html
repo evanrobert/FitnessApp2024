@@ -1,153 +1,166 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Editable Nutrition Log</title>
     <style>
-        /* General Styles */
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f9;
-            color: #333;
-        }
+    :root{
+      --brand:#24527a; --brand2:#1abc9c; --ink:#0f172a; --muted:#64748b; --card:#ffffff;
+      --row:#f8fafc; --row-alt:#f3f6fb; --focus: 0 0 0 3px rgba(36,82,122,.2)
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0; background:#f4f6fb; color:var(--ink); font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial}
 
-        h1 {
-            text-align: center;
-            color: #24527a;
-            margin: 20px 0;
-        }
+    .wrap{max-width:1200px; margin:20px auto; padding:0 16px}
 
-        form {
-            max-width: 90%;
-            margin: 20px auto;
-            padding: 20px;
-            background: #ffffff;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-        }
+    .card{background:var(--card); border-radius:16px; box-shadow:0 10px 30px rgba(0,0,0,.08); overflow:hidden}
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-        }
+    header.card-head{display:flex; align-items:center; justify-content:space-between; padding:18px 20px; border-bottom:1px solid #e5e7eb}
+    header h1{margin:0; font-size:22px; color:var(--brand)}
+    header p{margin:4px 0 0; color:var(--muted); font-size:13px}
 
-        table th, table td {
-            text-align: center;
-            padding: 15px 10px;
-            border: 1px solid #ddd;
-        }
+    .table-wrap{position:relative}
+    .table-scroll{overflow:auto}
+    .table-shadow::after{content:""; position:absolute; top:0; right:0; width:24px; height:100%; pointer-events:none; background:linear-gradient(90deg, rgba(255,255,255,0), rgba(0,0,0,.06))}
 
-        table th {
-            background-color: #24527a;
-            color: #fff;
-            font-weight: bold;
-            white-space: nowrap;
-        }
+    table{width:100%; border-collapse:separate; border-spacing:0}
+    thead th{position:sticky; top:0; background:linear-gradient(135deg, var(--brand), var(--brand2)); color:#fff; text-align:left; padding:12px 10px; font-weight:700; font-size:13px}
+    thead th:first-child{border-top-left-radius:10px}
+    thead th:last-child{border-top-right-radius:10px}
 
-        table tbody tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
+    tbody td{padding:12px 10px; border-bottom:1px solid #e9eef5; vertical-align:middle}
+    tbody tr:nth-child(even){background:var(--row-alt)}
+    tbody tr:nth-child(odd){background:var(--row)}
+    tbody tr:hover{background:#eef6ff}
 
-        table tbody tr:hover {
-            background-color: #eef2f7;
-        }
+    .input, select{width:100%; padding:10px 12px; border:1px solid #dbe2ea; border-radius:10px; background:#fff; font-size:14px; text-align:center}
+    .input:focus, select:focus{outline:none; box-shadow:var(--focus); border-color:#c7d2fe}
 
-        input[type="text"], input[type="number"], input[type="date"] {
-            width: 90%;
-            padding: 8px;
-            box-sizing: border-box;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 14px;
-            text-align: center;
-        }
+    .unit{position:relative}
+    .unit .input{padding-right:42px}
+    .unit .suffix{position:absolute; right:10px; top:50%; transform:translateY(-50%); font-size:12px; color:#64748b}
 
-        button[type="submit"] {
-            display: block;
-            width: 100%;
-            padding: 12px;
-            background-color: #24527a;
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 20px;
-            transition: background-color 0.3s;
-        }
+    .toolbar{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 16px; border-top:1px solid #e5e7eb; background:#fff}
+    .toolbar .left{display:flex; gap:8px; align-items:center; color:#475569; font-size:13px}
 
-        button[type="submit"]:hover {
-            background-color: #1b3e5b;
-        }
+    .btn{appearance:none; border:0; border-radius:10px; padding:12px 14px; font-weight:700; cursor:pointer}
+    .btn-primary{background:linear-gradient(135deg,var(--brand),var(--brand2)); color:#fff; box-shadow:0 8px 18px rgba(0,0,0,.12)}
+    .btn-ghost{background:#eef2f7; color:#0f172a}
 
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            table th, table td {
-                font-size: 12px;
-                padding: 10px;
-            }
-
-            input[type="text"], input[type="number"], input[type="date"] {
-                font-size: 12px;
-            }
-
-            button[type="submit"] {
-                font-size: 14px;
-                padding: 10px;
-            }
-        }
-    </style>
+    @media (max-width: 900px){ thead th{font-size:12px}; .input, select{font-size:13px} }
+  </style>
 </head>
 <body>
+<div class="wrap">
+    <form th:action="@{/edit/nutrition/information}" th:object="${calorieInformationForm}" method="post" class="card">
+        <header class="card-head">
+            <div>
+                <h1>Nutrition Log</h1>
+                <p th:if="*{calorieInformationList != null}" th:text="|Edit \u2022 | + *{calorieInformationList.size()} + | items|">Edit • 0 items</p>
+            </div>
+            <div class="left" style="display:flex; gap:8px">
+                <a class="btn btn-ghost" href="/add/custom/meal">+ Add Meal</a>
+                <a class="btn btn-ghost" href="/view/Nutrition">View Foods</a>
+            </div>
+        </header>
 
-<div>
-    <h1>Nutrition Log</h1>
+        <div class="table-wrap table-shadow">
+            <div class="table-scroll">
+                <table>
+                    <thead>
+                    <tr>
+                        <th style="min-width:180px">Item Name</th>
+                        <th style="min-width:150px">Date</th>
+                        <th style="min-width:120px">Calories</th>
+                        <th style="min-width:120px">Protein</th>
+                        <th style="min-width:120px">Fat</th>
+                        <th style="min-width:140px">Carbs</th>
+                        <th style="min-width:120px">Fiber</th>
+                        <th style="min-width:120px">Sugars</th>
+                        <th style="min-width:140px">Sodium</th>
+                        <th style="min-width:160px">Cholesterol</th>
+                        <th style="min-width:160px">Meal Type</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="item, stat : *{calorieInformationList}">
+                        <!-- First cell: name + hidden id -->
+                        <td>
+                            <input type="hidden" th:field="*{calorieInformationList[__${stat.index}__].id}" />
+                            <input class="input" type="text" th:field="*{calorieInformationList[__${stat.index}__].itemName}" placeholder="e.g., Turkey sandwich" />
+                        </td>
 
-    <!-- Form with wrapper object -->
-    <form th:action="@{/edit/nutrition/information}" th:object="${calorieInformationForm}" method="post">
-        <table>
-            <thead>
-            <tr>
-                <th>Item Name</th>
-                <th>Date</th>
-                <th>Calories</th>
-                <th>Proteins</th>
-                <th>Fats</th>
-                <th>Carbohydrates</th>
-                <th>Fiber</th>
-                <th>Sugars</th>
-                <th>Sodium</th>
-                <th>Cholesterol</th>
-                <th>Meal Type</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="item, stat : *{calorieInformationList}">
-                <!-- ID (hidden) -->
-                <input type="hidden" th:field="*{calorieInformationList[__${stat.index}__].id}" />
+                        <td>
+                            <input class="input" type="date" th:field="*{calorieInformationList[__${stat.index}__].date}" />
+                        </td>
 
-                <td><input type="text" th:field="*{calorieInformationList[__${stat.index}__].itemName}" /></td>
-                <td><input type="date" th:field="*{calorieInformationList[__${stat.index}__].date}" /></td>
-                <td><input type="number" th:field="*{calorieInformationList[__${stat.index}__].calories}" step="0.01" /></td>
-                <td><input type="number" th:field="*{calorieInformationList[__${stat.index}__].proteins}" step="0.01" /></td>
-                <td><input type="number" th:field="*{calorieInformationList[__${stat.index}__].fats}" step="0.01" /></td>
-                <td><input type="number" th:field="*{calorieInformationList[__${stat.index}__].carbohydrates}" step="0.01" /></td>
-                <td><input type="number" th:field="*{calorieInformationList[__${stat.index}__].fiber}" step="0.01" /></td>
-                <td><input type="number" th:field="*{calorieInformationList[__${stat.index}__].sugars}" step="0.01" /></td>
-                <td><input type="number" th:field="*{calorieInformationList[__${stat.index}__].sodium}" step="0.01" /></td>
-                <td><input type="number" th:field="*{calorieInformationList[__${stat.index}__].cholesterol}" step="0.01" /></td>
-                <td><input type="text" th:field="*{calorieInformationList[__${stat.index}__].mealType}" /></td>
-            </tr>
-            </tbody>
-        </table>
-        <button type="submit">Save Changes</button>
+                        <td class="unit">
+                            <input class="input" type="number" step="0.01" min="0" th:field="*{calorieInformationList[__${stat.index}__].calories}" placeholder="0" />
+                            <span class="suffix">kcal</span>
+                        </td>
+
+                        <td class="unit">
+                            <input class="input" type="number" step="0.01" min="0" th:field="*{calorieInformationList[__${stat.index}__].proteins}" placeholder="0" />
+                            <span class="suffix">g</span>
+                        </td>
+
+                        <td class="unit">
+                            <input class="input" type="number" step="0.01" min="0" th:field="*{calorieInformationList[__${stat.index}__].fats}" placeholder="0" />
+                            <span class="suffix">g</span>
+                        </td>
+
+                        <td class="unit">
+                            <input class="input" type="number" step="0.01" min="0" th:field="*{calorieInformationList[__${stat.index}__].carbohydrates}" placeholder="0" />
+                            <span class="suffix">g</span>
+                        </td>
+
+                        <td class="unit">
+                            <input class="input" type="number" step="0.01" min="0" th:field="*{calorieInformationList[__${stat.index}__].fiber}" placeholder="0" />
+                            <span class="suffix">g</span>
+                        </td>
+
+                        <td class="unit">
+                            <input class="input" type="number" step="0.01" min="0" th:field="*{calorieInformationList[__${stat.index}__].sugars}" placeholder="0" />
+                            <span class="suffix">g</span>
+                        </td>
+
+                        <td class="unit">
+                            <input class="input" type="number" step="0.01" min="0" th:field="*{calorieInformationList[__${stat.index}__].sodium}" placeholder="0" />
+                            <span class="suffix">mg</span>
+                        </td>
+
+                        <td class="unit">
+                            <input class="input" type="number" step="0.01" min="0" th:field="*{calorieInformationList[__${stat.index}__].cholesterol}" placeholder="0" />
+                            <span class="suffix">mg</span>
+                        </td>
+
+                        <td>
+                            <!-- Use a select instead of free text to reduce errors -->
+                            <select class="input" th:field="*{calorieInformationList[__${stat.index}__].mealType}">
+                                <option value="BREAKFAST">Breakfast</option>
+                                <option value="LUNCH">Lunch</option>
+                                <option value="DINNER">Dinner</option>
+                                <option value="SNACK">Snack</option>
+                            </select>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="toolbar">
+            <div class="left">
+                <span th:if="*{calorieInformationList != null}" th:text="|Total rows: | + *{calorieInformationList.size()}">Total rows: 0</span>
+            </div>
+            <div style="display:flex; gap:8px">
+                <button class="btn btn-ghost" type="reset">Reset</button>
+                <button class="btn btn-primary" type="submit">Save Changes</button>
+            </div>
+        </div>
     </form>
 </div>
-
 </body>
 </html>

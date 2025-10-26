@@ -1,180 +1,138 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Log a Custom Meal</title>
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #24527a, #74b9ff);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 20px 0; /* Add padding for better visibility on smaller screens */
-            box-sizing: border-box;
-        }
-
-        .signup-container {
-            background-color: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            padding: 40px 20px; /* Add padding for consistent spacing */
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            max-width: 400px;
-            width: 100%;
-            transition: transform 0.4s ease, box-shadow 0.4s ease;
-            backdrop-filter: blur(10px);
-            position: relative;
-            margin: 0 auto; /* Center on smaller screens */
-        }
-
-        .signup-container:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
-        }
-
-        h1 {
-            color: #24527a;
-            font-size: 30px;
-            margin-bottom: 30px;
-            text-align: center;
-            letter-spacing: 1px;
-            position: relative;
-            z-index: 2;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: #333;
-            font-weight: bold;
-            position: relative;
-            z-index: 2;
-        }
-
-        input[type="text"],
-        input[type="number"],
-        select {
-            width: 100%;
-            padding: 15px;
-            margin-bottom: 20px;
-            border: none;
-            border-radius: 10px;
-            background-color: rgba(245, 245, 245, 0.8);
-            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
-            font-size: 16px;
-            box-sizing: border-box;
-            transition: all 0.3s ease;
-            position: relative;
-            z-index: 2;
-        }
-
-        input[type="text"]:focus,
-        input[type="number"]:focus,
-        select:focus {
-            outline: none;
-            background-color: rgba(255, 255, 255, 0.95);
-            box-shadow: 0 0 10px rgba(36, 82, 122, 0.5);
-            border: 1px solid #24527a;
-        }
-
-        .submit-btn {
-            background: linear-gradient(135deg, #24527a, #1abc9c);
-            color: white;
-            padding: 15px;
-            width: 100%;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 18px;
-            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-            transition: background-color 0.3s ease, box-shadow 0.3s ease;
-            position: relative;
-            z-index: 2;
-        }
-
-        .submit-btn:hover {
-            background: linear-gradient(135deg, #1abc9c, #24527a);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
-        }
-
-        @media (max-width: 600px) {
-            .signup-container {
-                padding: 20px;
-                max-width: 100%;
-            }
-
-            h1 {
-                font-size: 24px;
-            }
-
-            .submit-btn {
-                font-size: 16px;
-            }
-        }
-    </style>
+    :root{
+      --bg1:#24527a;--bg2:#74b9ff;--brand:#24527a;--brand-2:#1abc9c;--text:#1f2937;--muted:#6b7280;--card:rgba(255,255,255,.97)
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;display:flex;align-items:center;justify-content:center;min-height:100vh;
+      font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";
+      background:linear-gradient(135deg,var(--bg1),var(--bg2));
+      color:var(--text);padding:24px
+    }
+    .container{width:100%;max-width:760px;margin-inline:auto}
+    .card{background:var(--card);backdrop-filter:blur(10px);border-radius:20px;box-shadow:0 12px 30px rgba(0,0,0,.25);transition:.35s transform,.35s box-shadow;position:relative}
+    .card:hover{transform:translateY(-6px);box-shadow:0 18px 44px rgba(0,0,0,.35)}
+    .card-header{padding:28px 28px 10px}
+    .title{margin:0;font-size:28px;letter-spacing:.3px;color:var(--brand);text-align:center}
+    .subtitle{margin:6px 0 0;text-align:center;color:var(--muted);font-size:14px}
+    form{padding:18px 20px 22px}
+    .grid{display:grid;gap:14px}
+    @media (min-width:720px){.grid.cols-2{grid-template-columns:1fr 1fr}}
+    label{font-weight:600;font-size:14px;margin-bottom:6px;color:#334155;display:block}
+    .field{display:flex;flex-direction:column}
+    .input, select{width:100%;border:1px solid #e5e7eb;border-radius:12px;background:#f8fafc;padding:14px 14px;box-shadow:0 4px 10px rgba(0,0,0,.05) inset;font-size:16px;transition:border .2s, box-shadow .2s}
+    .input:focus, select:focus{outline:none;border-color:#94a3b8;box-shadow:0 0 0 3px rgba(36,82,122,.15)}
+    .help{font-size:12px;color:var(--muted);margin-top:6px}
+    .with-unit{position:relative}
+    .with-unit .unit{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:12px;color:#6b7280}
+    details{background:#f1f5f9;border:1px solid #e2e8f0;border-radius:12px;padding:10px 12px}
+    summary{cursor:pointer;font-weight:600;color:#334155}
+    details[open]{background:#eef2ff;border-color:#c7d2fe}
+    .actions{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-top:12px}
+    .btn{appearance:none;border:0;border-radius:12px;padding:14px 16px;font-weight:700;cursor:pointer;box-shadow:0 6px 16px rgba(0,0,0,.15);transition:transform .05s ease,filter .15s ease}
+    .btn:active{transform:translateY(1px)}
+    .btn-primary{background:linear-gradient(135deg,var(--brand),var(--brand-2));color:white;width:100%}
+    .note{font-size:12px;color:var(--muted)}
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
+    .ok{font-size:12px;color:#065f46}
+  </style>
 </head>
 <body>
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            <h1 class="title">Log a Custom Meal</h1>
+            <p class="subtitle">Quickly add calories & macros. Advanced nutrition is optional.</p>
+        </div>
 
-<div class="signup-container">
+        <form th:action="@{/Post/Custom/Meal}" th:object="${calorieInformation}" method="post" novalidate>
+            <div class="grid cols-2" aria-labelledby="essentials">
+                <h2 id="essentials" class="sr-only">Essential fields</h2>
 
-    <h1>Log a Custom Meal</h1>
+                <div class="field" style="grid-column:1/-1">
+                    <label for="itemName">Meal Item Name</label>
+                    <input class="input" type="text" id="itemName" th:field="*{itemName}" placeholder="e.g., Grilled chicken bowl" autocomplete="off" required />
+                    <div class="help">Use a clear name so you can find it later (e.g., "Turkey sandwich – homemade").</div>
+                </div>
 
-    <form th:action="@{/Post/Custom/Meal}" th:object="${calorieInformation}" method="post">
+                <div class="field with-unit">
+                    <label for="proteins">Protein</label>
+                    <input class="input" type="number" inputmode="decimal" id="proteins" th:field="*{proteins}" placeholder="15.5" step="0.01" min="0" required />
+                    <span class="unit">g</span>
+                </div>
 
-        <!-- Item Name -->
-        <label for="itemName">Meal Item Name:</label>
-        <input type="text" id="itemName" th:field="*{itemName}" placeholder="Enter meal item name" required />
+                <div class="field with-unit">
+                    <label for="fats">Fat</label>
+                    <input class="input" type="number" inputmode="decimal" id="fats" th:field="*{fats}" placeholder="5.2" step="0.01" min="0" required />
+                    <span class="unit">g</span>
+                </div>
 
-        <!-- Calories -->
-        <label for="calories">Calories:</label>
-        <input type="number" id="calories" th:field="*{calories}" placeholder="e.g., 200" step="0.01" required />
+                <div class="field with-unit">
+                    <label for="carbohydrates">Carbs</label>
+                    <input class="input" type="number" inputmode="decimal" id="carbohydrates" th:field="*{carbohydrates}" placeholder="20.1" step="0.01" min="0" required />
+                    <span class="unit">g</span>
+                </div>
 
-        <!-- Proteins -->
-        <label for="proteins">Proteins (g):</label>
-        <input type="number" id="proteins" th:field="*{proteins}" placeholder="e.g., 15.5" step="0.01" required />
+                <div class="field with-unit">
+                    <label for="calories">Calories</label>
+                    <input class="input" type="number" inputmode="decimal" id="calories" th:field="*{calories}" placeholder="e.g., 300" step="0.01" min="0" required />
+                    <span class="unit">kcal</span>
+                </div>
 
-        <!-- Fats -->
-        <label for="fats">Fats (g):</label>
-        <input type="number" id="fats" th:field="*{fats}" placeholder="e.g., 5.2" step="0.01" required />
+                <div class="field">
+                    <label for="mealType">Meal Type</label>
+                    <select id="mealType" th:field="*{MealType}" class="input">
+                        <option value="BREAKFAST">Breakfast</option>
+                        <option value="LUNCH">Lunch</option>
+                        <option value="DINNER">Dinner</option>
+                        <option value="SNACK">Snack</option>
+                    </select>
+                </div>
+            </div>
 
-        <!-- Carbohydrates -->
-        <label for="carbohydrates">Carbohydrates (g):</label>
-        <input type="number" id="carbohydrates" th:field="*{carbohydrates}" placeholder="e.g., 20.1" step="0.01" required />
+            <details style="margin-top:10px">
+                <summary>Advanced nutrition (optional)</summary>
+                <div class="grid cols-2" style="margin-top:10px">
+                    <div class="field with-unit">
+                        <label for="fiber">Fiber</label>
+                        <input class="input" type="number" inputmode="decimal" id="fiber" th:field="*{fiber}" placeholder="e.g., 4" step="0.01" min="0" />
+                        <span class="unit">g</span>
+                    </div>
 
-        <!-- Fiber -->
-        <label for="fiber">Fiber (g):</label>
-        <input type="number" id="fiber" th:field="*{fiber}" placeholder="Optional" step="0.01" />
+                    <div class="field with-unit">
+                        <label for="sugars">Sugars</label>
+                        <input class="input" type="number" inputmode="decimal" id="sugars" th:field="*{sugars}" placeholder="e.g., 6" step="0.01" min="0" />
+                        <span class="unit">g</span>
+                    </div>
 
-        <!-- Sugars -->
-        <label for="sugars">Sugars (g):</label>
-        <input type="number" id="sugars" th:field="*{sugars}" placeholder="Optional" step="0.01" />
+                    <div class="field with-unit">
+                        <label for="sodium">Sodium</label>
+                        <input class="input" type="number" inputmode="decimal" id="sodium" th:field="*{sodium}" placeholder="e.g., 320" step="1" min="0" />
+                        <span class="unit">mg</span>
+                    </div>
 
-        <!-- Sodium -->
-        <label for="sodium">Sodium (mg):</label>
-        <input type="number" id="sodium" th:field="*{sodium}" placeholder="Optional" step="0.01" />
+                    <div class="field with-unit">
+                        <label for="cholesterol">Cholesterol</label>
+                        <input class="input" type="number" inputmode="decimal" id="cholesterol" th:field="*{cholesterol}" placeholder="e.g., 45" step="1" min="0" />
+                        <span class="unit">mg</span>
+                    </div>
+                </div>
+            </details>
 
-        <!-- Cholesterol -->
-        <label for="cholesterol">Cholesterol (mg):</label>
-        <input type="number" id="cholesterol" th:field="*{cholesterol}" placeholder="Optional" step="0.01" />
+            <div class="actions">
+                <button type="submit" class="btn btn-primary">Log Meal</button>
+            </div>
 
-        <!-- Meal Type (Dropdown) -->
-        <label for="mealType">Meal Type:</label>
-        <select id="mealType" th:field="*{MealType}">
-            <option value="BREAKFAST">Breakfast</option>
-            <option value="LUNCH">Lunch</option>
-            <option value="DINNER">Dinner</option>
-            <option value="SNACK">Snack</option>
-        </select>
-
-
-        <button type="submit" class="submit-btn">Log Meal</button>
-
-    </form>
-
+            <p class="note" style="margin-top:8px">Tip: Protein, fat, and carbs are required fields. Calories should reflect total meal energy.</p>
+        </form>
+    </div>
 </div>
-
 </body>
 </html>
