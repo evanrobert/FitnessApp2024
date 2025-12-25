@@ -1,122 +1,94 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fitness Application</title>
     <style>
-        /* Global Styles */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+    /* Reset & Global */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #24527a, #1abc9c);
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: #fff;
+        flex-direction: column;
+    }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #24527a, #1abc9c);
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: white;
-        }
+    /* Container */
+    .dashboard {
+        background: rgba(255,255,255,0.1);
+        backdrop-filter: blur(15px);
+        border-radius: 20px;
+        padding: 40px 30px;
+        max-width: 700px;
+        width: 100%;
+        text-align: center;
+        box-shadow: 0 15px 30px rgba(0,0,0,0.5);
+        transition: transform 0.5s ease, box-shadow 0.5s ease;
+    }
+    .dashboard:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 25px 50px rgba(0,0,0,0.6);
+    }
 
-        /* Neon Header Effect */
-        h1 {
-            font-size: 48px;
-            text-transform: uppercase;
-            color: #ffffff;
-            letter-spacing: 2px;
-            animation: glow 1.5s infinite alternate;
-        }
+    h1 {
+        font-size: 36px;
+        margin-bottom: 30px;
+        text-transform: uppercase;
+        color: #fff;
+        letter-spacing: 1px;
+        text-shadow: 0 0 8px rgba(0,0,0,0.3);
+    }
 
-        @keyframes glow {
-            0% {
-                text-shadow: 0 0 5px #ffffff, 0 0 10px #1abc9c, 0 0 15px #1abc9c, 0 0 20px #74b9ff;
-            }
-            100% {
-                text-shadow: 0 0 20px #ffffff, 0 0 30px #1abc9c, 0 0 40px #1abc9c, 0 0 50px #74b9ff;
-            }
-        }
+    /* Buttons */
+    .dashboard a {
+        display: inline-block;
+        margin: 10px 10px 0 10px;
+        padding: 12px 25px;
+        background: #1abc9c;
+        color: white;
+        text-decoration: none;
+        font-weight: bold;
+        border-radius: 8px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        transition: background 0.3s ease, transform 0.3s ease;
+    }
+    .dashboard a:hover {
+        background: #16a085;
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+    }
 
-        /* Stylish Welcome Box */
-        .welcome-box {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 50px;
-            text-align: center;
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
-            max-width: 600px;
-            width: 100%;
-            transition: transform 0.5s ease, box-shadow 0.5s ease;
-        }
+    /* Footer */
+    footer {
+        margin-top: 30px;
+        font-size: 12px;
+        color: rgba(255,255,255,0.6);
+    }
 
-        .welcome-box:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6);
-        }
-
-        /* Cool Button Styling */
-        .welcome-box a {
-            display: inline-block;
-            margin-top: 30px;
-            padding: 15px 30px;
-            background-color: #1abc9c;
-            color: white;
-            text-decoration: none;
-            font-size: 18px;
-            font-weight: bold;
-            border-radius: 5px;
-            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-            transition: background-color 0.3s ease, transform 0.3s ease;
-        }
-
-        .welcome-box a:hover {
-            background-color: #16a085;
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
-        }
-
-        /* Footer */
-        footer {
-            position: absolute;
-            bottom: 10px;
-            width: 100%;
-            text-align: center;
-            font-size: 12px;
-            color: rgba(255, 255, 255, 0.6);
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 36px;
-            }
-
-            .welcome-box {
-                padding: 30px;
-            }
-
-            .welcome-box a {
-                font-size: 16px;
-            }
-        }
-    </style>
+    /* Responsive Design */
+    @media (max-width: 600px) {
+        h1 { font-size: 28px; }
+        .dashboard a { font-size: 14px; padding: 10px 20px; }
+    }
+</style>
 </head>
 <body>
 
-<div class="welcome-box">
-    <h1>Welcome to my Fitness Application</h1>
-    <a href="/add/custom/meal">Add Custom Food</a>
-    <a href="/view/Nutrition">View Custom Food</a>
-    <a href=" /user/macro/information">Add Daily Calorie Goals</a>
-    <a href=" /total">Calorie Goal</a>
+<div class="dashboard">
+    <h1>Welcome to Your Fitness App</h1>
 
-
-
-
+    <!-- Feature Buttons -->
+    <div>
+        <a href="/add/custom/meal">Add Custom Food</a>
+        <a href="/view/Nutrition">View Custom Food</a>
+        <a href="/user/macro/information">Add Daily Calorie Goals</a>
+        <a href="/total">Calorie Goal</a>
+    </div>
 </div>
 
 <footer>
