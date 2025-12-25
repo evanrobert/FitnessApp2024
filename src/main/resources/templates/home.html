@@ -1,222 +1,127 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Fitness Application • Home</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fitness Application</title>
     <style>
-    :root{
-      --brand1:#24527a; --brand2:#1abc9c; --ink:#0f172a; --muted:#64748b; --card:rgba(255,255,255,.92);
-      --ring: 0 0 0 3px rgba(36,82,122,.25);
-    }
+        /* Global Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0; font-family: system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial; color:var(--ink);
-      background: linear-gradient(135deg,var(--brand1),var(--brand2));
-      background-attachment: fixed; /* nice feel while scrolling */
-      -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
-    }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #24527a, #1abc9c);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+        }
 
-    /* Decorative blobs */
-    .bg-blob{position:fixed; inset:0; pointer-events:none; overflow:hidden}
-    .blob{position:absolute; filter: blur(40px); opacity:.25}
-    .blob.b1{background:#74b9ff; width:420px; height:420px; border-radius:50%; top:-120px; left:-80px}
-    .blob.b2{background:#0ea5e9; width:520px; height:520px; border-radius:50%; bottom:-160px; right:-120px}
+        /* Neon Header Effect */
+        h1 {
+            font-size: 48px;
+            text-transform: uppercase;
+            color: #ffffff;
+            letter-spacing: 2px;
+            animation: glow 1.5s infinite alternate;
+        }
 
-    /* Layout */
-    .container{max-width:1100px; margin-inline:auto; padding:28px 20px 48px}
+        @keyframes glow {
+            0% {
+                text-shadow: 0 0 5px #ffffff, 0 0 10px #1abc9c, 0 0 15px #1abc9c, 0 0 20px #74b9ff;
+            }
+            100% {
+                text-shadow: 0 0 20px #ffffff, 0 0 30px #1abc9c, 0 0 40px #1abc9c, 0 0 50px #74b9ff;
+            }
+        }
 
-    header{
-      display:flex; align-items:center; justify-content:space-between; gap:16px;
-      background: var(--card); border-radius:20px; padding:12px 16px; box-shadow:0 12px 28px rgba(0,0,0,.25);
-      backdrop-filter: blur(10px);
-    }
-    .brand{display:flex; align-items:center; gap:12px; text-decoration:none; color:inherit}
-    .logo{width:40px; height:40px; border-radius:10px; background:linear-gradient(135deg,var(--brand1),var(--brand2)); box-shadow:0 6px 16px rgba(0,0,0,.25); display:grid; place-items:center}
-    .logo svg{width:22px; height:22px; color:white}
-    .brand h1{font-size:18px; letter-spacing:.4px; margin:0}
+        /* Stylish Welcome Box */
+        .welcome-box {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 50px;
+            text-align: center;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
+            max-width: 600px;
+            width: 100%;
+            transition: transform 0.5s ease, box-shadow 0.5s ease;
+        }
 
-    nav{display:flex; gap:8px; flex-wrap:wrap}
-    .nav-link{appearance:none; border:0; border-radius:999px; padding:10px 14px; background:#f1f5f9; color:#0f172a; text-decoration:none; font-weight:600; box-shadow:0 3px 8px rgba(0,0,0,.08)}
-    .nav-link:hover{filter:saturate(1.15); transform:translateY(-1px)}
-    .nav-cta{background:linear-gradient(135deg,var(--brand1),var(--brand2)); color:white}
+        .welcome-box:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6);
+        }
 
-    main{margin-top:18px; display:grid; gap:18px}
+        /* Cool Button Styling */
+        .welcome-box a {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 15px 30px;
+            background-color: #1abc9c;
+            color: white;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 5px;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
 
-    .hero{display:grid; gap:16px; grid-template-columns:1.3fr .7fr}
-    @media (max-width:900px){.hero{grid-template-columns:1fr}}
+        .welcome-box a:hover {
+            background-color: #16a085;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
 
-    .panel{
-      background:var(--card); border-radius:24px; box-shadow:0 20px 40px rgba(0,0,0,.28); backdrop-filter: blur(10px);
-      padding:24px
-    }
+        /* Footer */
+        footer {
+            position: absolute;
+            bottom: 10px;
+            width: 100%;
+            text-align: center;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+        }
 
-    .hero-left h2{margin:0 0 6px 0; font-size:28px; color:#0b1324}
-    .hero-left p{margin:0; color:var(--muted)}
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 36px;
+            }
 
-    .actions{display:flex; flex-wrap:wrap; gap:10px; margin-top:16px}
-    .btn{appearance:none; border:0; border-radius:14px; padding:14px 16px; font-weight:700; cursor:pointer; text-decoration:none; display:inline-flex; gap:10px; align-items:center; box-shadow:0 8px 18px rgba(0,0,0,.15)}
-    .btn:focus{outline:none; box-shadow:0 8px 18px rgba(0,0,0,.15), var(--ring)}
-    .btn-primary{background:linear-gradient(135deg,var(--brand1),var(--brand2)); color:white}
-    .btn-soft{background:#eef2f7; color:#0f172a}
+            .welcome-box {
+                padding: 30px;
+            }
 
-    .metric-row{display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:14px}
-    @media (max-width:740px){.metric-row{grid-template-columns:1fr 1fr}}
-    .metric{background:#f8fafc; border:1px solid #e2e8f0; border-radius:16px; padding:12px 14px}
-    .metric .label{font-size:12px; color:#64748b}
-    .metric .value{font-weight:800; font-size:24px}
-
-    .hero-right{display:grid; gap:12px}
-    .goal{display:flex; align-items:center; justify-content:space-between; gap:10px}
-    .goal .progress{flex:1; height:10px; border-radius:999px; background:#e5e7eb; overflow:hidden}
-    .goal .bar{height:100%; width:48%}
-    .bar.kcal{background:linear-gradient(90deg,#22c55e,#ef4444)}
-
-    /* Dashboard grid */
-    .grid{display:grid; gap:18px; grid-template-columns:2fr 1fr}
-    @media (max-width:1000px){.grid{grid-template-columns:1fr}}
-
-    .card-title{margin:0 0 10px 0; font-size:18px}
-    .list{display:grid; gap:10px}
-    .list-item{display:flex; align-items:center; justify-content:space-between; padding:12px; border:1px solid #e2e8f0; border-radius:14px; background:#ffffff90}
-    .list-item p{margin:0}
-    .list-item small{color:#475569}
-
-    footer{margin:18px auto 0; text-align:center; color:#e2e8f0; font-size:12px}
-
-    /* Motion safety */
-    @media (prefers-reduced-motion: reduce){
-      .nav-link:hover, .btn:hover{transform:none}
-      .blob{display:none}
-    }
-  </style>
+            .welcome-box a {
+                font-size: 16px;
+            }
+        }
+    </style>
 </head>
 <body>
-<div class="bg-blob" aria-hidden="true">
-    <div class="blob b1"></div>
-    <div class="blob b2"></div>
+
+<div class="welcome-box">
+    <h1>Welcome to my Fitness Application</h1>
+    <a href="/add/custom/meal">Add Custom Food</a>
+    <a href="/view/Nutrition">View Custom Food</a>
+    <a href=" /user/macro/information">Add Daily Calorie Goals</a>
+    <a href=" /total">Calorie Goal</a>
+
+
+
+
 </div>
 
-<div class="container">
-    <header>
-        <a class="brand" href="/">
-            <div class="logo" aria-hidden="true">
-                <!-- dumbbell icon -->
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="M6 6v12M18 6v12M3 10v4M9 4v16M15 4v16M21 10v4M3 12h18"/>
-                </svg>
-            </div>
-            <h1>Fitness Application</h1>
-        </a>
-        <nav aria-label="Primary">
-            <a class="nav-link" href="/view/Nutrition">My Foods</a>
-            <a class="nav-link" href="/user/macro/information">Calorie Goals</a>
-            <a class="nav-link nav-cta" href="/add/custom/meal">+ Log Meal</a>
-        </nav>
-    </header>
+<footer>
+    &copy; 2024 Fitness App. All rights reserved.
+</footer>
 
-    <main>
-        <!-- HERO -->
-        <section class="hero" aria-labelledby="welcome">
-            <div class="panel hero-left">
-                <h2 id="welcome"><span id="greeting">Welcome</span> 👋</h2>
-                <p>Track meals, hit your macro targets, and keep your streak alive.</p>
-
-                <div class="actions">
-                    <a class="btn btn-primary" href="/add/custom/meal" aria-label="Add a custom meal">
-                        <!-- plus icon -->
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                        Log a Meal
-                    </a>
-                    <a class="btn btn-soft" href="/view/Nutrition">View Custom Foods</a>
-                    <a class="btn btn-soft" href="/user/macro/information">Set Calorie Goals</a>
-                </div>
-
-                <div class="metric-row" role="group" aria-label="Today at a glance">
-                    <div class="metric" aria-live="polite">
-                        <div class="label">Calories Remaining</div>
-                        <div class="value" id="mKcal">—</div>
-                    </div>
-                    <div class="metric">
-                        <div class="label">Protein</div>
-                        <div class="value" id="mP">—</div>
-                    </div>
-                    <div class="metric">
-                        <div class="label">Carbs</div>
-                        <div class="value" id="mC">—</div>
-                    </div>
-                </div>
-            </div>
-
-            <aside class="panel hero-right" aria-labelledby="goalCard">
-                <h3 id="goalCard" class="card-title">Today's Goal</h3>
-                <div class="goal">
-                    <p><strong id="goalLabel">0</strong> / <span id="goalTotal">0</span> kcal</p>
-                    <div class="progress" aria-hidden="true"><div class="bar kcal" id="goalBar" style="width:0%"></div></div>
-                </div>
-                <div class="list" style="margin-top:10px">
-                    <div class="list-item"><p>Streak</p><small id="streak">—</small></div>
-                    <div class="list-item"><p>Last meal</p><small id="lastMeal">—</small></div>
-                </div>
-            </aside>
-        </section>
-
-        <!-- DASHBOARD GRID -->
-        <section class="grid" aria-label="Quick panels">
-            <div class="panel">
-                <h3 class="card-title">Quick Actions</h3>
-                <div class="actions">
-                    <a class="btn btn-primary" href="/add/custom/meal">Add Custom Food</a>
-                    <a class="btn btn-soft" href="/view/Nutrition">View Custom Food</a>
-                    <a class="btn btn-soft" href="/total">Calorie Goal</a>
-                </div>
-            </div>
-
-            <div class="panel">
-                <h3 class="card-title">Tips</h3>
-                <ul class="list" style="list-style:none; padding:0; margin:0">
-                    <li class="list-item"><p>Use grams for accuracy.</p><small>Protein, carbs, and fat drive calories.</small></li>
-                    <li class="list-item"><p>Pre‑log frequent meals.</p><small>Faster tracking, fewer misses.</small></li>
-                    <li class="list-item"><p>Aim for consistency.</p><small>Small wins compound quickly.</small></li>
-                </ul>
-            </div>
-        </section>
-    </main>
-
-    <footer>
-        &copy; <span id="year"></span> Fitness App. All rights reserved.
-    </footer>
-</div>
-
-<script>
-    // Lightweight enhancements; replace with real data bindings when available
-    (function(){
-      // Greeting
-      const h = new Date().getHours();
-      const g = h<12? 'Good morning' : h<18? 'Good afternoon' : 'Good evening';
-      document.getElementById('greeting').textContent = g;
-
-      // Fake numbers to demonstrate UI; replace with server values
-      const goalTotal = 2200, consumed = 1040; // server-provided in real app
-      const remaining = Math.max(goalTotal - consumed, 0);
-      const pct = Math.min(consumed/goalTotal*100, 100);
-      document.getElementById('goalTotal').textContent = goalTotal.toLocaleString();
-      document.getElementById('goalLabel').textContent = consumed.toLocaleString();
-      document.getElementById('goalBar').style.width = pct + '%';
-
-      document.getElementById('mKcal').textContent = remaining.toLocaleString() + ' kcal';
-      document.getElementById('mP').textContent = '— g';
-      document.getElementById('mC').textContent = '— g';
-
-      // Streak + last meal placeholders
-      document.getElementById('streak').textContent = '3 days';
-      document.getElementById('lastMeal').textContent = 'Grilled chicken bowl (12:34 PM)';
-
-      // Year
-      document.getElementById('year').textContent = new Date().getFullYear();
-    })();
-  </script>
 </body>
 </html>

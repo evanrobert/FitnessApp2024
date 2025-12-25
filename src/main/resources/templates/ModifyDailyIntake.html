@@ -5,10 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Modify Daily Intake</title>
     <style>
-        /* General reset and layout */
         body, html {
-            margin: 0;
-            padding: 0;
+            margin: 0; padding: 0;
             font-family: 'Arial', sans-serif;
             background: linear-gradient(135deg, #24527a, #1abc9c);
             display: flex;
@@ -17,8 +15,6 @@
             height: 100vh;
             color: #333;
         }
-
-        /* Main container */
         .container {
             background-color: #ffffff;
             border-radius: 10px;
@@ -28,20 +24,8 @@
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
             transition: all 0.3s ease;
         }
-
-        .container:hover {
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
-        }
-
-        h1 {
-            text-align: center;
-            color: #24527a;
-            margin-bottom: 20px;
-            font-size: 2.8rem;
-            text-transform: uppercase;
-        }
-
-        /* Display current values */
+        .container:hover { box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2); }
+        h1 { text-align: center; color: #24527a; margin-bottom: 20px; font-size: 2.8rem; text-transform: uppercase; }
         .daily-intake-info {
             background-color: #eef2f7;
             padding: 25px;
@@ -50,67 +34,18 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             text-align: center;
         }
-
-        .daily-intake-info p {
-            font-size: 1.4rem;
-            margin: 15px 0;
-            font-weight: 500;
-        }
-
-        .daily-intake-info .label {
-            font-size: 1.1rem;
-            color: #24527a;
-        }
-
-        .daily-intake-info .value {
-            font-size: 1.8rem;
-            font-weight: 600;
-            color: #1a3d59;
-        }
-
-        .daily-intake-info .value span {
-            font-size: 2rem;
-            color: #24527a;
-        }
-
-        /* Styled icon */
-        .daily-intake-info .icon {
-            font-size: 2.5rem;
-            color: #24527a;
-            margin-bottom: 20px;
-        }
-
-        /* Edit and Save buttons */
+        .daily-intake-info p { font-size: 1.4rem; margin: 15px 0; font-weight: 500; }
+        .daily-intake-info .label { font-size: 1.1rem; color: #24527a; }
+        .daily-intake-info .value { font-size: 1.8rem; font-weight: 600; color: #1a3d59; }
+        .daily-intake-info .icon { font-size: 2.5rem; color: #24527a; margin-bottom: 20px; }
         .edit-btn, .save-btn {
-            background-color: #24527a;
-            color: #ffffff;
-            padding: 5px 10px;
-            font-size: 0.9rem;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-top: 10px;
+            background-color: #24527a; color: #fff;
+            padding: 5px 10px; font-size: 0.9rem; border: none; border-radius: 5px;
+            cursor: pointer; margin-top: 10px;
         }
-
-        .edit-btn:hover, .save-btn:hover {
-            background-color: #1abc9c;
-        }
-
-        input[type="number"] {
-            padding: 5px;
-            font-size: 1rem;
-            width: 80px;
-            display: inline-block;
-            margin-top: 10px;
-        }
-
-        /* Decorative section */
-        .divider {
-            margin: 20px 0;
-            height: 1px;
-            background: #24527a;
-            width: 100%;
-        }
+        .edit-btn:hover, .save-btn:hover { background-color: #1abc9c; }
+        input[type="number"] { padding: 5px; font-size: 1rem; width: 80px; display: inline-block; margin-top: 10px; }
+        .divider { margin: 20px 0; height: 1px; background: #24527a; width: 100%; }
     </style>
 </head>
 <body>
@@ -118,51 +53,55 @@
 <div class="container">
     <h1>Modify Your Daily Intake</h1>
 
-    <div class="daily-intake-info">
-        <div class="icon">🍏🍓🍌</div>
+    <!-- FORM POSTING TO SPRING -->
+    <form th:action="@{/edit/macro/information}" method="post" th:object="${userMacroInformation}">
+        <div class="daily-intake-info">
+            <div class="icon">🍏🍓🍌</div>
 
-        <!-- Calories -->
-        <div>
-            <p class="label">Daily Calories:</p>
-            <p class="value" id="calories-value">2000 Calories</p>
-            <input id="calories-input" type="number" style="display:none;" value="2000">
-            <button class="edit-btn" onclick="toggleEdit('calories')">Edit</button>
-            <button class="save-btn" onclick="saveEdit('calories')" style="display:none;">Save</button>
+            <!-- Calories -->
+            <div>
+                <p class="label">Daily Calories:</p>
+                <p class="value" id="calories-value" th:text="*{dailyCalories} + ' Calories'">2000 Calories</p>
+                <input id="calories-input" type="number" th:field="*{dailyCalories}" style="display:none;">
+                <button type="button" class="edit-btn" onclick="toggleEdit('calories')">Edit</button>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- Protein -->
+            <div>
+                <p class="label">Daily Protein:</p>
+                <p class="value" id="protein-value" th:text="*{dailyProtein} + 'g'">150g</p>
+                <input id="protein-input" type="number" th:field="*{dailyProtein}" style="display:none;">
+                <button type="button" class="edit-btn" onclick="toggleEdit('protein')">Edit</button>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- Fat -->
+            <div>
+                <p class="label">Daily Fat:</p>
+                <p class="value" id="fat-value" th:text="*{dailyFat} + 'g'">70g</p>
+                <input id="fat-input" type="number" th:field="*{dailyFat}" style="display:none;">
+                <button type="button" class="edit-btn" onclick="toggleEdit('fat')">Edit</button>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- Carbohydrates -->
+            <div>
+                <p class="label">Daily Carbohydrates:</p>
+                <p class="value" id="carbs-value" th:text="*{dailyCarbohydrates} + 'g'">300g</p>
+                <input id="carbs-input" type="number" th:field="*{dailyCarbohydrates}" style="display:none;">
+                <button type="button" class="edit-btn" onclick="toggleEdit('carbs')">Edit</button>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- Submit button -->
+            <button type="submit" class="save-btn">Save Daily Intake</button>
         </div>
-
-        <div class="divider"></div>
-
-        <!-- Protein -->
-        <div>
-            <p class="label">Daily Protein:</p>
-            <p class="value" id="protein-value">150g</p>
-            <input id="protein-input" type="number" style="display:none;" value="150">
-            <button class="edit-btn" onclick="toggleEdit('protein')">Edit</button>
-            <button class="save-btn" onclick="saveEdit('protein')" style="display:none;">Save</button>
-        </div>
-
-        <div class="divider"></div>
-
-        <!-- Fat -->
-        <div>
-            <p class="label">Daily Fat:</p>
-            <p class="value" id="fat-value">70g</p>
-            <input id="fat-input" type="number" style="display:none;" value="70">
-            <button class="edit-btn" onclick="toggleEdit('fat')">Edit</button>
-            <button class="save-btn" onclick="saveEdit('fat')" style="display:none;">Save</button>
-        </div>
-
-        <div class="divider"></div>
-
-        <!-- Carbohydrates -->
-        <div>
-            <p class="label">Daily Carbohydrates:</p>
-            <p class="value" id="carbs-value">300g</p>
-            <input id="carbs-input" type="number" style="display:none;" value="300">
-            <button class="edit-btn" onclick="toggleEdit('carbs')">Edit</button>
-            <button class="save-btn" onclick="saveEdit('carbs')" style="display:none;">Save</button>
-        </div>
-    </div>
+    </form>
 </div>
 
 <script>
@@ -170,27 +109,16 @@
         const valueElement = document.getElementById(`${category}-value`);
         const inputElement = document.getElementById(`${category}-input`);
         const editBtn = inputElement.nextElementSibling;
-        const saveBtn = editBtn.nextElementSibling;
 
         if (inputElement.style.display === "none") {
             valueElement.style.display = "none";
             inputElement.style.display = "inline-block";
             editBtn.style.display = "none";
-            saveBtn.style.display = "inline-block";
         } else {
             inputElement.style.display = "none";
-            saveBtn.style.display = "none";
             valueElement.style.display = "inline-block";
             editBtn.style.display = "inline-block";
         }
-    }
-
-    function saveEdit(category) {
-        const valueElement = document.getElementById(`${category}-value`);
-        const inputElement = document.getElementById(`${category}-input`);
-
-        valueElement.textContent = `${inputElement.value} ${category === 'calories' ? 'Calories' : 'g'}`;
-        toggleEdit(category);
     }
 </script>
 
