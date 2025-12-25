@@ -45,14 +45,16 @@ public class UserMacroInformationController {
         String username = principal.getName();
         UserLoginDetails userLoginDetails = userLoginDetailsRepository.findByUsername(username);
 
-        // Retrieve the user's macro information
-        Optional<UserMacroInformation> userMacroInfo = Optional.ofNullable(userMacroInformationRepository.findByUserLoginDetails(userLoginDetails));
+        UserMacroInformation macroInfo = userMacroInformationRepository.findByUserLoginDetails(userLoginDetails);
+        if (macroInfo == null) {
+            macroInfo = new UserMacroInformation(); // create empty if not present
+        }
 
-        // Add macro information to the model if it exists
-        userMacroInfo.ifPresent(macroInfo -> model.addAttribute("userMacroInformation", macroInfo));
+        model.addAttribute("userMacroInformation", macroInfo);
 
         return "ModifyDailyIntake";
     }
+
 
 
     @PostMapping("/log/custom/macro/information")
@@ -93,6 +95,8 @@ public class UserMacroInformationController {
         // Return the name of the view to render
         return "CalorieSummary";
     }
+
+
         }
 
 
