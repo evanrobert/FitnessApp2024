@@ -36,47 +36,40 @@ public class ReportsController {
         UserLoginDetails userLoginDetails =
                 userLoginDetailsRepository.findByUsername(username);
 
-        Reports report =
-                reportsRepository.findByUserLoginDetails(userLoginDetails);
+        // FIX: this is a LIST
+        var reports =
+                reportsRepository.findAllByUserLoginDetails(userLoginDetails);
 
-        if (report == null) {
-            report = new Reports();
-        }
-
-        model.addAttribute("reports", report);
+        model.addAttribute("reports", reports);
         return "hra-upload";
     }
 
 
     @PostMapping("/upload")
-    public String uploadHRAFile(@RequestParam("file") MultipartFile file,
-                                Principal principal) {
+    public String uploadMultipleFiles(@RequestParam("files") MultipartFile[] files,
+                                      Principal principal) {
 
         String username = principal.getName();
         UserLoginDetails userLoginDetails =
                 userLoginDetailsRepository.findByUsername(username);
 
         try {
-            Reports report =
-                    reportsRepository.findByUserLoginDetails(userLoginDetails);
-
-            if (report == null) {
-                report = Reports.builder()
+            for (MultipartFile file : files) {
+                Reports report = Reports.builder()
+                        .fileName(file.getOriginalFilename())
+                        .fileType(file.getContentType())
+                        .data(file.getBytes())
                         .userLoginDetails(userLoginDetails)
                         .build();
+
+                reportsRepository.save(report);
             }
-
-            report.setFileName(file.getOriginalFilename());
-            report.setFileType(file.getContentType());
-            report.setData(file.getBytes());
-
-            reportsRepository.save(report);
             return "home";
-
         } catch (Exception e) {
             e.printStackTrace();
             return "error";
         }
     }
+
 
 }

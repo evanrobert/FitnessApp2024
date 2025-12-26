@@ -26,7 +26,7 @@ public class Reports {
 
     private LocalDateTime uploadedAt;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "userid")
     private UserLoginDetails userLoginDetails;
 
