@@ -1,10 +1,72 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
+    <meta charset="UTF-8">
+    <title>Upload HRA Report</title>
+
+    <style>
+        .upload-container {
+            max-width: 500px;
+            margin: 60px auto;
+            padding: 30px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            font-family: Arial, sans-serif;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .file-input {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            background-color: #2c7be5;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background-color: #1a68d1;
+        }
+
+        .message {
+            margin-top: 15px;
+            text-align: center;
+            color: green;
+        }
+    </style>
 </head>
 <body>
-$END$
+
+<div class="upload-container">
+    <h2>Upload HRA Report</h2>
+
+    <form th:action="@{/hra/upload}"
+          method="post"
+          enctype="multipart/form-data">
+
+        <input type="file"
+               name="file"
+               class="file-input"
+               required />
+
+        <button type="submit" class="btn">
+            Upload Report
+        </button>
+    </form>
+
+    <div class="message" th:if="${message}" th:text="${message}"></div>
+</div>
+
 </body>
 </html>
