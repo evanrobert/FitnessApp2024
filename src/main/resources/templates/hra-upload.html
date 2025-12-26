@@ -2,70 +2,81 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Upload HRA Report</title>
+    <title>Upload HRA Reports</title>
 
     <style>
-        .upload-container {
-            max-width: 500px;
+        .container {
+            max-width: 600px;
             margin: 60px auto;
             padding: 30px;
-            border-radius: 8px;
             border: 1px solid #ddd;
+            border-radius: 8px;
             font-family: Arial, sans-serif;
         }
 
         h2 {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
 
         .file-input {
             width: 100%;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
-        .btn {
+        button {
             width: 100%;
             padding: 10px;
+            background-color: #2c7be5;
+            color: #fff;
             border: none;
             border-radius: 4px;
-            background-color: #2c7be5;
-            color: white;
             font-size: 16px;
             cursor: pointer;
         }
 
-        .btn:hover {
+        button:hover {
             background-color: #1a68d1;
         }
 
-        .message {
-            margin-top: 15px;
-            text-align: center;
-            color: green;
+        ul {
+            margin-top: 25px;
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 8px;
         }
     </style>
 </head>
 <body>
 
-<div class="upload-container">
-    <h2>Upload HRA Report</h2>
+<div class="container">
+    <h2>Upload HRA Reports</h2>
 
+    <!-- Upload Form -->
     <form th:action="@{/hra/upload}"
           method="post"
           enctype="multipart/form-data">
 
         <input type="file"
-               name="file"
+               name="files"
                class="file-input"
+               multiple
                required />
 
-        <button type="submit" class="btn">
-            Upload Report
-        </button>
+        <button type="submit">Upload Files</button>
     </form>
 
-    <div class="message" th:if="${message}" th:text="${message}"></div>
+    <!-- Existing Uploaded Files -->
+    <div th:if="${reports != null and !reports.isEmpty()}">
+        <h3>Previously Uploaded Reports</h3>
+        <ul>
+            <li th:each="report : ${reports}"
+                th:text="${report.fileName}">
+            </li>
+        </ul>
+    </div>
 </div>
 
 </body>
