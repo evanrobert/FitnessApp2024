@@ -58,12 +58,17 @@
         <header class="card-head">
             <div>
                 <h1>Nutrition Log</h1>
-                <p th:if="*{calorieInformationList != null}" th:text="|Edit \u2022 | + *{calorieInformationList.size()} + | items|">Edit • 0 items</p>
+                <p th:if="*{calorieInformationList != null}"
+                   th:text="|Entries: | + *{calorieInformationList.size()}">
+                    Entries: 0
+                </p>
             </div>
             <div class="left" style="display:flex; gap:8px">
                 <a class="btn btn-ghost" href="/add/custom/meal">+ Add Meal</a>
                 <a class="btn btn-ghost" href="/view/Nutrition">View Foods</a>
+                <a class="btn btn-ghost" href="/download/nutrition">Download CSV</a>
             </div>
+
         </header>
 
         <div class="table-wrap table-shadow">

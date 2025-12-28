@@ -3,97 +3,162 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fitness Application</title>
+    <title>Fitness Dashboard</title>
+
     <style>
-    /* Reset & Global */
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background: linear-gradient(135deg, #24527a, #1abc9c);
-        min-height: 100vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        color: #fff;
-        flex-direction: column;
-    }
+        /* Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    /* Container */
-    .dashboard {
-        background: rgba(255,255,255,0.1);
-        backdrop-filter: blur(15px);
-        border-radius: 20px;
-        padding: 40px 30px;
-        max-width: 700px;
-        width: 100%;
-        text-align: center;
-        box-shadow: 0 15px 30px rgba(0,0,0,0.5);
-        transition: transform 0.5s ease, box-shadow 0.5s ease;
-    }
-    .dashboard:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 25px 50px rgba(0,0,0,0.6);
-    }
+        body {
+            font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f4f6f8;
+            color: #2c3e50;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
 
-    h1 {
-        font-size: 36px;
-        margin-bottom: 30px;
-        text-transform: uppercase;
-        color: #fff;
-        letter-spacing: 1px;
-        text-shadow: 0 0 8px rgba(0,0,0,0.3);
-    }
+        /* Header */
+        header {
+            width: 100%;
+            background: #1f2933;
+            color: #ffffff;
+            padding: 24px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
 
-    /* Buttons */
-    .dashboard a {
-        display: inline-block;
-        margin: 10px 10px 0 10px;
-        padding: 12px 25px;
-        background: #1abc9c;
-        color: white;
-        text-decoration: none;
-        font-weight: bold;
-        border-radius: 8px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        transition: background 0.3s ease, transform 0.3s ease;
-    }
-    .dashboard a:hover {
-        background: #16a085;
-        transform: translateY(-3px);
-        box-shadow: 0 10px 20px rgba(0,0,0,0.3);
-    }
+        header h1 {
+            font-size: 26px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
 
-    /* Footer */
-    footer {
-        margin-top: 30px;
-        font-size: 12px;
-        color: rgba(255,255,255,0.6);
-    }
+        /* Dashboard Container */
+        .dashboard {
+            width: 100%;
+            max-width: 900px;
+            margin-top: 40px;
+            padding: 0 20px;
+        }
 
-    /* Responsive Design */
-    @media (max-width: 600px) {
-        h1 { font-size: 28px; }
-        .dashboard a { font-size: 14px; padding: 10px 20px; }
-    }
-</style>
+        /* Card Grid */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+        }
+
+        /* Cards */
+        .card {
+            background: #ffffff;
+            border-radius: 14px;
+            padding: 28px 22px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+            text-align: center;
+        }
+
+        .card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 14px 28px rgba(0,0,0,0.12);
+        }
+
+        .card h2 {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #1f2933;
+        }
+
+        .card p {
+            font-size: 14px;
+            color: #6b7280;
+            margin-bottom: 20px;
+        }
+
+        /* Buttons */
+        .card a {
+            display: inline-block;
+            padding: 10px 18px;
+            background: #2563eb;
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 8px;
+            transition: background 0.2s ease;
+        }
+
+        .card a:hover {
+            background: #1e40af;
+        }
+
+        /* Footer */
+        footer {
+            margin-top: auto;
+            padding: 20px 0;
+            font-size: 12px;
+            color: #9ca3af;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            header h1 {
+                font-size: 22px;
+            }
+        }
+    </style>
 </head>
+
 <body>
 
-<div class="dashboard">
-    <h1>Welcome to Your Fitness App</h1>
+<header>
+    <h1>Fitness Dashboard</h1>
+</header>
 
-    <!-- Feature Buttons -->
-    <div>
-        <a href="/add/custom/meal">Add Custom Food</a>
-        <a href="/view/Nutrition">View Custom Food</a>
-        <a href="/user/macro/information">Add Daily Calorie Goals</a>
-        <a href="/total">Calorie Goal</a>
-        <a href="/hra/upload">File Upload</a>
+<div class="dashboard">
+    <div class="card-grid">
+
+        <div class="card">
+            <h2>Add Custom Food</h2>
+            <p>Create and save your own food items.</p>
+            <a href="/add/custom/meal">Open</a>
+        </div>
+
+        <div class="card">
+            <h2>View Custom Food</h2>
+            <p>Review foods you’ve already added.</p>
+            <a href="/view/Nutrition">View</a>
+        </div>
+
+        <div class="card">
+            <h2>Daily Calorie Goals</h2>
+            <p>Set or update your daily intake goals.</p>
+            <a href="/user/macro/information">Manage</a>
+        </div>
+
+        <div class="card">
+            <h2>Calorie Summary</h2>
+            <p>See how your intake compares to your goals.</p>
+            <a href="/total">View</a>
+        </div>
+
+        <div class="card">
+            <h2>HRA Upload</h2>
+            <p>Upload health risk assessment files.</p>
+            <a href="/hra/upload">Upload</a>
+        </div>
+
     </div>
 </div>
 
 <footer>
-    &copy; 2024 Fitness App. All rights reserved.
+    © 2024 Fitness App
 </footer>
 
 </body>
