@@ -22,5 +22,13 @@ public interface CalorieInformationRepository extends JpaRepository<CalorieInfor
     @Query("SELECT c FROM CalorieInformation c WHERE c.date = CURRENT_DATE")
     List<CalorieInformation> findAllByToday();
 
+    @Query("SELECT COALESCE(SUM(c.calories), 0) " +
+            "FROM CalorieInformation c " +
+            "WHERE c.userLoginDetails = :user " +
+            "AND c.date = CURRENT_DATE")
+    double sumCaloriesTodayByUser(@Param("user") UserLoginDetails user);
+
+
+
 }
 

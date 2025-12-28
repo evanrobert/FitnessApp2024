@@ -16,6 +16,9 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import javax.servlet.http.HttpServletResponse;
+import java.io.PrintWriter;
+
 
 import java.security.Principal;
 import java.util.List;
@@ -79,6 +82,53 @@ public class ViewLoggedNutritionController {
 
         return result.equals("error") ? "error" : "redirect:/home";
     }
+
+    @GetMapping("/download/nutrition")
+    public void downloadNutritionCsv(Principal principal,
+                                     HttpServletResponse response) {
+        try {
+            String username = principal.getName();
+            UserLoginDetails user =
+                    userLoginDetailsRepository.findByUsername(username);
+
+            List<CalorieInformation> entries =
+                    calorieInformationRepository.findAllByUserLoginDetails(user);
+
+            response.setContentType("text/csv");
+            response.setHeader(
+                    "Content-Disposition",
+                    "attachment; filename=nutrition-log.csv"
+            );
+
+            PrintWriter writer = response.getWriter();
+
+            // CSV header
+            writer.println("Item,Date,Calories,Protein,Fat,Carbs,Fiber,Sugars,Sodium,Cholesterol,MealType");
+
+            // CSV rows
+            for (CalorieInformation c : entries) {
+                writer.printf(
+                        "%s,%s,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%s%n",
+                        c.getItemName(),
+                        c.getDate(),
+                        c.getCalories(),
+                        c.getProteins(),
+                        c.getFats(),
+                        c.getCarbohydrates(),
+                        c.getFiber(),
+                        c.getSugars(),
+                        c.getSodium(),
+                        c.getCholesterol(),
+                        c.getMealType()
+                );
+            }
+
+            writer.flush();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 
 
 

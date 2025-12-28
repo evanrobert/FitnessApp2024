@@ -2,6 +2,7 @@ package Evan.Application.Fitness.Controller;
 
 import Evan.Application.Fitness.Model.UserLoginDetails;
 import Evan.Application.Fitness.Model.UserMacroInformation;
+import Evan.Application.Fitness.Repositorys.CalorieInformationRepository;
 import Evan.Application.Fitness.Repositorys.UserLoginDetailsRepository;
 import Evan.Application.Fitness.Repositorys.UserMacroInformationRepository;
 import Evan.Application.Fitness.Service.CaloriesLeftService;
@@ -25,6 +26,8 @@ public class UserMacroInformationController {
     UserLoginDetailsRepository userLoginDetailsRepository;
     @Autowired
     UserMacroInformationRepository userMacroInformationRepository;
+    @Autowired
+    CalorieInformationRepository calorieInformationRepository;
     @Autowired
     DailyIntakeService dailyIntakeService;
     @GetMapping("/user/macro/information")
@@ -84,20 +87,34 @@ public class UserMacroInformationController {
 
 
     @GetMapping("/total")
-    public String getTotalCalories(Model model) {
+    public String getTotalCalories(Model model, Principal principal) {
 
-        double totalCalories = caloriesLeftService.getAllotedCalorieRemainder();
+        // 1️⃣ Get logged-in user
+        String username = principal.getName();
+        UserLoginDetails user = userLoginDetailsRepository.findByUsername(username);
 
+        // 2️⃣ Get calories consumed today
+        double caloriesConsumed = calorieInformationRepository.sumCaloriesTodayByUser(user);
 
-        // Add the total calories to the model
-        model.addAttribute("totalCalories", totalCalories);
+        // 3️⃣ Get daily goal
+        UserMacroInformation macroInfo = userMacroInformationRepository.findByUserLoginDetails(user);
+        double dailyGoal = macroInfo != null ? macroInfo.getDailyCalories() : 0;
 
-        // Return the name of the view to render
+        // 4️⃣ Calculate remaining
+        double remainingCalories = dailyGoal - caloriesConsumed;
+
+        // 5️⃣ Add to model
+        model.addAttribute("dailyGoal", dailyGoal);
+        model.addAttribute("caloriesConsumed", caloriesConsumed);
+        model.addAttribute("remainingCalories", remainingCalories);
+
         return "CalorieSummary";
     }
 
 
-        }
+
+
+}
 
 
 
