@@ -1,19 +1,23 @@
 :root {
-    --bg: #f6f8fb;
-    --surface: #ffffff;
-    --surface-soft: #eef4f8;
-    --ink: #172033;
-    --muted: #667085;
-    --line: #dbe4ea;
-    --brand: #24527a;
-    --brand-strong: #183b58;
-    --accent: #18a999;
-    --accent-soft: #dff7f2;
-    --gold: #f4b942;
+    --bg: #111418;
+    --surface: #f8f9f6;
+    --surface-dark: #171b21;
+    --surface-soft: #ecefed;
+    --ink: #161a1f;
+    --ink-inverse: #f7f4ed;
+    --muted: #6e7781;
+    --muted-inverse: #aeb6bd;
+    --line: #d9dedc;
+    --line-dark: #2a3038;
+    --brand: #b51f2a;
+    --brand-strong: #7f121a;
+    --accent: #c5a15a;
+    --accent-soft: #f5ecd7;
+    --steel: #59636f;
     --danger: #d64545;
-    --success: #18865c;
-    --shadow: 0 18px 45px rgba(23, 32, 51, 0.12);
-    --shadow-soft: 0 8px 22px rgba(23, 32, 51, 0.08);
+    --success: #248a5b;
+    --shadow: 0 22px 55px rgba(0, 0, 0, 0.24);
+    --shadow-soft: 0 10px 24px rgba(0, 0, 0, 0.14);
     --radius: 8px;
 }
 
@@ -29,8 +33,9 @@ body {
     min-height: 100vh;
     margin: 0;
     background:
-        radial-gradient(circle at top left, rgba(24, 169, 153, 0.14), transparent 34rem),
-        linear-gradient(180deg, #fbfcfe 0%, var(--bg) 100%);
+        linear-gradient(180deg, rgba(17, 20, 24, 0.08), rgba(17, 20, 24, 0.22)),
+        repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.025) 0 1px, transparent 1px 14px),
+        #eef0ec;
     color: var(--ink);
     font-family: Inter, "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
     letter-spacing: 0;
@@ -52,8 +57,14 @@ a {
     place-items: center;
     padding: 24px;
     background:
-        linear-gradient(rgba(20, 39, 61, 0.62), rgba(20, 39, 61, 0.62)),
-        url("https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=1800&q=80") center/cover;
+        linear-gradient(90deg, rgba(8, 10, 13, 0.88), rgba(8, 10, 13, 0.62)),
+        url("/images/iron-hero.png") center/cover;
+}
+
+.landing-shell {
+    background:
+        linear-gradient(90deg, rgba(5, 6, 8, 0.92), rgba(5, 6, 8, 0.48)),
+        url("/images/iron-hero.png") center/cover;
 }
 
 .topbar {
@@ -68,7 +79,7 @@ a {
     display: inline-flex;
     align-items: center;
     gap: 10px;
-    color: var(--brand-strong);
+    color: var(--ink);
     font-weight: 800;
     text-decoration: none;
 }
@@ -93,17 +104,29 @@ a {
 }
 
 .hero {
-    min-height: 360px;
+    min-height: 390px;
     display: grid;
     align-items: end;
     padding: 36px;
     border-radius: var(--radius);
     background:
-        linear-gradient(90deg, rgba(13, 30, 45, 0.88), rgba(13, 30, 45, 0.38)),
-        url("https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=1800&q=80") center/cover;
+        linear-gradient(90deg, rgba(6, 7, 10, 0.92), rgba(6, 7, 10, 0.5)),
+        url("/images/lift-hero.png") center/cover;
     color: #ffffff;
     box-shadow: var(--shadow);
     overflow: hidden;
+}
+
+.landing-hero {
+    background:
+        linear-gradient(90deg, rgba(6, 7, 10, 0.9), rgba(6, 7, 10, 0.3)),
+        url("/images/iron-hero.png") center/cover;
+}
+
+.home-hero {
+    background:
+        linear-gradient(90deg, rgba(6, 7, 10, 0.93), rgba(6, 7, 10, 0.42)),
+        url("/images/lift-hero.png") center/cover;
 }
 
 .hero h1,
@@ -210,7 +233,7 @@ a {
 .card-kicker,
 .eyebrow {
     margin: 0;
-    color: var(--accent);
+    color: var(--brand);
     font-size: 0.76rem;
     font-weight: 800;
     letter-spacing: 0.08em;
@@ -271,7 +294,7 @@ a {
 
 .btn-secondary {
     background: var(--accent-soft);
-    color: #0d6f65;
+    color: #6a501a;
 }
 
 .btn-ghost {
@@ -299,7 +322,8 @@ label {
 
 .input,
 select,
-input[type="file"] {
+input[type="file"],
+.textarea {
     width: 100%;
     min-height: 44px;
     border: 1px solid var(--line);
@@ -315,6 +339,11 @@ select:focus,
 input[type="file"]:focus {
     outline: 3px solid rgba(24, 169, 153, 0.18);
     border-color: var(--accent);
+}
+
+.textarea {
+    min-height: 112px;
+    resize: vertical;
 }
 
 .with-unit {
@@ -344,6 +373,248 @@ input[type="file"]:focus {
     color: var(--brand-strong);
 }
 
+.dashboard-overview {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.8fr);
+    gap: 16px;
+}
+
+.iron-panel {
+    position: relative;
+    overflow: hidden;
+    background:
+        linear-gradient(145deg, rgba(23, 27, 33, 0.98), rgba(35, 40, 48, 0.98)),
+        repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.03) 0 1px, transparent 1px 10px);
+    border: 1px solid var(--line-dark);
+    border-radius: var(--radius);
+    color: var(--ink-inverse);
+    box-shadow: var(--shadow);
+    padding: 22px;
+}
+
+.iron-panel h2,
+.iron-panel h3,
+.iron-panel p {
+    margin: 0;
+}
+
+.iron-panel .eyebrow,
+.iron-panel .card-kicker {
+    color: var(--accent);
+}
+
+.iron-panel p {
+    color: var(--muted-inverse);
+}
+
+.calorie-gauge {
+    --progress: 0%;
+    display: grid;
+    grid-template-columns: 168px 1fr;
+    gap: 22px;
+    align-items: center;
+}
+
+.plate-gauge {
+    width: 168px;
+    aspect-ratio: 1;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background:
+        radial-gradient(circle, #15191f 0 42%, transparent 43%),
+        conic-gradient(var(--brand) var(--progress), #353c45 0);
+    box-shadow: inset 0 0 0 12px #242a32, inset 0 0 0 24px #101318, 0 14px 26px rgba(0, 0, 0, 0.3);
+}
+
+.plate-gauge::before {
+    content: "";
+    width: 54px;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: #0e1115;
+    border: 10px solid #2d343d;
+}
+
+.lift-number {
+    color: #ffffff;
+    font-size: clamp(2rem, 5vw, 4.8rem);
+    font-weight: 900;
+    line-height: 0.95;
+}
+
+.stat-strip {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.stat-tile {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius);
+    padding: 14px;
+}
+
+.stat-tile strong {
+    display: block;
+    margin-top: 6px;
+    color: #ffffff;
+    font-size: 1.55rem;
+}
+
+.macro-stack {
+    display: grid;
+    gap: 14px;
+}
+
+.macro-row {
+    display: grid;
+    gap: 7px;
+}
+
+.macro-row header {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    color: var(--ink-inverse);
+    font-weight: 800;
+}
+
+.macro-bar {
+    height: 10px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: #303741;
+}
+
+.macro-bar span {
+    display: block;
+    width: min(var(--progress, 0%), 100%);
+    height: 100%;
+    background: linear-gradient(90deg, var(--brand), var(--accent));
+}
+
+.visual-grid {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.visual-card {
+    min-height: 150px;
+    background: var(--surface-dark);
+    color: var(--ink-inverse);
+    border-color: var(--line-dark);
+}
+
+.visual-card p {
+    color: var(--muted-inverse);
+}
+
+.nutrition-dashboard {
+    grid-template-columns: repeat(4, minmax(160px, 1fr));
+    margin-bottom: 16px;
+}
+
+.nutrition-stat {
+    background: var(--surface-dark);
+    border: 1px solid var(--line-dark);
+    color: var(--ink-inverse);
+    border-radius: var(--radius);
+    padding: 16px;
+    box-shadow: var(--shadow-soft);
+}
+
+.nutrition-stat span {
+    color: var(--muted-inverse);
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.nutrition-stat strong {
+    display: block;
+    margin-top: 8px;
+    color: #ffffff;
+    font-size: 2rem;
+    line-height: 1;
+}
+
+.nutrition-panel {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-soft);
+    overflow: hidden;
+}
+
+.nutrition-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 18px;
+    border-bottom: 1px solid var(--line);
+    background: #fbfcfa;
+}
+
+.nutrition-head h1 {
+    margin: 0;
+    color: var(--ink);
+    font-size: 1.5rem;
+}
+
+.nutrition-table {
+    min-width: 1040px;
+}
+
+.nutrition-table th {
+    background: #171b21;
+    color: var(--ink-inverse);
+}
+
+.nutrition-table td {
+    vertical-align: top;
+}
+
+.nutrition-table .input,
+.nutrition-table select {
+    min-height: 38px;
+    padding: 8px 10px;
+    text-align: left;
+}
+
+.number-field {
+    max-width: 112px;
+}
+
+.micro-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(92px, 1fr));
+    gap: 8px;
+}
+
+.micro-grid label {
+    gap: 4px;
+    color: var(--muted);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+}
+
+.row-food {
+    min-width: 230px;
+}
+
+.toolbar-sticky {
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+    border-top: 1px solid var(--line);
+    background: rgba(248, 249, 246, 0.94);
+    backdrop-filter: blur(10px);
+}
+
 .meter {
     width: 100%;
     height: 14px;
@@ -357,7 +628,7 @@ input[type="file"]:focus {
     height: 100%;
     width: var(--progress, 0%);
     max-width: 100%;
-    background: linear-gradient(90deg, var(--accent), var(--gold));
+    background: linear-gradient(90deg, var(--brand), var(--accent));
 }
 
 .status-good {
@@ -508,5 +779,21 @@ summary {
 
     .range-row {
         grid-template-columns: 1fr;
+    }
+
+    .dashboard-overview,
+    .calorie-gauge,
+    .stat-strip,
+    .nutrition-dashboard {
+        grid-template-columns: 1fr;
+    }
+
+    .plate-gauge {
+        width: 132px;
+    }
+
+    .nutrition-head {
+        align-items: flex-start;
+        flex-direction: column;
     }
 }

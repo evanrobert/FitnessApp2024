@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workout Log</title>
+    <link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+<main class="app-shell">
+    <nav class="topbar" aria-label="Main navigation">
+        <a class="brand-mark" href="/home">
+            <span class="brand-icon" aria-hidden="true">EF</span>
+            Evan Fitness
+        </a>
+        <div class="nav-actions">
+            <a class="btn btn-ghost" href="/view/Nutrition">Nutrition Log</a>
+            <a class="btn btn-ghost" href="/total">Summary</a>
+            <a class="btn btn-primary" href="/add/custom/meal">Log Meal</a>
+        </div>
+    </nav>
+
+    <section class="page-title">
+        <p class="eyebrow">Training Ledger</p>
+        <h1>Workout Log</h1>
+        <p>Track the lifts that make the nutrition matter: sets, reps, load, type, and notes.</p>
+    </section>
+
+    <section class="grid summary-grid">
+        <div class="nutrition-stat">
+            <span>Total Workouts</span>
+            <strong th:text="${totalWorkouts}">0</strong>
+        </div>
+        <div class="nutrition-stat">
+            <span>Total Volume</span>
+            <strong><span th:text="${totalVolume}">0</span> lb</strong>
+        </div>
+    </section>
+
+    <section class="section dashboard-overview">
+        <div class="tool-panel">
+            <div class="section-heading">
+                <div>
+                    <p class="eyebrow">Log Lift</p>
+                    <h2>New Workout</h2>
+                </div>
+            </div>
+
+            <form th:action="@{/workouts}" th:object="${workoutInformation}" method="post" class="grid form-grid">
+                <div class="field span-2">
+                    <label for="exerciseName">Exercise</label>
+                    <input class="input" id="exerciseName" type="text" th:field="*{exerciseName}" placeholder="e.g., Back squat" required>
+                </div>
+
+                <div class="field">
+                    <label for="date">Date</label>
+                    <input class="input" id="date" type="date" th:field="*{date}">
+                </div>
+
+                <div class="field">
+                    <label for="workoutType">Type</label>
+                    <select class="input" id="workoutType" th:field="*{workoutType}">
+                        <option value="STRENGTH">Strength</option>
+                        <option value="HYPERTROPHY">Hypertrophy</option>
+                        <option value="CONDITIONING">Conditioning</option>
+                        <option value="ACCESSORY">Accessory</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label for="sets">Sets</label>
+                    <input class="input" id="sets" type="number" min="1" step="1" th:field="*{sets}" required>
+                </div>
+
+                <div class="field">
+                    <label for="reps">Reps</label>
+                    <input class="input" id="reps" type="number" min="1" step="1" th:field="*{reps}" required>
+                </div>
+
+                <div class="field with-unit span-2">
+                    <label for="weight">Weight</label>
+                    <input class="input" id="weight" type="number" min="0" step="0.5" th:field="*{weight}" required>
+                    <span class="unit">lb</span>
+                </div>
+
+                <div class="field span-2">
+                    <label for="notes">Notes</label>
+                    <textarea class="input textarea" id="notes" th:field="*{notes}" placeholder="Top set, RPE, form cues, equipment, PR notes"></textarea>
+                </div>
+
+                <button class="btn btn-primary span-2" type="submit">Save Workout</button>
+            </form>
+        </div>
+
+        <div class="iron-panel">
+            <p class="eyebrow">Heavy Work</p>
+            <h2 style="margin-top: 6px">Training Sync</h2>
+            <p style="margin-top: 12px">Every saved workout feeds the dashboard volume and session count immediately.</p>
+            <div class="stat-strip" style="grid-template-columns: 1fr; margin-top: 18px">
+                <div class="stat-tile">
+                    <p>Session Count</p>
+                    <strong th:text="${totalWorkouts}">0</strong>
+                </div>
+                <div class="stat-tile">
+                    <p>Volume</p>
+                    <strong th:text="${totalVolume}">0</strong>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section nutrition-panel" th:if="${workouts != null and !workouts.isEmpty()}">
+        <header class="nutrition-head">
+            <div>
+                <p class="eyebrow">Saved Training</p>
+                <h1>Previous Workouts</h1>
+            </div>
+        </header>
+
+        <div class="table-scroll">
+            <table class="nutrition-table">
+                <thead>
+                <tr>
+                    <th>Exercise</th>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Sets</th>
+                    <th>Reps</th>
+                    <th>Weight</th>
+                    <th>Notes</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="workout : ${workouts}">
+                    <td th:text="${workout.exerciseName}">Back squat</td>
+                    <td th:text="${workout.date}">2026-06-22</td>
+                    <td th:text="${workout.workoutType}">Strength</td>
+                    <td th:text="${workout.sets}">5</td>
+                    <td th:text="${workout.reps}">5</td>
+                    <td th:text="${workout.weight} + ' lb'">315 lb</td>
+                    <td th:text="${workout.notes}">RPE 8</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+</body>
+</html>

@@ -24,9 +24,13 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf().disable().authorizeRequests()
-                .antMatchers().permitAll()
-                .antMatchers("/home").authenticated()
+                .antMatchers("/", "/login", "/signup", "/submitSignup", "/css/**", "/js/**", "/images/**").permitAll()
+                .antMatchers("/home", "/add/custom/meal", "/Post/Custom/Meal", "/view/Nutrition",
+                        "/edit/nutrition/information", "/download/nutrition", "/user/macro/information",
+                        "/ModifyDailyIntake", "/log/custom/macro/information", "/edit/macro/information",
+                        "/total", "/workouts").authenticated()
                 .antMatchers("/test").hasRole("USER")
+                .anyRequest().authenticated()
                 .and()
                 .formLogin()
                 .loginPage("/login")
@@ -38,5 +42,4 @@ public class SecurityConfig {
         return http.build();
     }
 }
-
 

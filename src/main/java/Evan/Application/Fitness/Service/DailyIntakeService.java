@@ -25,13 +25,18 @@ public class DailyIntakeService {
             return "error";
         }
 UserMacroInformation existingUserMacroInformation = userMacroInformationRepository.findByUserLoginDetails(userLoginDetails);
+    if (existingUserMacroInformation == null) {
+        existingUserMacroInformation = new UserMacroInformation();
+        existingUserMacroInformation.setUserLoginDetails(userLoginDetails);
+    }
     existingUserMacroInformation.setDailyCalories(oldMacroInformation.getDailyCalories());
     existingUserMacroInformation.setDailyProtein(oldMacroInformation.getDailyProtein());
     existingUserMacroInformation.setDailyFat(oldMacroInformation.getDailyFat());
+    existingUserMacroInformation.setDailyCarbohydrates(oldMacroInformation.getDailyCarbohydrates());
 
     userMacroInformationRepository.save(existingUserMacroInformation);
 
-    return "home";
+    return "redirect:/home";
 
 
 

@@ -10,8 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 
 import java.security.Principal;
-import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 
@@ -38,7 +38,7 @@ public class LoggedNutritionService {
         for (CalorieInformation calorieInformation : calorieInformationList) {
             // Check if the entry already exists, otherwise create a new one
             Optional<CalorieInformation> existingNutrition = nutritionList.stream()
-                    .filter(item -> item.getId().equals(calorieInformation.getId()))
+                    .filter(item -> Objects.equals(item.getId(), calorieInformation.getId()))
                     .findFirst();
 
             CalorieInformation nutritionToSave;
@@ -58,6 +58,7 @@ public class LoggedNutritionService {
             nutritionToSave.setFiber(calorieInformation.getFiber());
             nutritionToSave.setItemName(calorieInformation.getItemName());
             nutritionToSave.setSodium(calorieInformation.getSodium());
+            nutritionToSave.setSugars(calorieInformation.getSugars());
             nutritionToSave.setMealType(calorieInformation.getMealType());
             nutritionToSave.setCarbohydrates(calorieInformation.getCarbohydrates());
 

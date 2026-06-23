@@ -6,48 +6,6 @@
     <title>Log a Custom Meal</title>
     <link rel="stylesheet" href="/css/app.css">
     <script src="/js/app.js" defer></script>
-    <style>
-    :root{
-      --bg1:#24527a;--bg2:#74b9ff;--brand:#24527a;--brand-2:#1abc9c;--text:#1f2937;--muted:#6b7280;--card:rgba(255,255,255,.97)
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0;display:flex;align-items:center;justify-content:center;min-height:100vh;
-      font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";
-      background:linear-gradient(135deg,var(--bg1),var(--bg2));
-      color:var(--text);padding:24px
-    }
-    .container{width:100%;max-width:760px;margin-inline:auto}
-    .card{background:var(--card);backdrop-filter:blur(10px);border-radius:20px;box-shadow:0 12px 30px rgba(0,0,0,.25);transition:.35s transform,.35s box-shadow;position:relative}
-    .card:hover{transform:translateY(-6px);box-shadow:0 18px 44px rgba(0,0,0,.35)}
-    .card-header{padding:28px 28px 10px}
-    .title{margin:0;font-size:28px;letter-spacing:.3px;color:var(--brand);text-align:center}
-    .subtitle{margin:6px 0 0;text-align:center;color:var(--muted);font-size:14px}
-    form{padding:18px 20px 22px}
-    .grid{display:grid;gap:14px}
-    @media (min-width:720px){.grid.cols-2{grid-template-columns:1fr 1fr}}
-    label{font-weight:600;font-size:14px;margin-bottom:6px;color:#334155;display:block}
-    .field{display:flex;flex-direction:column}
-    .input, select{width:100%;border:1px solid #e5e7eb;border-radius:12px;background:#f8fafc;padding:14px 14px;box-shadow:0 4px 10px rgba(0,0,0,.05) inset;font-size:16px;transition:border .2s, box-shadow .2s}
-    .input:focus, select:focus{outline:none;border-color:#94a3b8;box-shadow:0 0 0 3px rgba(36,82,122,.15)}
-    .help{font-size:12px;color:var(--muted);margin-top:6px}
-    .with-unit{position:relative}
-    .with-unit .unit{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:12px;color:#6b7280}
-    details{background:#f1f5f9;border:1px solid #e2e8f0;border-radius:12px;padding:10px 12px}
-    summary{cursor:pointer;font-weight:600;color:#334155}
-    details[open]{background:#eef2ff;border-color:#c7d2fe}
-    .actions{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-top:12px}
-    .btn{appearance:none;border:0;border-radius:12px;padding:14px 16px;font-weight:700;cursor:pointer;box-shadow:0 6px 16px rgba(0,0,0,.15);transition:transform .05s ease,filter .15s ease}
-    .btn:active{transform:translateY(1px)}
-    .btn-primary{background:linear-gradient(135deg,var(--brand),var(--brand-2));color:white;width:100%}
-    .note{font-size:12px;color:var(--muted)}
-    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
-    .ok{font-size:12px;color:#065f46}
-    body{display:block;align-items:initial;justify-content:initial;background:#f6f8fb;padding:0}
-    .container{max-width:860px}
-    .card:hover{transform:none;box-shadow:var(--shadow-soft)}
-  </style>
 </head>
 <body>
 <main class="app-shell">
@@ -58,101 +16,92 @@
         </a>
         <div class="nav-actions">
             <a class="btn btn-ghost" href="/view/Nutrition">Nutrition Log</a>
+            <a class="btn btn-ghost" href="/workouts">Workouts</a>
             <a class="btn btn-ghost" href="/total">Summary</a>
         </div>
     </nav>
 
-<div class="container">
-    <div class="card tool-panel">
-        <div class="card-header">
-            <p class="eyebrow">Meal Builder</p>
-            <h1 class="title">Log a Custom Meal</h1>
-            <p class="subtitle">Quickly add calories and macros. Advanced nutrition is optional.</p>
-        </div>
+    <section class="page-title">
+        <p class="eyebrow">Meal Builder</p>
+        <h1>Log a Custom Meal</h1>
+        <p>Feed the work. Add calories, macros, and optional nutrition details without leaving the training dashboard.</p>
+    </section>
 
-        <form th:action="@{/Post/Custom/Meal}" th:object="${calorieInformation}" method="post" novalidate>
-            <div class="grid cols-2" aria-labelledby="essentials">
-                <h2 id="essentials" class="sr-only">Essential fields</h2>
-
-                <div class="field" style="grid-column:1/-1">
-                    <label for="itemName">Meal Item Name</label>
-                    <input class="input" type="text" id="itemName" th:field="*{itemName}" placeholder="e.g., Grilled chicken bowl" autocomplete="off" required />
-                    <div class="help">Use a clear name so you can find it later (e.g., "Turkey sandwich – homemade").</div>
-                </div>
-
-                <div class="field with-unit">
-                    <label for="proteins">Protein</label>
-                    <input class="input" type="number" inputmode="decimal" id="proteins" th:field="*{proteins}" placeholder="15.5" step="0.01" min="0" required />
-                    <span class="unit">g</span>
-                </div>
-
-                <div class="field with-unit">
-                    <label for="fats">Fat</label>
-                    <input class="input" type="number" inputmode="decimal" id="fats" th:field="*{fats}" placeholder="5.2" step="0.01" min="0" required />
-                    <span class="unit">g</span>
-                </div>
-
-                <div class="field with-unit">
-                    <label for="carbohydrates">Carbs</label>
-                    <input class="input" type="number" inputmode="decimal" id="carbohydrates" th:field="*{carbohydrates}" placeholder="20.1" step="0.01" min="0" required />
-                    <span class="unit">g</span>
-                </div>
-
-                <div class="field with-unit">
-                    <label for="calories">Calories</label>
-                    <input class="input" type="number" inputmode="decimal" id="calories" th:field="*{calories}" placeholder="e.g., 300" step="0.01" min="0" required />
-                    <span class="unit">kcal</span>
-                    <button class="btn btn-secondary" type="button" id="calculateCalories" style="margin-top:8px">Calculate from macros</button>
-                </div>
-
-                <div class="field">
-                    <label for="mealType">Meal Type</label>
-                    <select id="mealType" th:field="*{MealType}" class="input">
-                        <option value="BREAKFAST">Breakfast</option>
-                        <option value="LUNCH">Lunch</option>
-                        <option value="DINNER">Dinner</option>
-                        <option value="SNACK">Snack</option>
-                    </select>
-                </div>
+    <section class="tool-panel form-card">
+        <form th:action="@{/Post/Custom/Meal}" th:object="${calorieInformation}" method="post" class="grid form-grid">
+            <div class="field span-2">
+                <label for="itemName">Meal Item Name</label>
+                <input class="input" type="text" id="itemName" th:field="*{itemName}" placeholder="e.g., Ribeye and rice" autocomplete="off" required>
+                <p class="form-help">Use a clear name so it is easy to find in the nutrition log later.</p>
             </div>
 
-            <details style="margin-top:10px">
-                <summary>Advanced nutrition (optional)</summary>
-                <div class="grid cols-2" style="margin-top:10px">
+            <div class="field with-unit">
+                <label for="proteins">Protein</label>
+                <input class="input" type="number" inputmode="decimal" id="proteins" th:field="*{proteins}" placeholder="45" step="0.01" min="0" required>
+                <span class="unit">g</span>
+            </div>
+
+            <div class="field with-unit">
+                <label for="fats">Fat</label>
+                <input class="input" type="number" inputmode="decimal" id="fats" th:field="*{fats}" placeholder="20" step="0.01" min="0" required>
+                <span class="unit">g</span>
+            </div>
+
+            <div class="field with-unit">
+                <label for="carbohydrates">Carbs</label>
+                <input class="input" type="number" inputmode="decimal" id="carbohydrates" th:field="*{carbohydrates}" placeholder="75" step="0.01" min="0" required>
+                <span class="unit">g</span>
+            </div>
+
+            <div class="field with-unit">
+                <label for="calories">Calories</label>
+                <input class="input" type="number" inputmode="decimal" id="calories" th:field="*{calories}" placeholder="660" step="0.01" min="0" required>
+                <span class="unit">kcal</span>
+                <button class="btn btn-secondary" type="button" id="calculateCalories" style="margin-top:8px">Calculate from macros</button>
+            </div>
+
+            <div class="field span-2">
+                <label for="mealType">Meal Type</label>
+                <select id="mealType" th:field="*{mealType}" class="input">
+                    <option value="BREAKFAST">Breakfast</option>
+                    <option value="LUNCH">Lunch</option>
+                    <option value="DINNER">Dinner</option>
+                    <option value="SNACK">Snack</option>
+                </select>
+            </div>
+
+            <details class="span-2">
+                <summary>Advanced nutrition</summary>
+                <div class="grid form-grid" style="margin-top: 14px">
                     <div class="field with-unit">
                         <label for="fiber">Fiber</label>
-                        <input class="input" type="number" inputmode="decimal" id="fiber" th:field="*{fiber}" placeholder="e.g., 4" step="0.01" min="0" />
+                        <input class="input" type="number" inputmode="decimal" id="fiber" th:field="*{fiber}" placeholder="4" step="0.01" min="0">
                         <span class="unit">g</span>
                     </div>
 
                     <div class="field with-unit">
                         <label for="sugars">Sugars</label>
-                        <input class="input" type="number" inputmode="decimal" id="sugars" th:field="*{sugars}" placeholder="e.g., 6" step="0.01" min="0" />
+                        <input class="input" type="number" inputmode="decimal" id="sugars" th:field="*{sugars}" placeholder="6" step="0.01" min="0">
                         <span class="unit">g</span>
                     </div>
 
                     <div class="field with-unit">
                         <label for="sodium">Sodium</label>
-                        <input class="input" type="number" inputmode="decimal" id="sodium" th:field="*{sodium}" placeholder="e.g., 320" step="1" min="0" />
+                        <input class="input" type="number" inputmode="decimal" id="sodium" th:field="*{sodium}" placeholder="320" step="1" min="0">
                         <span class="unit">mg</span>
                     </div>
 
                     <div class="field with-unit">
                         <label for="cholesterol">Cholesterol</label>
-                        <input class="input" type="number" inputmode="decimal" id="cholesterol" th:field="*{cholesterol}" placeholder="e.g., 45" step="1" min="0" />
+                        <input class="input" type="number" inputmode="decimal" id="cholesterol" th:field="*{cholesterol}" placeholder="45" step="1" min="0">
                         <span class="unit">mg</span>
                     </div>
                 </div>
             </details>
 
-            <div class="actions">
-                <button type="submit" class="btn btn-primary">Log Meal</button>
-            </div>
-
-            <p class="note" style="margin-top:8px">Tip: Protein, fat, and carbs are required fields. Calories should reflect total meal energy.</p>
+            <button type="submit" class="btn btn-primary span-2">Log Meal</button>
         </form>
-    </div>
-</div>
+    </section>
 </main>
 </body>
 </html>

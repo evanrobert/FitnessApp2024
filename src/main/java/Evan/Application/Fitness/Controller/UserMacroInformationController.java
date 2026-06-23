@@ -67,7 +67,7 @@ public class UserMacroInformationController {
        userMacroInformation.setUserLoginDetails(userLoginDetails);
         try {
             userMacroInformationRepository.save(userMacroInformation);
-            return "home";
+            return "redirect:/home";
         } catch (Exception e){
             e.printStackTrace();
         }
@@ -115,6 +115,5 @@ public class UserMacroInformationController {
 
 
 }
-
 
 

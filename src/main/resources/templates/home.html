@@ -16,18 +16,77 @@
         <div class="nav-actions">
             <a class="btn btn-ghost" href="/total">Summary</a>
             <a class="btn btn-ghost" href="/view/Nutrition">Nutrition Log</a>
+            <a class="btn btn-ghost" href="/workouts">Workouts</a>
             <a class="btn btn-primary" href="/add/custom/meal">Log Meal</a>
         </div>
     </nav>
 
-    <section class="hero">
+    <section class="hero home-hero">
         <div>
-            <p class="eyebrow">Daily training and nutrition</p>
-            <h1>Keep today’s intake, goals, and reports in one focused place.</h1>
-            <p>Log meals, update macro targets, review progress, and keep health documents organized without digging through separate screens.</p>
+            <p class="eyebrow">Built for the iron routine</p>
+            <h1>Track the food that fuels heavy training.</h1>
+            <p>Keep calories, macros, meal history, and training volume in one focused command center.</p>
             <div class="action-row" style="margin-top: 22px">
                 <a class="btn btn-primary" href="/add/custom/meal">Log a meal</a>
-                <a class="btn btn-secondary" href="/user/macro/information">Set goals</a>
+                <a class="btn btn-secondary" href="/workouts">Log workout</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="section dashboard-overview">
+        <div class="iron-panel">
+            <div class="calorie-gauge" th:style="|--progress:${calorieProgress}%|">
+                <div class="plate-gauge" aria-hidden="true"></div>
+                <div>
+                    <p class="eyebrow">Today’s Fuel</p>
+                    <div class="lift-number"><span th:text="${caloriesConsumed}">0</span></div>
+                    <p>kcal logged against a <strong th:text="${dailyGoal}">0</strong> kcal target.</p>
+                    <div class="meter" style="margin-top: 16px">
+                        <span class="meter-fill" th:style="|--progress:${calorieProgress}%|"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-strip">
+                <div class="stat-tile">
+                    <p>Remaining</p>
+                    <strong th:text="${remainingCalories}">0</strong>
+                </div>
+                <div class="stat-tile">
+                    <p>Total Entries</p>
+                    <strong th:text="${mealCount}">0</strong>
+                </div>
+                <div class="stat-tile">
+                    <p>Workouts</p>
+                    <strong th:text="${workoutCount}">0</strong>
+                </div>
+                <div class="stat-tile">
+                    <p>Volume</p>
+                    <strong th:text="${trainingVolume}">0</strong>
+                </div>
+            </div>
+        </div>
+
+        <div class="iron-panel">
+            <p class="eyebrow">Macro Targets</p>
+            <h2 style="margin-top: 6px">Daily Split</h2>
+            <div class="macro-stack" style="margin-top: 18px" th:if="${macroInfo != null}">
+                <div class="macro-row">
+                    <header><span>Protein</span><span th:text="${macroInfo.dailyProtein} + 'g'">0g</span></header>
+                    <div class="macro-bar"><span th:style="|--progress:${macroInfo.dailyProtein / 300 * 100}%|"></span></div>
+                </div>
+                <div class="macro-row">
+                    <header><span>Carbs</span><span th:text="${macroInfo.dailyCarbohydrates} + 'g'">0g</span></header>
+                    <div class="macro-bar"><span th:style="|--progress:${macroInfo.dailyCarbohydrates / 500 * 100}%|"></span></div>
+                </div>
+                <div class="macro-row">
+                    <header><span>Fat</span><span th:text="${macroInfo.dailyFat} + 'g'">0g</span></header>
+                    <div class="macro-bar"><span th:style="|--progress:${macroInfo.dailyFat / 200 * 100}%|"></span></div>
+                </div>
+            </div>
+            <div th:if="${macroInfo == null}" style="margin-top: 18px">
+                <p>No macro goals are set yet.</p>
+                <a class="btn btn-secondary" href="/user/macro/information" style="margin-top: 14px">Create goals</a>
             </div>
         </div>
     </section>
@@ -35,23 +94,23 @@
     <section class="section">
         <div class="section-heading">
             <div>
-                <h2>Quick Actions</h2>
-                <p>Jump straight into the workflows you use most.</p>
+                <h2>Training Desk</h2>
+                <p>Fast paths for the daily work.</p>
             </div>
         </div>
 
         <div class="grid dashboard-grid">
             <a class="card" href="/add/custom/meal">
                 <p class="card-kicker">Nutrition</p>
-                <h2>Add Custom Food</h2>
-                <p>Create your own food item with calories, macros, and optional nutrient details.</p>
+                <h2>Log Meal</h2>
+                <p>Add food with calories, macros, and optional micronutrients.</p>
                 <span class="card-cta">Open form</span>
             </a>
 
             <a class="card" href="/view/Nutrition">
                 <p class="card-kicker">Tracking</p>
                 <h2>Nutrition Log</h2>
-                <p>Edit saved meals, filter by meal type, search entries, and export your log.</p>
+                <p>Edit saved meals, scan totals, filter by meal type, and export your data.</p>
                 <span class="card-cta">Review entries</span>
             </a>
 
@@ -62,18 +121,18 @@
                 <span class="card-cta">Manage goals</span>
             </a>
 
+            <a class="card" href="/workouts">
+                <p class="card-kicker">Training</p>
+                <h2>Workout Log</h2>
+                <p>Record lifts, sets, reps, load, and training notes.</p>
+                <span class="card-cta">Log workout</span>
+            </a>
+
             <a class="card" href="/total">
                 <p class="card-kicker">Progress</p>
                 <h2>Calorie Summary</h2>
                 <p>See how today’s intake compares to your daily calorie goal.</p>
                 <span class="card-cta">View summary</span>
-            </a>
-
-            <a class="card" href="/hra/upload">
-                <p class="card-kicker">Reports</p>
-                <h2>HRA Upload</h2>
-                <p>Upload and review health risk assessment report filenames.</p>
-                <span class="card-cta">Manage files</span>
             </a>
         </div>
     </section>

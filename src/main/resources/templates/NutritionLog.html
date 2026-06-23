@@ -3,56 +3,9 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Editable Nutrition Log</title>
+    <title>Nutrition Log</title>
     <link rel="stylesheet" href="/css/app.css">
     <script src="/js/app.js" defer></script>
-    <style>
-    :root{
-      --brand:#24527a; --brand2:#1abc9c; --ink:#0f172a; --muted:#64748b; --card:#ffffff;
-      --row:#f8fafc; --row-alt:#f3f6fb; --focus: 0 0 0 3px rgba(36,82,122,.2)
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{margin:0; background:#f4f6fb; color:var(--ink); font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial}
-
-    .wrap{max-width:1200px; margin:20px auto; padding:0 16px}
-
-    .card{background:var(--card); border-radius:16px; box-shadow:0 10px 30px rgba(0,0,0,.08); overflow:hidden}
-
-    header.card-head{display:flex; align-items:center; justify-content:space-between; padding:18px 20px; border-bottom:1px solid #e5e7eb}
-    header h1{margin:0; font-size:22px; color:var(--brand)}
-    header p{margin:4px 0 0; color:var(--muted); font-size:13px}
-
-    .table-wrap{position:relative}
-    .table-scroll{overflow:auto}
-    .table-shadow::after{content:""; position:absolute; top:0; right:0; width:24px; height:100%; pointer-events:none; background:linear-gradient(90deg, rgba(255,255,255,0), rgba(0,0,0,.06))}
-
-    table{width:100%; border-collapse:separate; border-spacing:0}
-    thead th{position:sticky; top:0; background:linear-gradient(135deg, var(--brand), var(--brand2)); color:#fff; text-align:left; padding:12px 10px; font-weight:700; font-size:13px}
-    thead th:first-child{border-top-left-radius:10px}
-    thead th:last-child{border-top-right-radius:10px}
-
-    tbody td{padding:12px 10px; border-bottom:1px solid #e9eef5; vertical-align:middle}
-    tbody tr:nth-child(even){background:var(--row-alt)}
-    tbody tr:nth-child(odd){background:var(--row)}
-    tbody tr:hover{background:#eef6ff}
-
-    .input, select{width:100%; padding:10px 12px; border:1px solid #dbe2ea; border-radius:10px; background:#fff; font-size:14px; text-align:center}
-    .input:focus, select:focus{outline:none; box-shadow:var(--focus); border-color:#c7d2fe}
-
-    .unit{position:relative}
-    .unit .input{padding-right:42px}
-    .unit .suffix{position:absolute; right:10px; top:50%; transform:translateY(-50%); font-size:12px; color:#64748b}
-
-    .toolbar{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 16px; border-top:1px solid #e5e7eb; background:#fff}
-    .toolbar .left{display:flex; gap:8px; align-items:center; color:#475569; font-size:13px}
-
-    .btn{appearance:none; border:0; border-radius:10px; padding:12px 14px; font-weight:700; cursor:pointer}
-    .btn-primary{background:linear-gradient(135deg,var(--brand),var(--brand2)); color:#fff; box-shadow:0 8px 18px rgba(0,0,0,.12)}
-    .btn-ghost{background:#eef2f7; color:#0f172a}
-
-    @media (max-width: 900px){ thead th{font-size:12px}; .input, select{font-size:13px} }
-  </style>
 </head>
 <body>
 <main class="app-shell">
@@ -63,32 +16,53 @@
         </a>
         <div class="nav-actions">
             <a class="btn btn-ghost" href="/total">Summary</a>
+            <a class="btn btn-ghost" href="/workouts">Workouts</a>
             <a class="btn btn-primary" href="/add/custom/meal">Log Meal</a>
         </div>
     </nav>
 
-<div class="wrap">
-    <form th:action="@{/edit/nutrition/information}" th:object="${calorieInformationForm}" method="post" class="card">
-        <header class="card-head">
-            <div>
-                <h1>Nutrition Log</h1>
-                <p th:if="*{calorieInformationList != null}"
-                   th:text="|Entries: | + *{calorieInformationList.size()}">
-                    Entries: 0
-                </p>
-            </div>
-            <div class="left" style="display:flex; gap:8px">
-                <a class="btn btn-ghost" href="/add/custom/meal">+ Add Meal</a>
-                <a class="btn btn-ghost" href="/view/Nutrition">View Foods</a>
-                <a class="btn btn-ghost" href="/download/nutrition">Download CSV</a>
-            </div>
+    <section class="page-title">
+        <p class="eyebrow">Nutrition Command Center</p>
+        <h1>Nutrition Log</h1>
+        <p>Edit your food entries, scan macro totals, and keep the table tight enough to actually use.</p>
+    </section>
 
+    <section class="grid nutrition-dashboard" aria-label="Visible nutrition totals">
+        <div class="nutrition-stat">
+            <span>Visible Rows</span>
+            <strong id="visibleRows">0</strong>
+        </div>
+        <div class="nutrition-stat">
+            <span>Calories</span>
+            <strong><span id="visibleCalories">0</span></strong>
+        </div>
+        <div class="nutrition-stat">
+            <span>Protein</span>
+            <strong><span id="visibleProtein">0</span>g</strong>
+        </div>
+        <div class="nutrition-stat">
+            <span>Carbs / Fat</span>
+            <strong><span id="visibleCarbs">0</span>g / <span id="visibleFat">0</span>g</strong>
+        </div>
+    </section>
+
+    <form th:action="@{/edit/nutrition/information}" th:object="${calorieInformationForm}" method="post" class="nutrition-panel">
+        <header class="nutrition-head">
+            <div>
+                <p class="eyebrow">Editable Food Ledger</p>
+                <h1>Saved Meals</h1>
+                <p class="form-help" th:if="*{calorieInformationList != null}" th:text="|Total saved rows: | + *{calorieInformationList.size()}">Total saved rows: 0</p>
+            </div>
+            <div class="action-row">
+                <a class="btn btn-ghost" href="/download/nutrition">Download CSV</a>
+                <a class="btn btn-secondary" href="/add/custom/meal">Add Meal</a>
+            </div>
         </header>
 
-        <div class="table-toolbar">
-            <label class="field" for="nutritionSearch" style="min-width: min(320px, 100%)">
-                Search entries
-                <input class="input" id="nutritionSearch" type="search" placeholder="Search by food, date, nutrient, or meal">
+        <div class="table-toolbar" style="padding: 16px 18px; margin: 0">
+            <label class="field" for="nutritionSearch" style="min-width: min(360px, 100%)">
+                Search
+                <input class="input" id="nutritionSearch" type="search" placeholder="Food, date, meal type, or nutrient value">
             </label>
             <label class="field" for="mealFilter">
                 Meal type
@@ -100,105 +74,91 @@
                     <option value="SNACK">Snack</option>
                 </select>
             </label>
-            <p class="form-help">Showing <strong id="visibleRows">0</strong> entries</p>
         </div>
 
-        <div class="table-wrap table-shadow">
-            <div class="table-scroll">
-                <table>
-                    <thead>
-                    <tr>
-                        <th style="min-width:180px">Item Name</th>
-                        <th style="min-width:150px">Date</th>
-                        <th style="min-width:120px">Calories</th>
-                        <th style="min-width:120px">Protein</th>
-                        <th style="min-width:120px">Fat</th>
-                        <th style="min-width:140px">Carbs</th>
-                        <th style="min-width:120px">Fiber</th>
-                        <th style="min-width:120px">Sugars</th>
-                        <th style="min-width:140px">Sodium</th>
-                        <th style="min-width:160px">Cholesterol</th>
-                        <th style="min-width:160px">Meal Type</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr th:each="item, stat : *{calorieInformationList}" data-nutrition-row th:attr="data-meal-type=${item.mealType}">
-                        <!-- First cell: name + hidden id -->
-                        <td>
-                            <input type="hidden" th:field="*{calorieInformationList[__${stat.index}__].id}" />
-                            <input class="input" type="text" th:field="*{calorieInformationList[__${stat.index}__].itemName}" placeholder="e.g., Turkey sandwich" />
-                        </td>
+        <div class="table-scroll">
+            <table class="nutrition-table">
+                <thead>
+                <tr>
+                    <th>Food</th>
+                    <th>Date</th>
+                    <th>Calories</th>
+                    <th>Protein</th>
+                    <th>Carbs</th>
+                    <th>Fat</th>
+                    <th>Micronutrients</th>
+                    <th>Meal</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="item, stat : *{calorieInformationList}" data-nutrition-row>
+                    <td class="row-food">
+                        <input type="hidden" th:field="*{calorieInformationList[__${stat.index}__].id}" />
+                        <input class="input" type="text" th:field="*{calorieInformationList[__${stat.index}__].itemName}" placeholder="Meal name" />
+                    </td>
 
-                        <td>
-                            <input class="input" type="date" th:field="*{calorieInformationList[__${stat.index}__].date}" />
-                        </td>
+                    <td>
+                        <input class="input" type="date" th:field="*{calorieInformationList[__${stat.index}__].date}" />
+                    </td>
 
-                        <td class="unit">
-                            <input class="input" type="number" step="0.01" min="0" th:field="*{calorieInformationList[__${stat.index}__].calories}" placeholder="0" />
-                            <span class="suffix">kcal</span>
-                        </td>
+                    <td>
+                        <input class="input number-field" data-nutrient="calories" type="number" step="0.01" min="0" th:field="*{calorieInformationList[__${stat.index}__].calories}" placeholder="0" />
+                    </td>
 
-                        <td class="unit">
-                            <input class="input" type="number" step="0.01" min="0" th:field="*{calorieInformationList[__${stat.index}__].proteins}" placeholder="0" />
-                            <span class="suffix">g</span>
-                        </td>
+                    <td>
+                        <input class="input number-field" data-nutrient="protein" type="number" step="0.01" min="0" th:field="*{calorieInformationList[__${stat.index}__].proteins}" placeholder="0" />
+                    </td>
 
-                        <td class="unit">
-                            <input class="input" type="number" step="0.01" min="0" th:field="*{calorieInformationList[__${stat.index}__].fats}" placeholder="0" />
-                            <span class="suffix">g</span>
-                        </td>
+                    <td>
+                        <input class="input number-field" data-nutrient="carbs" type="number" step="0.01" min="0" th:field="*{calorieInformationList[__${stat.index}__].carbohydrates}" placeholder="0" />
+                    </td>
 
-                        <td class="unit">
-                            <input class="input" type="number" step="0.01" min="0" th:field="*{calorieInformationList[__${stat.index}__].carbohydrates}" placeholder="0" />
-                            <span class="suffix">g</span>
-                        </td>
+                    <td>
+                        <input class="input number-field" data-nutrient="fat" type="number" step="0.01" min="0" th:field="*{calorieInformationList[__${stat.index}__].fats}" placeholder="0" />
+                    </td>
 
-                        <td class="unit">
-                            <input class="input" type="number" step="0.01" min="0" th:field="*{calorieInformationList[__${stat.index}__].fiber}" placeholder="0" />
-                            <span class="suffix">g</span>
-                        </td>
+                    <td>
+                        <div class="micro-grid">
+                            <label class="field">
+                                Fiber
+                                <input class="input" type="number" step="0.01" min="0" th:field="*{calorieInformationList[__${stat.index}__].fiber}" placeholder="g" />
+                            </label>
+                            <label class="field">
+                                Sugar
+                                <input class="input" type="number" step="0.01" min="0" th:field="*{calorieInformationList[__${stat.index}__].sugars}" placeholder="g" />
+                            </label>
+                            <label class="field">
+                                Sodium
+                                <input class="input" type="number" step="0.01" min="0" th:field="*{calorieInformationList[__${stat.index}__].sodium}" placeholder="mg" />
+                            </label>
+                            <label class="field">
+                                Chol.
+                                <input class="input" type="number" step="0.01" min="0" th:field="*{calorieInformationList[__${stat.index}__].cholesterol}" placeholder="mg" />
+                            </label>
+                        </div>
+                    </td>
 
-                        <td class="unit">
-                            <input class="input" type="number" step="0.01" min="0" th:field="*{calorieInformationList[__${stat.index}__].sugars}" placeholder="0" />
-                            <span class="suffix">g</span>
-                        </td>
-
-                        <td class="unit">
-                            <input class="input" type="number" step="0.01" min="0" th:field="*{calorieInformationList[__${stat.index}__].sodium}" placeholder="0" />
-                            <span class="suffix">mg</span>
-                        </td>
-
-                        <td class="unit">
-                            <input class="input" type="number" step="0.01" min="0" th:field="*{calorieInformationList[__${stat.index}__].cholesterol}" placeholder="0" />
-                            <span class="suffix">mg</span>
-                        </td>
-
-                        <td>
-                            <!-- Use a select instead of free text to reduce errors -->
-                            <select class="input" th:field="*{calorieInformationList[__${stat.index}__].mealType}">
-                                <option value="BREAKFAST">Breakfast</option>
-                                <option value="LUNCH">Lunch</option>
-                                <option value="DINNER">Dinner</option>
-                                <option value="SNACK">Snack</option>
-                            </select>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
+                    <td>
+                        <select class="input" th:field="*{calorieInformationList[__${stat.index}__].mealType}">
+                            <option value="BREAKFAST">Breakfast</option>
+                            <option value="LUNCH">Lunch</option>
+                            <option value="DINNER">Dinner</option>
+                            <option value="SNACK">Snack</option>
+                        </select>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
         </div>
 
-        <div class="toolbar">
-            <div class="left">
-                <span th:if="*{calorieInformationList != null}" th:text="|Total rows: | + *{calorieInformationList.size()}">Total rows: 0</span>
-            </div>
-            <div style="display:flex; gap:8px">
+        <div class="toolbar toolbar-sticky">
+            <p class="form-help">Changes are saved in bulk when you press Save Changes.</p>
+            <div class="action-row">
                 <button class="btn btn-ghost" type="reset">Reset</button>
                 <button class="btn btn-primary" type="submit">Save Changes</button>
             </div>
         </div>
     </form>
-</div>
 </main>
 </body>
 </html>

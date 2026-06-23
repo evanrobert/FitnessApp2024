@@ -25,20 +25,60 @@ function filterNutritionRows() {
     const term = (search?.value || "").trim().toLowerCase();
     const meal = mealFilter?.value || "ALL";
     let visibleCount = 0;
+    const totals = {
+        calories: 0,
+        protein: 0,
+        carbs: 0,
+        fat: 0
+    };
 
     rows.forEach((row) => {
-        const text = row.textContent.toLowerCase();
-        const rowMeal = row.getAttribute("data-meal-type") || "";
+        const text = getNutritionRowText(row);
+        const rowMeal = row.querySelector("select")?.value || row.getAttribute("data-meal-type") || "";
         const visible = (!term || text.includes(term)) && (meal === "ALL" || rowMeal === meal);
         row.classList.toggle("is-hidden", !visible);
+
         if (visible) {
             visibleCount += 1;
+            totals.calories += getNutrientValue(row, "calories");
+            totals.protein += getNutrientValue(row, "protein");
+            totals.carbs += getNutrientValue(row, "carbs");
+            totals.fat += getNutrientValue(row, "fat");
         }
     });
 
-    const counter = document.getElementById("visibleRows");
-    if (counter) {
-        counter.textContent = visibleCount;
+    setText("visibleRows", visibleCount);
+    setText("visibleCalories", formatNutritionNumber(totals.calories));
+    setText("visibleProtein", formatNutritionNumber(totals.protein));
+    setText("visibleCarbs", formatNutritionNumber(totals.carbs));
+    setText("visibleFat", formatNutritionNumber(totals.fat));
+}
+
+function getNutritionRowText(row) {
+    const values = Array.from(row.querySelectorAll("input, select"))
+        .map((field) => {
+            if (field.tagName === "SELECT") {
+                return `${field.value} ${field.selectedOptions[0]?.textContent || ""}`;
+            }
+            return field.value;
+        })
+        .join(" ");
+
+    return `${row.textContent} ${values}`.toLowerCase();
+}
+
+function getNutrientValue(row, nutrient) {
+    return Number(row.querySelector(`[data-nutrient="${nutrient}"]`)?.value || 0);
+}
+
+function formatNutritionNumber(value) {
+    return Math.round(value * 10) / 10;
+}
+
+function setText(id, value) {
+    const element = document.getElementById(id);
+    if (element) {
+        element.textContent = value;
     }
 }
 
@@ -51,5 +91,9 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("calculateCalories")?.addEventListener("click", calculateMealCalories);
     document.getElementById("nutritionSearch")?.addEventListener("input", filterNutritionRows);
     document.getElementById("mealFilter")?.addEventListener("change", filterNutritionRows);
+    document.querySelectorAll("[data-nutrition-row] input, [data-nutrition-row] select").forEach((field) => {
+        field.addEventListener("input", filterNutritionRows);
+        field.addEventListener("change", filterNutritionRows);
+    });
     filterNutritionRows();
 });
