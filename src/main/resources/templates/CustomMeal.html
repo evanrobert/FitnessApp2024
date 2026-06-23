@@ -4,6 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Log a Custom Meal</title>
+    <link rel="stylesheet" href="/css/app.css">
+    <script src="/js/app.js" defer></script>
     <style>
     :root{
       --bg1:#24527a;--bg2:#74b9ff;--brand:#24527a;--brand-2:#1abc9c;--text:#1f2937;--muted:#6b7280;--card:rgba(255,255,255,.97)
@@ -42,14 +44,30 @@
     .note{font-size:12px;color:var(--muted)}
     .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
     .ok{font-size:12px;color:#065f46}
+    body{display:block;align-items:initial;justify-content:initial;background:#f6f8fb;padding:0}
+    .container{max-width:860px}
+    .card:hover{transform:none;box-shadow:var(--shadow-soft)}
   </style>
 </head>
 <body>
+<main class="app-shell">
+    <nav class="topbar" aria-label="Main navigation">
+        <a class="brand-mark" href="/home">
+            <span class="brand-icon" aria-hidden="true">EF</span>
+            Evan Fitness
+        </a>
+        <div class="nav-actions">
+            <a class="btn btn-ghost" href="/view/Nutrition">Nutrition Log</a>
+            <a class="btn btn-ghost" href="/total">Summary</a>
+        </div>
+    </nav>
+
 <div class="container">
-    <div class="card">
+    <div class="card tool-panel">
         <div class="card-header">
+            <p class="eyebrow">Meal Builder</p>
             <h1 class="title">Log a Custom Meal</h1>
-            <p class="subtitle">Quickly add calories & macros. Advanced nutrition is optional.</p>
+            <p class="subtitle">Quickly add calories and macros. Advanced nutrition is optional.</p>
         </div>
 
         <form th:action="@{/Post/Custom/Meal}" th:object="${calorieInformation}" method="post" novalidate>
@@ -84,6 +102,7 @@
                     <label for="calories">Calories</label>
                     <input class="input" type="number" inputmode="decimal" id="calories" th:field="*{calories}" placeholder="e.g., 300" step="0.01" min="0" required />
                     <span class="unit">kcal</span>
+                    <button class="btn btn-secondary" type="button" id="calculateCalories" style="margin-top:8px">Calculate from macros</button>
                 </div>
 
                 <div class="field">
@@ -134,5 +153,6 @@
         </form>
     </div>
 </div>
+</main>
 </body>
 </html>

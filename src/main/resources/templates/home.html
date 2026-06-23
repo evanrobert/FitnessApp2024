@@ -4,162 +4,79 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fitness Dashboard</title>
-
-    <style>
-        /* Reset */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-            background: #f4f6f8;
-            color: #2c3e50;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        /* Header */
-        header {
-            width: 100%;
-            background: #1f2933;
-            color: #ffffff;
-            padding: 24px;
-            text-align: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        }
-
-        header h1 {
-            font-size: 26px;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-        }
-
-        /* Dashboard Container */
-        .dashboard {
-            width: 100%;
-            max-width: 900px;
-            margin-top: 40px;
-            padding: 0 20px;
-        }
-
-        /* Card Grid */
-        .card-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 20px;
-        }
-
-        /* Cards */
-        .card {
-            background: #ffffff;
-            border-radius: 14px;
-            padding: 28px 22px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
-            transition: transform 0.25s ease, box-shadow 0.25s ease;
-            text-align: center;
-        }
-
-        .card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 14px 28px rgba(0,0,0,0.12);
-        }
-
-        .card h2 {
-            font-size: 18px;
-            margin-bottom: 10px;
-            color: #1f2933;
-        }
-
-        .card p {
-            font-size: 14px;
-            color: #6b7280;
-            margin-bottom: 20px;
-        }
-
-        /* Buttons */
-        .card a {
-            display: inline-block;
-            padding: 10px 18px;
-            background: #2563eb;
-            color: #ffffff;
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 600;
-            border-radius: 8px;
-            transition: background 0.2s ease;
-        }
-
-        .card a:hover {
-            background: #1e40af;
-        }
-
-        /* Footer */
-        footer {
-            margin-top: auto;
-            padding: 20px 0;
-            font-size: 12px;
-            color: #9ca3af;
-        }
-
-        /* Responsive */
-        @media (max-width: 600px) {
-            header h1 {
-                font-size: 22px;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="/css/app.css">
 </head>
-
 <body>
+<main class="app-shell">
+    <nav class="topbar" aria-label="Main navigation">
+        <a class="brand-mark" href="/home">
+            <span class="brand-icon" aria-hidden="true">EF</span>
+            Evan Fitness
+        </a>
+        <div class="nav-actions">
+            <a class="btn btn-ghost" href="/total">Summary</a>
+            <a class="btn btn-ghost" href="/view/Nutrition">Nutrition Log</a>
+            <a class="btn btn-primary" href="/add/custom/meal">Log Meal</a>
+        </div>
+    </nav>
 
-<header>
-    <h1>Fitness Dashboard</h1>
-</header>
+    <section class="hero">
+        <div>
+            <p class="eyebrow">Daily training and nutrition</p>
+            <h1>Keep today’s intake, goals, and reports in one focused place.</h1>
+            <p>Log meals, update macro targets, review progress, and keep health documents organized without digging through separate screens.</p>
+            <div class="action-row" style="margin-top: 22px">
+                <a class="btn btn-primary" href="/add/custom/meal">Log a meal</a>
+                <a class="btn btn-secondary" href="/user/macro/information">Set goals</a>
+            </div>
+        </div>
+    </section>
 
-<div class="dashboard">
-    <div class="card-grid">
-
-        <div class="card">
-            <h2>Add Custom Food</h2>
-            <p>Create and save your own food items.</p>
-            <a href="/add/custom/meal">Open</a>
+    <section class="section">
+        <div class="section-heading">
+            <div>
+                <h2>Quick Actions</h2>
+                <p>Jump straight into the workflows you use most.</p>
+            </div>
         </div>
 
-        <div class="card">
-            <h2>View Custom Food</h2>
-            <p>Review foods you’ve already added.</p>
-            <a href="/view/Nutrition">View</a>
+        <div class="grid dashboard-grid">
+            <a class="card" href="/add/custom/meal">
+                <p class="card-kicker">Nutrition</p>
+                <h2>Add Custom Food</h2>
+                <p>Create your own food item with calories, macros, and optional nutrient details.</p>
+                <span class="card-cta">Open form</span>
+            </a>
+
+            <a class="card" href="/view/Nutrition">
+                <p class="card-kicker">Tracking</p>
+                <h2>Nutrition Log</h2>
+                <p>Edit saved meals, filter by meal type, search entries, and export your log.</p>
+                <span class="card-cta">Review entries</span>
+            </a>
+
+            <a class="card" href="/user/macro/information">
+                <p class="card-kicker">Goals</p>
+                <h2>Daily Macro Goals</h2>
+                <p>Set or update calorie, protein, fat, and carbohydrate targets.</p>
+                <span class="card-cta">Manage goals</span>
+            </a>
+
+            <a class="card" href="/total">
+                <p class="card-kicker">Progress</p>
+                <h2>Calorie Summary</h2>
+                <p>See how today’s intake compares to your daily calorie goal.</p>
+                <span class="card-cta">View summary</span>
+            </a>
+
+            <a class="card" href="/hra/upload">
+                <p class="card-kicker">Reports</p>
+                <h2>HRA Upload</h2>
+                <p>Upload and review health risk assessment report filenames.</p>
+                <span class="card-cta">Manage files</span>
+            </a>
         </div>
-
-        <div class="card">
-            <h2>Daily Calorie Goals</h2>
-            <p>Set or update your daily intake goals.</p>
-            <a href="/user/macro/information">Manage</a>
-        </div>
-
-        <div class="card">
-            <h2>Calorie Summary</h2>
-            <p>See how your intake compares to your goals.</p>
-            <a href="/total">View</a>
-        </div>
-
-        <div class="card">
-            <h2>HRA Upload</h2>
-            <p>Upload health risk assessment files.</p>
-            <a href="/hra/upload">Upload</a>
-        </div>
-
-    </div>
-</div>
-
-<footer>
-    © 2024 Fitness App
-</footer>
-
+    </section>
+</main>
 </body>
 </html>

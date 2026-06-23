@@ -2,32 +2,70 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calorie Summary</title>
-    <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #f4f6f8; color: #1f2933; padding: 40px; }
-        .card { max-width: 500px; margin: 0 auto; background: #ffffff; padding: 30px; border-radius: 14px; box-shadow: 0 8px 20px rgba(0,0,0,0.08); text-align: center; }
-        h2 { margin-bottom: 20px; }
-        p { font-size: 16px; margin: 10px 0; }
-        .good { color: #16a34a; font-weight: bold; }
-        .bad { color: #dc2626; font-weight: bold; }
-    </style>
+    <link rel="stylesheet" href="/css/app.css">
 </head>
 <body>
+<main class="app-shell">
+    <nav class="topbar" aria-label="Main navigation">
+        <a class="brand-mark" href="/home">
+            <span class="brand-icon" aria-hidden="true">EF</span>
+            Evan Fitness
+        </a>
+        <div class="nav-actions">
+            <a class="btn btn-ghost" href="/view/Nutrition">Nutrition Log</a>
+            <a class="btn btn-primary" href="/add/custom/meal">Log Meal</a>
+        </div>
+    </nav>
 
-<div class="card">
-    <h2>Daily Calorie Summary</h2>
+    <section class="page-title">
+        <p class="eyebrow">Today</p>
+        <h1>Daily Calorie Summary</h1>
+        <p>Compare your logged intake against the goal you set for the day.</p>
+    </section>
 
-    <p>Daily Goal: <strong th:text="${dailyGoal}">0</strong> kcal</p>
-    <p>Consumed Today: <strong th:text="${caloriesConsumed}">0</strong> kcal</p>
+    <section class="grid summary-grid">
+        <div class="metric-card">
+            <p class="card-kicker">Goal</p>
+            <h2>Daily Calories</h2>
+            <div class="metric-value"><span th:text="${dailyGoal}">0</span></div>
+            <p>kcal planned</p>
+        </div>
 
-    <p th:if="${remainingCalories >= 0}" class="good">
-        Remaining Calories: <strong th:text="${remainingCalories}">0</strong> kcal
-    </p>
+        <div class="metric-card">
+            <p class="card-kicker">Logged</p>
+            <h2>Consumed Today</h2>
+            <div class="metric-value"><span th:text="${caloriesConsumed}">0</span></div>
+            <p>kcal logged</p>
+        </div>
 
-    <p th:if="${remainingCalories < 0}" class="bad">
-        Over by: <strong th:text="${-remainingCalories}">0</strong> kcal
-    </p>
-</div>
+        <div class="metric-card">
+            <p class="card-kicker">Balance</p>
+            <h2 th:if="${remainingCalories >= 0}">Remaining</h2>
+            <h2 th:if="${remainingCalories < 0}">Over Goal</h2>
+            <div th:if="${remainingCalories >= 0}" class="metric-value status-good">
+                <span th:text="${remainingCalories}">0</span>
+            </div>
+            <div th:if="${remainingCalories < 0}" class="metric-value status-bad">
+                <span th:text="${-remainingCalories}">0</span>
+            </div>
+            <p>kcal</p>
+        </div>
+    </section>
 
+    <section class="section tool-panel">
+        <div class="section-heading">
+            <div>
+                <h2>Next Move</h2>
+                <p>Keep the summary current by logging food as you go.</p>
+            </div>
+            <div class="action-row">
+                <a class="btn btn-primary" href="/add/custom/meal">Log another meal</a>
+                <a class="btn btn-ghost" href="/user/macro/information">Adjust goals</a>
+            </div>
+        </div>
+    </section>
+</main>
 </body>
 </html>

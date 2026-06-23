@@ -46,7 +46,7 @@ public class SignIn_LoginController {
     public String getSignUpPage(Model model) {
         model.addAttribute("userLoginDetails", new UserLoginDetails());
         model.addAttribute("userInformation", new UserInformation());
-        return "signin"; // return the signup.html page
+        return "Signin";
     }
 
     @PostMapping("/submitSignup")
@@ -84,4 +84,3 @@ public class SignIn_LoginController {
         return "index";
     }
 }
-

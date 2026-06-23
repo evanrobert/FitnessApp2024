@@ -45,7 +45,7 @@ public class ViewLoggedNutritionController {
 
             model.addAttribute("calorieInformationForm", form);
 
-            return "nutritionLog";
+            return "NutritionLog";
         } catch (Exception e) {
             e.printStackTrace();
             return "error";
@@ -68,7 +68,7 @@ public class ViewLoggedNutritionController {
 
         model.addAttribute("calorieInformationForm", form);
 
-        return "nutritionLog";
+        return "NutritionLog";
     }
 
     @PostMapping("/edit/nutrition/information")
@@ -134,4 +134,3 @@ public class ViewLoggedNutritionController {
 
 
 }
-

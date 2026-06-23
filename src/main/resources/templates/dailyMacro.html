@@ -1,180 +1,72 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daily Macro Log</title>
-    <style>
-        /* General styling */
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #24527a, #74b9ff);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-        }
-
-        .container {
-            background-color: rgba(255, 255, 255, 0.95);
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            width: 90%;
-            max-width: 600px;
-            overflow-x: auto;
-        }
-
-        h1 {
-            color: #24527a;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .form-group {
-            margin-bottom: 30px;
-        }
-
-        label {
-            font-weight: bold;
-            color: #24527a;
-        }
-
-        /* Slider container */
-        .slider-container {
-            display: flex;
-            align-items: center;
-        }
-
-        .slider-value {
-            margin-left: 10px;
-            font-weight: bold;
-            color: #24527a;
-            width: 50px;
-            text-align: center;
-        }
-
-        /* Advanced slider styling */
-        input[type="range"] {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 100%;
-            height: 10px;
-            background: linear-gradient(90deg, #1abc9c 0%, #24527a 100%);
-            border-radius: 10px;
-            outline: none;
-            opacity: 0.9;
-            transition: opacity 0.2s;
-            cursor: pointer;
-            box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.3);
-        }
-
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 20px;
-            height: 20px;
-            background-color: #ffffff;
-            border: 2px solid #24527a;
-            border-radius: 50%;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-            transition: transform 0.2s ease-in-out;
-        }
-
-        input[type="range"]::-moz-range-thumb {
-            width: 20px;
-            height: 20px;
-            background-color: #ffffff;
-            border: 2px solid #24527a;
-            border-radius: 50%;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-            transition: transform 0.2s ease-in-out;
-        }
-
-        input[type="range"]:hover {
-            opacity: 1;
-        }
-
-        input[type="range"]:active::-webkit-slider-thumb {
-            transform: scale(1.2);
-        }
-
-        input[type="range"]:active::-moz-range-thumb {
-            transform: scale(1.2);
-        }
-
-        /* Button styling */
-        button[type="submit"] {
-            width: 100%;
-            padding: 12px;
-            font-size: 16px;
-            color: white;
-            background-color: #24527a;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-top: 20px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-            transition: background-color 0.3s, box-shadow 0.3s;
-        }
-
-        button[type="submit"]:hover {
-            background-color: #1e3e5e;
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
-        }
-    </style>
-    <script>
-        function updateSliderValue(slider, outputId) {
-            document.getElementById(outputId).textContent = slider.value;
-        }
-    </script>
+    <title>Daily Macro Goals</title>
+    <link rel="stylesheet" href="/css/app.css">
+    <script src="/js/app.js" defer></script>
 </head>
 <body>
-
-<div class="container">
-    <h1>Log Daily Macro Information</h1>
-
-    <form th:action="@{/log/custom/macro/information}" th:object="${macros}" method="post">
-        <div class="form-group">
-            <label for="dailyCalories">Daily Calories</label>
-            <div class="slider-container">
-                <input type="range" id="dailyCalories" name="dailyCalories" min="0" max="5000"
-                       th:value="${macros.dailyCalories}" oninput="updateSliderValue(this, 'caloriesValue')">
-                <span class="slider-value" id="caloriesValue" th:text="${macros.dailyCalories}">0</span>
-            </div>
+<main class="app-shell">
+    <nav class="topbar" aria-label="Main navigation">
+        <a class="brand-mark" href="/home">
+            <span class="brand-icon" aria-hidden="true">EF</span>
+            Evan Fitness
+        </a>
+        <div class="nav-actions">
+            <a class="btn btn-ghost" href="/total">Summary</a>
+            <a class="btn btn-ghost" href="/view/Nutrition">Nutrition Log</a>
         </div>
+    </nav>
 
-        <div class="form-group">
-            <label for="dailyProtein">Daily Protein (g)</label>
-            <div class="slider-container">
-                <input type="range" id="dailyProtein" name="dailyProtein" min="0" max="300"
-                       th:value="${macros.dailyProtein}" oninput="updateSliderValue(this, 'proteinValue')">
-                <span class="slider-value" id="proteinValue" th:text="${macros.dailyProtein}">0</span>
+    <section class="page-title">
+        <p class="eyebrow">Goal Setup</p>
+        <h1>Set Daily Macro Targets</h1>
+        <p>Use the sliders to set a simple daily baseline for calories and macros.</p>
+    </section>
+
+    <section class="tool-panel form-card">
+        <form th:action="@{/log/custom/macro/information}" th:object="${macros}" method="post" class="grid">
+            <div class="field">
+                <label for="dailyCalories">Daily Calories</label>
+                <div class="range-row">
+                    <input type="range" id="dailyCalories" name="dailyCalories" min="0" max="5000"
+                           th:value="${macros.dailyCalories}" data-range-output="caloriesValue">
+                    <span class="range-output"><span id="caloriesValue" th:text="${macros.dailyCalories}">0</span></span>
+                </div>
             </div>
-        </div>
 
-        <div class="form-group">
-            <label for="dailyFat">Daily Fat (g)</label>
-            <div class="slider-container">
-                <input type="range" id="dailyFat" name="dailyFat" min="0" max="200"
-                       th:value="${macros.dailyFat}" oninput="updateSliderValue(this, 'fatValue')">
-                <span class="slider-value" id="fatValue" th:text="${macros.dailyFat}">0</span>
+            <div class="field">
+                <label for="dailyProtein">Daily Protein (g)</label>
+                <div class="range-row">
+                    <input type="range" id="dailyProtein" name="dailyProtein" min="0" max="300"
+                           th:value="${macros.dailyProtein}" data-range-output="proteinValue">
+                    <span class="range-output"><span id="proteinValue" th:text="${macros.dailyProtein}">0</span></span>
+                </div>
             </div>
-        </div>
 
-        <div class="form-group">
-            <label for="dailyCarbohydrates">Daily Carbohydrates (g)</label>
-            <div class="slider-container">
-                <input type="range" id="dailyCarbohydrates" name="dailyCarbohydrates" min="0" max="500"
-                       th:value="${macros.dailyCarbohydrates}" oninput="updateSliderValue(this, 'carbsValue')">
-                <span class="slider-value" id="carbsValue" th:text="${macros.dailyCarbohydrates}">0</span>
+            <div class="field">
+                <label for="dailyFat">Daily Fat (g)</label>
+                <div class="range-row">
+                    <input type="range" id="dailyFat" name="dailyFat" min="0" max="200"
+                           th:value="${macros.dailyFat}" data-range-output="fatValue">
+                    <span class="range-output"><span id="fatValue" th:text="${macros.dailyFat}">0</span></span>
+                </div>
             </div>
-        </div>
 
-        <button type="submit">Save Macro Information</button>
-    </form>
-</div>
+            <div class="field">
+                <label for="dailyCarbohydrates">Daily Carbohydrates (g)</label>
+                <div class="range-row">
+                    <input type="range" id="dailyCarbohydrates" name="dailyCarbohydrates" min="0" max="500"
+                           th:value="${macros.dailyCarbohydrates}" data-range-output="carbsValue">
+                    <span class="range-output"><span id="carbsValue" th:text="${macros.dailyCarbohydrates}">0</span></span>
+                </div>
+            </div>
 
+            <button class="btn btn-primary" type="submit">Save Macro Goals</button>
+        </form>
+    </section>
+</main>
 </body>
 </html>

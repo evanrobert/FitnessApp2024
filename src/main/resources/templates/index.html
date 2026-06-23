@@ -3,88 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home Page</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #24527a, #1abc9c);
-            height: 100vh;
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            text-align: center;
-        }
-
-        main {
-            max-width: 600px;
-            padding: 20px;
-        }
-
-        h1 {
-            font-size: 36px;
-            margin-bottom: 20px;
-        }
-
-        p {
-            font-size: 18px;
-            margin-bottom: 40px;
-        }
-
-        /* Button Styling */
-        .link-container {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            margin-top: 20px;
-        }
-
-        .signup-link {
-            display: inline-block;
-            padding: 15px 30px;
-            background: linear-gradient(135deg, #24527a, #1abc9c); /* Navy Blue to Green gradient */
-            color: #ffffff;
-            text-decoration: none;
-            border-radius: 10px;
-            transition: background-color 0.3s, transform 0.3s;
-            font-size: 18px;
-            font-weight: bold;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-        }
-
-        .signup-link:hover {
-            background: linear-gradient(135deg, #1abc9c, #24527a); /* Reversed gradient on hover */
-            transform: translateY(-5px); /* Lift effect on hover */
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
-        }
-
-        /* Responsive Design */
-        @media (max-width: 600px) {
-            h1 {
-                font-size: 28px;
-            }
-
-            p {
-                font-size: 16px;
-            }
-
-            .signup-link {
-                padding: 12px 20px;
-                font-size: 16px;
-            }
-        }
-    </style>
+    <title>Evan Fitness</title>
+    <link rel="stylesheet" href="/css/app.css">
 </head>
 <body>
-<main>
-    <h1>Welcome to Our Fitness Application</h1>
-    <p>Join us to track your fitness journey!</p>
-
-    <div class="link-container">
-        <a href="/signup" class="signup-link" aria-label="Sign Up">Sign Up</a>
-        <a href="/login" class="signup-link" aria-label="Login">Login</a>
-    </div>
+<main class="auth-shell">
+    <section class="hero" style="width: min(980px, 100%); min-height: 520px">
+        <div>
+            <p class="eyebrow">Evan Fitness</p>
+            <h1>Track meals and macro targets with less friction.</h1>
+            <p>Build a daily rhythm around logging food, checking calories, and keeping health reports close by.</p>
+            <div class="action-row" style="margin-top: 22px">
+                <a href="/signup" class="btn btn-primary" aria-label="Sign Up">Sign Up</a>
+                <a href="/login" class="btn btn-secondary" aria-label="Login">Login</a>
+            </div>
+        </div>
+    </section>
 </main>
 </body>
 </html>
