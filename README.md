@@ -5,7 +5,9 @@ recovery and body data in one place, with records, trends and insights computed
 from what they actually log.
 
 - **Train** — one-submit session builder (exercise blocks of sets, cardio, effort,
-  location), "last time" hints, repeat-a-session, per-exercise history, automatic PRs.
+  location), a searchable library of 132 exercises (7–17 per muscle group) or any
+  exercise name typed free-form, "last time" hints, repeat-a-session, per-exercise
+  history, automatic PRs.
 - **Fuel** — day view against calorie/macro/fiber targets, one-click re-log of recent
   foods, bulk-edit ledger, targets suggested from your profile (Mifflin–St Jeor).
 - **Recover** — 30-second daily check-in (sleep, energy, mood, stress, soreness, water,
@@ -63,6 +65,9 @@ Flyway owns the schema (`src/main/resources/db/migration`); Hibernate only valid
 - **V3** adds the tracking model and converts legacy data: the flat workout log becomes
   sessions → exercises → one row per set; sign-up weight becomes the first weigh-in;
   age becomes birth year.
+- **V4** expands the exercise library to 132. Where a member had already created a
+  personal exercise with the same name as a new library one, its sets and goals move to
+  the library exercise and the duplicate is removed (same movement, same name).
 
 **Back up the database before the first start of this version.** V2 permanently drops
 the `reports` table (uploaded HRA files) and V3 drops `workout_information` after copying
@@ -106,7 +111,7 @@ every chart has hover/focus tooltips and a "View as table" equivalent.
 ./gradlew test
 ```
 
-37 tests cover migrations (legacy replay), security and member isolation, every
+41 tests cover migrations (legacy replay), security and member isolation, every
 tracking area end to end, analytics rules, and rendering every page against months of
 synthetic data. All test data is synthetic.
 

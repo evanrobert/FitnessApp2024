@@ -108,6 +108,62 @@ class TrackingFeatureTests {
     }
 
     @Test
+    @org.springframework.transaction.annotation.Transactional
+    void typedExerciseNamesReuseMatchesOrCreateOnePersonalExercise() throws Exception {
+        mvc.perform(post("/train").with(as(alice)).with(csrf()).param("sessionDate", "2026-09-07")
+                        // library name typed in different case -> library exercise
+                        .param("sets[0].exerciseName", "  goblet   SQUAT ").param("sets[0].block", "0").param("sets[0].weightLb", "70").param("sets[0].reps", "10")
+                        // brand-new name, two sets -> one personal exercise with the chosen muscle group
+                        .param("sets[1].exerciseName", "Landmine Row").param("sets[1].muscleGroup", "BACK").param("sets[1].block", "1").param("sets[1].weightLb", "90").param("sets[1].reps", "8")
+                        .param("sets[2].exerciseName", "Landmine Row").param("sets[2].muscleGroup", "BACK").param("sets[2].block", "1").param("sets[2].weightLb", "90").param("sets[2].reps", "8"))
+                .andExpect(status().is3xxRedirection());
+
+        WorkoutSession saved = sessions.findAllByUserIdOrderBySessionDateDescIdDesc(alice.getId()).get(0);
+        assertThat(saved.getSets()).extracting(st -> st.getExercise().getName()).containsExactly("Goblet Squat", "Landmine Row", "Landmine Row");
+        assertThat(saved.getSets().get(0).getExercise().isLibrary()).isTrue();
+        Exercise created = saved.getSets().get(1).getExercise();
+        assertThat(created.isLibrary()).isFalse();
+        assertThat(created.getMuscleGroup()).isEqualTo(MuscleGroup.BACK);
+        assertThat(saved.getSets().get(2).getSetNumber()).isEqualTo(2);
+
+        // Next time, typing it again (any case) reuses the same personal exercise.
+        mvc.perform(post("/train").with(as(alice)).with(csrf()).param("sessionDate", "2026-09-08")
+                        .param("sets[0].exerciseName", "landmine row").param("sets[0].block", "0").param("sets[0].weightLb", "95").param("sets[0].reps", "8"))
+                .andExpect(status().is3xxRedirection());
+        assertThat(exercises.findVisibleTo(alice.getId()).stream().filter(e -> e.getName().equalsIgnoreCase("landmine row")).count()).isEqualTo(1);
+        assertThat(records.series(alice.getId(), created.getId())).hasSize(2); // history and trends see both sessions
+    }
+
+    @Test
+    @org.springframework.transaction.annotation.Transactional
+    void typedNamesNeverAttachToAnotherMembersExercise() {
+        Exercise form = new Exercise();
+        form.setName("Zercher Carry");
+        form.setMuscleGroup(MuscleGroup.CORE);
+        Exercise bobs = training.createExercise(bob.getId(), form);
+
+        SessionForm typed = new SessionForm();
+        typed.setSessionDate(LocalDate.of(2026, 9, 9));
+        SessionForm.SetRow row = new SessionForm.SetRow();
+        row.setExerciseName("Zercher Carry");
+        row.setWeightLb(135.0);
+        row.setReps(1);
+        typed.getSets().add(row);
+        WorkoutSession saved = training.create(alice.getId(), typed);
+
+        Exercise used = saved.getSets().get(0).getExercise();
+        assertThat(used.getId()).isNotEqualTo(bobs.getId());
+        assertThat(used.getMuscleGroup()).isEqualTo(MuscleGroup.OTHER); // no group chosen -> Other
+    }
+
+    @Test
+    void builderOffersEveryVisibleExerciseForSearch() throws Exception {
+        String html = mvc.perform(get("/train/new").with(as(alice))).andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        assertThat(html).contains("<datalist id=\"exercise-options\">").contains("value=\"Nordic Curl\"").contains("value=\"Pec Deck\"");
+    }
+
+    @Test
     void recordsDetectPrsAgainstEarlierSessionsOnly() {
         training.create(alice.getId(), session(LocalDate.of(2026, 8, 1), new Object[]{squat, 275.0, 5}));
         WorkoutSession second = training.create(alice.getId(), session(LocalDate.of(2026, 8, 8), new Object[]{squat, 285.0, 5}));

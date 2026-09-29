@@ -86,6 +86,7 @@ public class TrainingService {
         for (ExerciseSet st : s.getSets()) {
             SessionForm.SetRow row = new SessionForm.SetRow();
             row.setExerciseId(st.getExercise().getId());
+            row.setExerciseName(st.getExercise().getName());
             row.setBlock(st.getSortOrder());
             row.setReps(st.getReps());
             row.setWeightLb(st.getWeightLb());
@@ -151,6 +152,7 @@ public class TrainingService {
 
         // Blocks keep the order the member entered; sets are numbered within each block.
         Map<Long, Exercise> visible = new HashMap<>();
+        Map<String, Exercise> typed = new HashMap<>();
         Map<Integer, Integer> blockOrder = new LinkedHashMap<>();
         Map<Integer, Integer> setCounters = new HashMap<>();
         int nextBlock = 0;
@@ -158,8 +160,7 @@ public class TrainingService {
             if (row == null || row.isBlank()) {
                 continue;
             }
-            Exercise exercise = visible.computeIfAbsent(row.getExerciseId(), exerciseId -> exercises
-                    .findVisible(exerciseId, userId).orElseThrow(() -> new NotFoundException("Exercise")));
+            Exercise exercise = resolveExercise(userId, row, visible, typed);
             int blockKey = row.getBlock() == null ? -1 - blockOrder.size() : row.getBlock();
             Integer order = blockOrder.get(blockKey);
             if (order == null) {
@@ -192,6 +193,28 @@ public class TrainingService {
             entry.setNotes(ProfileService.blankToNull(row.getNotes()));
             session.addCardio(entry);
         }
+    }
+
+    /**
+     * A set names its exercise by id (picked from the list) or by free-form name.
+     * Typed names reuse a matching library or personal exercise; anything new is
+     * added to the member's library once, however many sets use it.
+     */
+    private Exercise resolveExercise(Long userId, SessionForm.SetRow row, Map<Long, Exercise> byId, Map<String, Exercise> byName) {
+        if (row.getExerciseId() != null) {
+            return byId.computeIfAbsent(row.getExerciseId(), id -> exercises.findVisible(id, userId)
+                    .orElseThrow(() -> new NotFoundException("Exercise")));
+        }
+        String name = row.getExerciseName().trim().replaceAll("\\s+", " ");
+        return byName.computeIfAbsent(name.toLowerCase(Locale.ROOT), key -> exercises.findVisibleByName(name, userId).stream()
+                .findFirst()
+                .orElseGet(() -> {
+                    Exercise created = new Exercise();
+                    created.setName(name);
+                    created.setMuscleGroup(row.getMuscleGroup() == null ? MuscleGroup.OTHER : row.getMuscleGroup());
+                    created.setOwner(users.getReferenceById(userId));
+                    return exercises.save(created);
+                }));
     }
 
     /** Exercise blocks of a session in display order. */
@@ -251,7 +274,7 @@ public class TrainingService {
      * exercise, e.g. "Sep 24 · 295 × 3, 295 × 3".
      */
     @Transactional(readOnly = true)
-    public Map<Long, String> lastPerformance(Long userId, Fmt fmt) {
+    public Map<String, String> lastPerformance(Long userId, Fmt fmt) {
         Map<Long, List<ExerciseSet>> lastSets = new HashMap<>();
         Map<Long, Long> lastSession = new HashMap<>();
         for (ExerciseSet st : sets.historyFor(userId)) {
@@ -265,13 +288,14 @@ public class TrainingService {
                 lastSets.get(exerciseId).add(st);
             }
         }
-        Map<Long, String> hints = new HashMap<>();
+        Map<String, String> hints = new HashMap<>();
         lastSets.forEach((exerciseId, list) -> {
             if (!list.isEmpty()) {
+                String key = list.get(0).getExercise().getName().toLowerCase(Locale.ROOT);
                 String setsText = list.stream().limit(6)
                         .map(st -> (st.getWeightLb() == null ? "BW" : fmt.dec(st.getWeightLb())) + " × " + (st.getReps() == null ? "?" : st.getReps()))
                         .collect(Collectors.joining(", "));
-                hints.put(exerciseId, fmt.shortDate(list.get(0).getSession().getSessionDate()) + " · " + setsText);
+                hints.put(key, fmt.shortDate(list.get(0).getSession().getSessionDate()) + " · " + setsText);
             }
         });
         return hints;

@@ -133,13 +133,17 @@
 
     // ---- Workout builder -------------------------------------------------------
     // Blocks and rows are cloned from <template>s; field names are renumbered on
-    // every change so Spring binds sets[i] / cardio[i] in order.
+    // every change so Spring binds sets[i] / cardio[i] in order. Each block names
+    // its exercise in a searchable text box: pick from the list or type anything.
     const builder = $("#session-builder");
     if (builder) {
         const blocks = $("#blocks", builder);
         const cardioList = $("#cardio-rows", builder);
         const lastTimes = JSON.parse($("#last-times")?.textContent || "{}");
+        const known = new Map($$("#exercise-options option").map((o) => [o.value.trim().toLowerCase(), o.dataset.group]));
         let blockSeq = $$(".exercise-block", blocks).length;
+
+        const nameOf = (block) => $("[data-block-exercise]", block).value.trim().replace(/\s+/g, " ");
 
         const renumber = () => {
             $$(".exercise-block", blocks).forEach((block, b) => {
@@ -149,11 +153,13 @@
             $$("tr.set-row", blocks).forEach((row, i) => {
                 const block = row.closest(".exercise-block");
                 $$("[data-field]", row).forEach((f) => { f.name = `sets[${i}].${f.dataset.field}`; });
-                const ex = $("[data-block-exercise]", block).value;
-                $("[data-hidden=exerciseId]", row).value = ex;
-                $("[data-hidden=block]", row).value = block.dataset.block;
-                $("[data-hidden=exerciseId]", row).name = `sets[${i}].exerciseId`;
-                $("[data-hidden=block]", row).name = `sets[${i}].block`;
+                const isNew = !known.has(nameOf(block).toLowerCase());
+                const fields = { exerciseName: nameOf(block), muscleGroup: isNew ? $("[data-block-muscle]", block).value : "", block: block.dataset.block };
+                Object.entries(fields).forEach(([key, value]) => {
+                    const input = $(`[data-hidden=${key}]`, row);
+                    input.value = value;
+                    input.name = `sets[${i}].${key}`;
+                });
             });
             $$(".cardio-row", cardioList).forEach((row, i) => {
                 $$("[data-field]", row).forEach((f) => { f.name = `cardio[${i}].${f.dataset.field}`; });
@@ -163,15 +169,17 @@
             if (summary) summary.textContent = count + (count === 1 ? " set" : " sets");
         };
 
-        const showLast = (block) => {
-            const id = $("[data-block-exercise]", block).value;
+        // "Last time" hint for known exercises; muscle-group picker for new names.
+        const describe = (block) => {
+            const name = nameOf(block).toLowerCase();
             const out = $(".last-time", block);
             out.replaceChildren();
-            if (id && lastTimes[id]) {
+            if (name && lastTimes[name]) {
                 const strong = document.createElement("strong");
                 strong.textContent = "Last time: ";
-                out.append(strong, document.createTextNode(lastTimes[id]));
+                out.append(strong, document.createTextNode(lastTimes[name]));
             }
+            $(".new-exercise", block).hidden = !name || known.has(name);
         };
 
         const addSet = (block, copyFrom) => {
@@ -185,13 +193,12 @@
             $("[data-field=reps]", row).focus();
         };
 
-        const addBlock = (exerciseId) => {
+        const addBlock = () => {
             const block = $("#tpl-block").content.firstElementChild.cloneNode(true);
             block.dataset.block = String(blockSeq++);
             blocks.appendChild(block);
-            if (exerciseId) $("[data-block-exercise]", block).value = exerciseId;
             addSet(block);
-            showLast(block);
+            describe(block);
             $("[data-block-exercise]", block).focus();
         };
 
@@ -220,15 +227,19 @@
             event.preventDefault();
             renumber();
         });
-        builder.addEventListener("change", (event) => {
-            if (event.target.matches("[data-block-exercise]")) {
-                showLast(event.target.closest(".exercise-block"));
-            }
+        builder.addEventListener("input", (event) => {
+            if (event.target.matches("[data-block-exercise]")) describe(event.target.closest(".exercise-block"));
             renumber();
         });
-        builder.addEventListener("input", renumber);
-        // Enter in the last set of a block adds another set instead of submitting.
+        builder.addEventListener("change", renumber);
         builder.addEventListener("keydown", (event) => {
+            // Enter in the exercise box moves to the first set instead of submitting.
+            if (event.key === "Enter" && event.target.matches("[data-block-exercise]")) {
+                event.preventDefault();
+                $("tr.set-row [data-field=weightLb]", event.target.closest(".exercise-block"))?.focus();
+                return;
+            }
+            // Enter in the last set of a block adds another set instead of submitting.
             if (event.key !== "Enter" || !event.target.matches("tr.set-row input")) return;
             const block = event.target.closest(".exercise-block");
             const rows = $$("tr.set-row", block);
@@ -237,8 +248,23 @@
                 addSet(block);
             }
         });
+        // A set without an exercise would be silently dropped: say so before submitting.
+        builder.addEventListener("submit", (event) => {
+            const unnamed = $$(".exercise-block", blocks).find((block) => !nameOf(block)
+                && $$("tr.set-row", block).some((r) => $("[data-field=reps]", r).value || $("[data-field=weightLb]", r).value));
+            if (unnamed) {
+                event.preventDefault();
+                $("[data-block-exercise]", unnamed).focus();
+                $("[data-block-exercise]", unnamed).setCustomValidity("Name the exercise for these sets");
+                $("[data-block-exercise]", unnamed).reportValidity();
+                setTimeout(() => $$("button.is-loading", builder).forEach((b) => b.classList.remove("is-loading")), 0);
+            }
+        }, true);
+        builder.addEventListener("input", (event) => {
+            if (event.target.matches("[data-block-exercise]")) event.target.setCustomValidity("");
+        });
 
-        $$(".exercise-block", blocks).forEach(showLast);
+        $$(".exercise-block", blocks).forEach(describe);
         if (!$$(".exercise-block", blocks).length && !$$(".cardio-row", cardioList).length) addBlock();
         renumber();
     }
