@@ -8,6 +8,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 
@@ -29,7 +30,12 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http, SecurityContextRepository contextRepository)
             throws Exception {
         // CSRF protection stays enabled (the default). Thymeleaf th:action forms carry the token.
+        // Load the token eagerly: pages stream, and a lazily created session can't be started
+        // once the response is committed (first visit straight to a long page with a form).
+        CsrfTokenRequestAttributeHandler csrfHandler = new CsrfTokenRequestAttributeHandler();
+        csrfHandler.setCsrfRequestAttributeName(null);
         http
+                .csrf(csrf -> csrf.csrfTokenRequestHandler(csrfHandler))
                 .securityContext(context -> context.securityContextRepository(contextRepository))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/login", "/signup", "/error",

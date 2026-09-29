@@ -36,18 +36,18 @@ public class AuthController {
 
     @GetMapping("/")
     public String landing(Authentication auth) {
-        return isSignedIn(auth) ? "redirect:/home" : "index";
+        return isSignedIn(auth) ? "redirect:/home" : "auth/landing";
     }
 
     @GetMapping("/login")
     public String login(Authentication auth) {
-        return isSignedIn(auth) ? "redirect:/home" : "login";
+        return isSignedIn(auth) ? "redirect:/home" : "auth/login";
     }
 
     @GetMapping("/signup")
     public String signupForm(Model model) {
         model.addAttribute("signupForm", new SignupForm());
-        return "Signin";
+        return "auth/signup";
     }
 
     @PostMapping("/signup")
@@ -57,7 +57,7 @@ public class AuthController {
             result.rejectValue("username", "taken", "That username is already taken");
         }
         if (result.hasErrors()) {
-            return "Signin";
+            return "auth/signup";
         }
         UserLoginDetails account = accounts.register(signupForm);
         signIn(account.getUsername(), request, response);

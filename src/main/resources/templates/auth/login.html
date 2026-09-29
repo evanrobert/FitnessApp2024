@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/auth :: page(title='Log in', content=~{::content})}">
+<body>
+<th:block th:fragment="content">
+    <span class="eyebrow">Welcome back</span>
+    <h2 class="display">Log in</h2>
+    <div class="flash flash-error mt-2" th:if="${param.error}" role="alert"><svg><use href="#i-alert"/></svg><span>That username and password don't match.</span></div>
+    <div class="flash flash-success mt-2" th:if="${param.logout}" role="status"><svg><use href="#i-check"/></svg><span>You're logged out.</span></div>
+    <div class="flash flash-success mt-2" th:if="${param.deleted}" role="status"><svg><use href="#i-check"/></svg><span>Your account and all of its data were deleted.</span></div>
+    <div class="flash flash-success mt-2" th:if="${flashSuccess}" role="status"><svg><use href="#i-check"/></svg><span th:text="${flashSuccess}"></span></div>
+    <form th:action="@{/login}" method="post">
+        <div class="field">
+            <label for="username">Username</label>
+            <input class="input" type="text" id="username" name="username" required autocomplete="username" autofocus>
+        </div>
+        <div class="field">
+            <label for="password">Password</label>
+            <input class="input" type="password" id="password" name="password" required autocomplete="current-password">
+        </div>
+        <button class="btn btn-primary btn-block" type="submit">Log in</button>
+    </form>
+    <p class="switch">New here? <a href="/signup">Create an account</a></p>
+</th:block>
+</body>
+</html>

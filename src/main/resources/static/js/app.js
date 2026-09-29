@@ -29,6 +29,12 @@
 
     // ---- Flash dismiss, confirmations, submit feedback ------------------------
     document.addEventListener("click", (event) => {
+        const back = event.target.closest("[data-back]");
+        if (back && window.history.length > 1) {
+            event.preventDefault();
+            window.history.back();
+            return;
+        }
         const dismiss = event.target.closest("[data-dismiss]");
         if (dismiss) dismiss.closest(".flash")?.remove();
 

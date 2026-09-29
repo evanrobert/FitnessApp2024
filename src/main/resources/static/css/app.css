@@ -192,6 +192,7 @@ p { margin: 0; }
 /* Quick log (a <details> menu: works without JS) */
 .quick-log { position: relative; }
 .quick-log > summary { list-style: none; cursor: pointer; }
+.quick-log:not([open]) > .quick-menu { display: none; }
 .quick-log > summary::-webkit-details-marker { display: none; }
 .quick-menu {
     position: absolute;
@@ -471,7 +472,7 @@ legend { padding: 0; }
 
 /* ---------- Tables ------------------------------------------------------- */
 
-.table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; position: relative; }
 .table { width: 100%; border-collapse: collapse; font-size: 14px; }
 .table th {
     text-align: left; font-size: 11.5px; font-weight: 750; letter-spacing: 0.1em; text-transform: uppercase;
@@ -706,9 +707,9 @@ a.timeline-item:hover { border-color: var(--ink); color: inherit; }
         transform: translateX(-100%);
         transition: transform 200ms ease;
         width: min(300px, 86vw);
-        box-shadow: 20px 0 40px -20px rgba(0, 0, 0, 0.6);
     }
-    body.nav-open .rail { transform: none; }
+    body.nav-open .rail { transform: none; box-shadow: 20px 0 40px -20px rgba(0, 0, 0, 0.6); }
+    .sticky-actions { bottom: calc(62px + env(safe-area-inset-bottom)); }
     body.nav-open::after { content: ""; position: fixed; inset: 0; background: rgba(11, 11, 11, 0.5); z-index: 30; }
     .content { margin-left: 0; padding: 18px 16px 96px; }
     .topbar {
@@ -752,6 +753,13 @@ a.timeline-item:hover { border-color: var(--ink); color: inherit; }
     .food-row { grid-template-columns: minmax(0, 1fr) 56px 96px; padding: 8px 16px; }
     .food-row .v.opt { display: none; }
     .cardio-row { grid-template-columns: 1fr 1fr; }
+    .set-table th { font-size: 10px; letter-spacing: 0.04em; padding: 6px 3px 2px; }
+    .set-table td { padding: 3px; }
+    .set-table td:first-child, .set-table th:first-child { padding-left: 10px; width: 26px; }
+    .set-table td:last-child, .set-table th:last-child { padding-right: 8px; width: 36px; }
+    .set-table .warm { width: 40px; }
+    .set-table .input { padding: 6px 7px; font-size: 16px; }
+    .exercise-block > header select { flex-basis: 100%; }
     .card-head, .card-body, .list > li, .form-section { padding-left: 16px; padding-right: 16px; }
     .table th, .table td { padding-left: 10px; padding-right: 10px; }
     .landing-features strong { font-size: 18px; }

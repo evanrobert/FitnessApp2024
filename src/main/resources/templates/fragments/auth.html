@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<!--/* Public pages (landing, login, sign-up, errors): photo panel + form panel. */-->
+<html xmlns:th="http://www.thymeleaf.org" th:fragment="page(title, content)" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0b0b0b">
+    <title th:text="|${title} · ${brandName}|">Evan Fitness</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="preload" href="/fonts/archivo-variable.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="/css/app.css">
+    <script src="/js/app.js" defer></script>
+</head>
+<body>
+<svg th:replace="~{fragments/icons :: sprite}"></svg>
+<main class="auth">
+    <section class="auth-art">
+        <a class="brand" href="/">
+            <span class="brand-mark" aria-hidden="true" th:text="${brandInitials}">EF</span>
+            <span class="brand-name"><th:block th:text="${brandName}">Evan Fitness</th:block><small>Training ledger</small></span>
+        </a>
+        <div>
+            <h1 class="display">Every rep.<br>Every meal.<br><em>On the record.</em></h1>
+            <p>One ledger for training, fuel, recovery and body data — with the trends, records and insights that tell you what's actually working.</p>
+            <div class="landing-features">
+                <div><strong>Train</strong><span>Sets, PRs, volume, cardio</span></div>
+                <div><strong>Fuel</strong><span>Macros vs your targets</span></div>
+                <div><strong>Recover</strong><span>Sleep, readiness, water</span></div>
+            </div>
+        </div>
+    </section>
+    <section class="auth-panel">
+        <div class="auth-card">
+            <th:block th:replace="${content}"></th:block>
+        </div>
+    </section>
+</main>
+</body>
+</html>

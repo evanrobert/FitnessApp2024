@@ -54,7 +54,7 @@
         const shown = new Set();
         for (let i = 0; i < n; i += every) shown.add(i);
         const last = n - 1, prev = Math.floor(last / every) * every;
-        if (last !== prev && last - prev < every / 2 && prev !== 0) shown.delete(prev);
+        if (last !== prev && prev !== 0) shown.delete(prev);
         shown.add(last);
         return shown;
     }

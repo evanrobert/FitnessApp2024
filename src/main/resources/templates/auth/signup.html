@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/auth :: page(title='Create account', content=~{::content})}">
+<body>
+<th:block th:fragment="content">
+    <div class="onboarding-steps" aria-hidden="true"><span class="is-done"></span><span></span><span></span></div>
+    <span class="eyebrow">Step 1 of 3</span>
+    <h2 class="display">Create your account</h2>
+    <p class="muted mt-1">Next we'll ask a few questions to personalize your targets.</p>
+    <form th:action="@{/signup}" th:object="${signupForm}" method="post" novalidate>
+        <div class="field">
+            <label for="name">Name</label>
+            <input class="input" id="name" th:field="*{name}" th:errorclass="is-invalid" required autocomplete="name">
+            <p class="field-error" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></p>
+        </div>
+        <div class="field">
+            <label for="username">Username</label>
+            <input class="input" id="username" th:field="*{username}" th:errorclass="is-invalid" required autocomplete="username" autocapitalize="none">
+            <p class="field-error" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></p>
+        </div>
+        <div class="field">
+            <label for="password">Password</label>
+            <input class="input" type="password" id="password" th:field="*{password}" th:errorclass="is-invalid" required autocomplete="new-password" minlength="8">
+            <p class="hint">At least 8 characters.</p>
+            <p class="field-error" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></p>
+        </div>
+        <div class="field">
+            <label for="weight">Current weight <span class="muted">(optional)</span></label>
+            <div class="unit-wrap"><input class="input" type="number" id="weight" th:field="*{weight}" th:errorclass="is-invalid" step="0.1" inputmode="decimal"><span class="unit">lb</span></div>
+            <p class="field-error" th:if="${#fields.hasErrors('weight')}" th:errors="*{weight}"></p>
+        </div>
+        <button class="btn btn-primary btn-block" type="submit">Create account</button>
+    </form>
+    <p class="switch">Already have an account? <a href="/login">Log in</a></p>
+</th:block>
+</body>
+</html>
