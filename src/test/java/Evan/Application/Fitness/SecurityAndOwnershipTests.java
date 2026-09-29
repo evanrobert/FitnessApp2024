@@ -55,6 +55,29 @@ class SecurityAndOwnershipTests {
     }
 
     @Test
+    void publicFormsCarryACsrfTokenOnFirstVisit() throws Exception {
+        for (String page : new String[]{"/signup", "/login"}) {
+            assertThat(mvc.perform(get(page)).andExpect(status().isOk()).andReturn().getResponse().getContentAsString())
+                    .contains("name=\"_csrf\"");
+        }
+    }
+
+    @Test
+    void securityHeadersAreSent() throws Exception {
+        mvc.perform(get("/login"))
+                .andExpect(header().string("Content-Security-Policy", org.hamcrest.Matchers.containsString("default-src 'self'")))
+                .andExpect(header().string("X-Frame-Options", "DENY"))
+                .andExpect(header().string("X-Content-Type-Options", "nosniff"));
+    }
+
+    @Test
+    void legacyUrlsRedirectToTheirNewHomes() throws Exception {
+        mvc.perform(get("/view/Nutrition").with(as(alice))).andExpect(redirectedUrl("/fuel/ledger"));
+        mvc.perform(get("/workouts").with(as(alice))).andExpect(redirectedUrl("/train"));
+        mvc.perform(get("/download/nutrition").with(as(alice))).andExpect(redirectedUrl("/export/nutrition.csv"));
+    }
+
+    @Test
     void postsWithoutCsrfTokenAreRejected() throws Exception {
         mvc.perform(post("/fuel").with(as(alice)).param("itemName", "x"))
                 .andExpect(status().isForbidden());

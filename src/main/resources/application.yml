@@ -38,6 +38,8 @@ server:
       cookie:
         http-only: true
         same-site: lax
+        # Set SESSION_COOKIE_SECURE=true whenever the app is served over HTTPS (recommended in production).
+        secure: ${SESSION_COOKIE_SECURE:false}
 
 app:
   brand-name: ${APP_BRAND_NAME:Evan Fitness}
