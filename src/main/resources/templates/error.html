@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Something went wrong</title>
+    <link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+<main class="auth-shell">
+    <section class="auth-card">
+        <p class="eyebrow" th:text="${status}">Error</p>
+        <h1 th:switch="${status}">
+            <span th:case="404">We couldn't find that</span>
+            <span th:case="403">That action isn't allowed</span>
+            <span th:case="*">Something went wrong</span>
+        </h1>
+        <p th:switch="${status}">
+            <span th:case="404">The page or record doesn't exist, or it isn't yours.</span>
+            <span th:case="403">Your session may have expired. Reload the page and try again.</span>
+            <span th:case="*">We couldn't complete that request. Your data wasn't changed.</span>
+        </p>
+        <a class="btn btn-primary" href="/home">Back to dashboard</a>
+    </section>
+</main>
+</body>
+</html>

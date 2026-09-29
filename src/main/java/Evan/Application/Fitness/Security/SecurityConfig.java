@@ -1,7 +1,5 @@
 package Evan.Application.Fitness.Security;
 
-import Evan.Application.Fitness.Repositorys.UserLoginDetailsRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -9,37 +7,48 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextRepository;
+import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-    @Autowired
-    UserLoginDetailsRepository userLoginDetailsRepository;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-    /** Needs to be redone in order to create a authenticate permission instead of redirecting to creat account **/
+
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf().disable().authorizeRequests()
-                .antMatchers("/", "/login", "/signup", "/submitSignup", "/css/**", "/js/**", "/images/**").permitAll()
-                .antMatchers("/home", "/add/custom/meal", "/Post/Custom/Meal", "/view/Nutrition",
-                        "/edit/nutrition/information", "/download/nutrition", "/user/macro/information",
-                        "/ModifyDailyIntake", "/log/custom/macro/information", "/edit/macro/information",
-                        "/total", "/workouts").authenticated()
-                .antMatchers("/test").hasRole("USER")
-                .anyRequest().authenticated()
-                .and()
-                .formLogin()
-                .loginPage("/login")
-                .defaultSuccessUrl("/home")
-                .permitAll()
-                .and()
-                .logout()
-                .logoutSuccessUrl("/log-in?logout");
+    public SecurityContextRepository securityContextRepository() {
+        return new HttpSessionSecurityContextRepository();
+    }
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, SecurityContextRepository contextRepository)
+            throws Exception {
+        // CSRF protection stays enabled (the default). Thymeleaf th:action forms carry the token.
+        http
+                .securityContext(context -> context.securityContextRepository(contextRepository))
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/", "/login", "/signup", "/error",
+                                "/css/**", "/js/**", "/images/**", "/fonts/**", "/favicon.svg").permitAll()
+                        .anyRequest().authenticated())
+                .formLogin(form -> form
+                        .loginPage("/login")
+                        .defaultSuccessUrl("/home", false)
+                        .failureUrl("/login?error")
+                        .permitAll())
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/login?logout")
+                        .permitAll())
+                .headers(headers -> headers
+                        .referrerPolicy(ref -> ref.policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.SAME_ORIGIN))
+                        .contentSecurityPolicy(csp -> csp.policyDirectives(
+                                "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; "
+                                        + "script-src 'self'; font-src 'self'; frame-ancestors 'none'; form-action 'self'")));
         return http.build();
     }
 }
-

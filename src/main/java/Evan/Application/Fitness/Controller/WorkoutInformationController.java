@@ -1,52 +1,62 @@
 package Evan.Application.Fitness.Controller;
 
-import Evan.Application.Fitness.Model.UserLoginDetails;
 import Evan.Application.Fitness.Model.WorkoutInformation;
 import Evan.Application.Fitness.Repositorys.UserLoginDetailsRepository;
 import Evan.Application.Fitness.Repositorys.WorkoutInformationRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import Evan.Application.Fitness.Security.AppUserPrincipal;
+import Evan.Application.Fitness.Service.TodayService;
+import jakarta.validation.Valid;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 
-import java.security.Principal;
-import java.util.Date;
 import java.util.List;
 
 @Controller
 public class WorkoutInformationController {
-    @Autowired
-    WorkoutInformationRepository workoutInformationRepository;
-    @Autowired
-    UserLoginDetailsRepository userLoginDetailsRepository;
+    private final WorkoutInformationRepository workouts;
+    private final UserLoginDetailsRepository users;
+    private final TodayService todayService;
+
+    public WorkoutInformationController(WorkoutInformationRepository workouts, UserLoginDetailsRepository users,
+                                        TodayService todayService) {
+        this.workouts = workouts;
+        this.users = users;
+        this.todayService = todayService;
+    }
 
     @GetMapping("/workouts")
-    public String viewWorkouts(Model model, Principal principal) {
-        UserLoginDetails user = userLoginDetailsRepository.findByUsername(principal.getName());
-        List<WorkoutInformation> workouts = workoutInformationRepository.findAllByUserLoginDetails(user);
-
-        model.addAttribute("workoutInformation", new WorkoutInformation());
-        model.addAttribute("workouts", workouts);
-        model.addAttribute("totalWorkouts", workouts.size());
-        model.addAttribute("totalVolume", workouts.stream()
-                .mapToDouble(workout -> workout.getSets() * workout.getReps() * workout.getWeight())
-                .sum());
-
+    public String view(@AuthenticationPrincipal AppUserPrincipal me, Model model) {
+        if (!model.containsAttribute("workoutInformation")) {
+            model.addAttribute("workoutInformation", new WorkoutInformation());
+        }
+        List<WorkoutInformation> history = workouts.findAllByUserIdOrderByDateDescIdDesc(me.getId());
+        model.addAttribute("workouts", history);
+        model.addAttribute("totalWorkouts", history.size());
+        model.addAttribute("totalVolume", history.stream().mapToDouble(w -> w.getSets() * w.getReps() * w.getWeight()).sum());
         return "WorkoutLog";
     }
 
     @PostMapping("/workouts")
-    public String logWorkout(Principal principal, @ModelAttribute WorkoutInformation workoutInformation) {
-        UserLoginDetails user = userLoginDetailsRepository.findByUsername(principal.getName());
-        workoutInformation.setUserLoginDetails(user);
-
-        if (workoutInformation.getDate() == null) {
-            workoutInformation.setDate(new Date());
+    public String log(@AuthenticationPrincipal AppUserPrincipal me,
+                      @Valid @ModelAttribute WorkoutInformation workoutInformation, BindingResult result, Model model) {
+        if (result.hasErrors()) {
+            return view(me, model);
         }
-
-        workoutInformationRepository.save(workoutInformation);
+        WorkoutInformation entry = new WorkoutInformation();
+        entry.setExerciseName(workoutInformation.getExerciseName().trim());
+        entry.setWorkoutType(workoutInformation.getWorkoutType());
+        entry.setSets(workoutInformation.getSets());
+        entry.setReps(workoutInformation.getReps());
+        entry.setWeight(workoutInformation.getWeight());
+        entry.setNotes(workoutInformation.getNotes());
+        entry.setDate(workoutInformation.getDate() != null ? workoutInformation.getDate() : todayService.today(me.getId()));
+        entry.setUser(users.getReferenceById(me.getId()));
+        workouts.save(entry);
         return "redirect:/workouts";
     }
 }

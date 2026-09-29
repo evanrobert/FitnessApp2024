@@ -1,36 +1,37 @@
 package Evan.Application.Fitness.Model;
 
-import lombok.AllArgsConstructor;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import javax.persistence.*;
-import java.util.Date;
+import java.time.LocalDate;
 
 @Entity
+@Table(name = "workout_information")
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
 public class WorkoutInformation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank @Size(max = 255)
     private String exerciseName;
     private String workoutType;
-    private int sets;
-    private int reps;
-    private double weight;
+    @Min(1) private int sets;
+    @Min(1) private int reps;
+    @PositiveOrZero private double weight;
+    @Size(max = 255)
     private String notes;
 
-    @Temporal(TemporalType.DATE)
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private Date date;
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    private LocalDate date;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userid")
-    private UserLoginDetails userLoginDetails;
+    private UserLoginDetails user;
 }

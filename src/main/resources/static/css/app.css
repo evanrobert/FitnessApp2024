@@ -795,3 +795,14 @@ summary {
         flex-direction: column;
     }
 }
+
+/* Phase 2: feedback states */
+.inline-form { display: inline; margin: 0; }
+.flash { margin: 12px 0; padding: 12px 14px; border-radius: var(--radius); font-weight: 600; }
+.flash-success { background: #e8f5ee; color: #1d5c3a; border: 1px solid #b8dcc8; }
+.flash-error { background: #fdecec; color: #8a1f1f; border: 1px solid #f1c0c0; }
+.field-error { color: #b42318; font-size: 0.85rem; margin-top: 4px; }
+.is-invalid { border-color: #b42318 !important; }
+.empty-cell { text-align: center; padding: 28px; color: var(--muted); }
+.btn-danger-ghost { background: transparent; color: #b42318; border: 1px solid #f1c0c0; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }

@@ -97,3 +97,11 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     filterNutritionRows();
 });
+
+// Confirm destructive actions (buttons or links marked with data-confirm).
+document.addEventListener("click", (event) => {
+    const trigger = event.target.closest("[data-confirm]");
+    if (trigger && !window.confirm(trigger.dataset.confirm)) {
+        event.preventDefault();
+    }
+});

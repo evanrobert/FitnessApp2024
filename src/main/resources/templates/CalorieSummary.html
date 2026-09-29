@@ -17,8 +17,11 @@
             <a class="btn btn-ghost" href="/view/Nutrition">Nutrition Log</a>
             <a class="btn btn-ghost" href="/workouts">Workouts</a>
             <a class="btn btn-primary" href="/add/custom/meal">Log Meal</a>
+            <form th:action="@{/logout}" method="post" class="inline-form"><button class="btn btn-ghost" type="submit">Log out</button></form>
         </div>
     </nav>
+    <p class="flash flash-success" th:if="${flashSuccess}" th:text="${flashSuccess}" role="status"></p>
+    <p class="flash flash-error" th:if="${flashError}" th:text="${flashError}" role="alert"></p>
 
     <section class="page-title">
         <p class="eyebrow">Today</p>

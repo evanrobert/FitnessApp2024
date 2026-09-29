@@ -1,28 +1,26 @@
 package Evan.Application.Fitness.Model;
 
-
-import lombok.AllArgsConstructor;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.*;
-
+/** Member profile. Owns the link to the account through user_information.userid. */
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Table(name = "user_information")
 public class UserInformation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     private String name;
     private int age;
     private int weight;
 
-    @OneToOne
-    @JoinColumn(name = "userid")
-    private UserLoginDetails userLoginDetails;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "userid", unique = true)
+    private UserLoginDetails user;
 }

@@ -1,26 +1,28 @@
 package Evan.Application.Fitness.Model;
 
-import lombok.AllArgsConstructor;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.*;
-
+/** Daily nutrition targets. One row per member. */
 @Entity
+@Table(name = "user_macro_information")
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
 public class UserMacroInformation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
-    private double dailyCalories;
-    private double dailyProtein;
-    private double dailyFat;
-    private double dailyCarbohydrates;
-    @OneToOne
-    @JoinColumn(name = "userid")
-    private UserLoginDetails userLoginDetails;
+    private Long id;
+
+    @PositiveOrZero private double dailyCalories;
+    @PositiveOrZero private double dailyProtein;
+    @PositiveOrZero private double dailyFat;
+    @PositiveOrZero private double dailyCarbohydrates;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "userid", unique = true)
+    private UserLoginDetails user;
 }

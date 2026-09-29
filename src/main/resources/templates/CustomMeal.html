@@ -18,8 +18,11 @@
             <a class="btn btn-ghost" href="/view/Nutrition">Nutrition Log</a>
             <a class="btn btn-ghost" href="/workouts">Workouts</a>
             <a class="btn btn-ghost" href="/total">Summary</a>
+            <form th:action="@{/logout}" method="post" class="inline-form"><button class="btn btn-ghost" type="submit">Log out</button></form>
         </div>
     </nav>
+    <p class="flash flash-success" th:if="${flashSuccess}" th:text="${flashSuccess}" role="status"></p>
+    <p class="flash flash-error" th:if="${flashError}" th:text="${flashError}" role="alert"></p>
 
     <section class="page-title">
         <p class="eyebrow">Meal Builder</p>
@@ -31,7 +34,8 @@
         <form th:action="@{/Post/Custom/Meal}" th:object="${calorieInformation}" method="post" class="grid form-grid">
             <div class="field span-2">
                 <label for="itemName">Meal Item Name</label>
-                <input class="input" type="text" id="itemName" th:field="*{itemName}" placeholder="e.g., Ribeye and rice" autocomplete="off" required>
+                <input class="input" type="text" id="itemName" th:field="*{itemName}" th:errorclass="is-invalid" placeholder="e.g., Ribeye and rice" autocomplete="off" required>
+                <p class="field-error" th:if="${#fields.hasErrors('itemName')}" th:errors="*{itemName}"></p>
                 <p class="form-help">Use a clear name so it is easy to find in the nutrition log later.</p>
             </div>
 

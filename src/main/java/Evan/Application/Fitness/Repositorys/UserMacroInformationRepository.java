@@ -1,14 +1,10 @@
 package Evan.Application.Fitness.Repositorys;
 
-import Evan.Application.Fitness.Model.UserLoginDetails;
 import Evan.Application.Fitness.Model.UserMacroInformation;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 
-@Repository
+import java.util.Optional;
+
 public interface UserMacroInformationRepository extends JpaRepository<UserMacroInformation, Long> {
-    boolean existsByUserLoginDetails(UserLoginDetails userLoginDetails);
-    UserMacroInformation findByUserLoginDetails(UserLoginDetails userLoginDetails);
-
-
+    Optional<UserMacroInformation> findByUserId(Long userId);
 }

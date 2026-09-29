@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,8 +17,11 @@
             <a class="btn btn-ghost" href="/total">Summary</a>
             <a class="btn btn-ghost" href="/workouts">Workouts</a>
             <a class="btn btn-primary" href="/add/custom/meal">Log Meal</a>
+            <form th:action="@{/logout}" method="post" class="inline-form"><button class="btn btn-ghost" type="submit">Log out</button></form>
         </div>
     </nav>
+    <p class="flash flash-success" th:if="${flashSuccess}" th:text="${flashSuccess}" role="status"></p>
+    <p class="flash flash-error" th:if="${flashError}" th:text="${flashError}" role="alert"></p>
 
     <section class="page-title">
         <p class="eyebrow">Goals</p>

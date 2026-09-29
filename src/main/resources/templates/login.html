@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,7 +13,11 @@
         <h1>Login</h1>
         <p>Sign in to continue tracking meals, goals, workouts, and training volume.</p>
 
-        <form action="login" method="post">
+        <p class="flash flash-error" th:if="${param.error}" role="alert">That username and password don't match.</p>
+        <p class="flash flash-success" th:if="${param.logout}" role="status">You're signed out.</p>
+        <p class="flash flash-success" th:if="${flashSuccess}" th:text="${flashSuccess}" role="status"></p>
+
+        <form th:action="@{/login}" method="post">
             <div class="field">
                 <label for="username">Username</label>
                 <input class="input" type="text" id="username" name="username" required placeholder="Enter your username" autocomplete="username">

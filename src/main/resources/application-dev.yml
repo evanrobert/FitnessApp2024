@@ -1,0 +1,15 @@
+# Local development: in-memory H2 in MySQL compatibility mode, demo data enabled.
+spring:
+  datasource:
+    url: jdbc:h2:mem:fitness;MODE=MySQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1
+    username: sa
+    password:
+  thymeleaf:
+    cache: false
+  web:
+    resources:
+      cache:
+        period: 0
+
+app:
+  demo-data: true

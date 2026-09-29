@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,31 +13,36 @@
         <h1>Create Account</h1>
         <p>Set up your profile so your meals, macro goals, and workouts stay connected.</p>
 
-        <form action="/submitSignup" method="post">
+        <form th:action="@{/signup}" th:object="${signupForm}" method="post" novalidate>
             <div class="field">
                 <label for="username">Username</label>
-                <input class="input" type="text" id="username" name="username" placeholder="Enter your username" required autocomplete="username">
+                <input class="input" type="text" id="username" th:field="*{username}" th:errorclass="is-invalid" placeholder="Enter your username" required autocomplete="username">
+                <p class="field-error" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></p>
             </div>
 
             <div class="field">
                 <label for="password">Password</label>
-                <input class="input" type="password" id="password" name="password" placeholder="Enter your password" required autocomplete="new-password">
+                <input class="input" type="password" id="password" th:field="*{password}" th:errorclass="is-invalid" placeholder="Enter your password" required autocomplete="new-password">
+                <p class="field-error" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></p>
             </div>
 
             <div class="field">
                 <label for="name">Name</label>
-                <input class="input" type="text" id="name" name="name" placeholder="Enter your full name" required autocomplete="name">
+                <input class="input" type="text" id="name" th:field="*{name}" th:errorclass="is-invalid" placeholder="Enter your full name" required autocomplete="name">
+                <p class="field-error" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></p>
             </div>
 
             <div class="grid form-grid">
                 <div class="field">
                     <label for="age">Age</label>
-                    <input class="input" type="number" id="age" name="age" placeholder="Age" min="1" required>
+                    <input class="input" type="number" id="age" th:field="*{age}" th:errorclass="is-invalid" placeholder="Age" min="1" required>
+                <p class="field-error" th:if="${#fields.hasErrors('age')}" th:errors="*{age}"></p>
                 </div>
 
                 <div class="field with-unit">
                     <label for="weight">Weight</label>
-                    <input class="input" type="number" id="weight" name="weight" placeholder="Weight" min="1" required>
+                    <input class="input" type="number" id="weight" th:field="*{weight}" th:errorclass="is-invalid" placeholder="Weight" min="1" required>
+                <p class="field-error" th:if="${#fields.hasErrors('weight')}" th:errors="*{weight}"></p>
                     <span class="unit">lb</span>
                 </div>
             </div>

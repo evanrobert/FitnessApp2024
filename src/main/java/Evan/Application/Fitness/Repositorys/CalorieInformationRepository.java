@@ -1,34 +1,24 @@
 package Evan.Application.Fitness.Repositorys;
 
 import Evan.Application.Fitness.Model.CalorieInformation;
-import Evan.Application.Fitness.Model.UserLoginDetails;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-
-@Repository
+/** Every query is scoped to a member id: entries are never read across accounts. */
 public interface CalorieInformationRepository extends JpaRepository<CalorieInformation, Long> {
-    List<CalorieInformation> findAllByUserLoginDetails(UserLoginDetails userLoginDetails);
-    List<CalorieInformation> findByMealType(String mealType);
-   //CalorieInformation findByUserLoginDetails(UserLoginDetails userLoginDetails);
-    List<CalorieInformation> findByUserLoginDetails(UserLoginDetails userLoginDetails);
 
+    List<CalorieInformation> findAllByUserIdOrderByDateDescIdDesc(Long userId);
 
-    @Query("SELECT c FROM CalorieInformation c WHERE c.date = CURRENT_DATE")
-    List<CalorieInformation> findAllByToday();
+    Optional<CalorieInformation> findByIdAndUserId(Long id, Long userId);
 
-    @Query("SELECT COALESCE(SUM(c.calories), 0) " +
-            "FROM CalorieInformation c " +
-            "WHERE c.userLoginDetails = :user " +
-            "AND c.date = CURRENT_DATE")
-    double sumCaloriesTodayByUser(@Param("user") UserLoginDetails user);
+    long countByUserId(Long userId);
 
-
-
+    @Query("SELECT COALESCE(SUM(c.calories), 0) FROM CalorieInformation c " +
+            "WHERE c.user.id = :userId AND c.date = :day")
+    double sumCaloriesForDay(@Param("userId") Long userId, @Param("day") LocalDate day);
 }
-
