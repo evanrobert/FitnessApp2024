@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: page(title='Insights', active='insights', content=~{::content})}">
+<body>
+<th:block th:fragment="content">
+    <header class="page-head">
+        <div>
+            <span class="eyebrow">Analytics</span>
+            <h1 class="display">Insights</h1>
+            <p class="lede">How training, fuel, recovery and body data move together. Every number below reflects the range you pick.</p>
+        </div>
+        <nav class="segmented" aria-label="Date range">
+            <a th:each="r : ${ {30, 90, 180} }" th:href="@{/insights(days=${r})}" th:classappend="${v.days() == r} ? 'is-active'" th:text="|${r} days|" th:attr="aria-current=${v.days() == r} ? 'true'">30 days</a>
+        </nav>
+    </header>
+
+    <section class="scoreboard" aria-label="Range summary">
+        <div class="score"><div class="score-label">Sessions</div><div class="score-value" th:text="${v.sessions()}">0</div><div class="score-sub" th:text="|${@fmt.dec(v.perWeek())} per week · target ${v.data().profile().weeklyTargetOrDefault()}|">per week</div></div>
+        <div class="score"><div class="score-label">Volume</div><div class="score-value"><th:block th:text="${@fmt.compact(v.volume())}">0</th:block><small>lb</small></div><div class="score-sub" th:text="|${@fmt.minutes(v.cardioMinutes())} cardio|">cardio</div></div>
+        <div class="score"><div class="score-label">Avg calories</div><div class="score-value" th:text="${@fmt.num(v.avgCalories())}">—</div>
+            <div class="score-sub" th:text="${v.calorieAdherence() != null ? @fmt.pct(v.calorieAdherence()) + ' of days on target' : v.loggedFoodDays() + ' days logged'}">adherence</div></div>
+        <div class="score"><div class="score-label">Protein vs target</div><div class="score-value" th:text="${@fmt.pct(v.proteinAdherence())}">—</div><div class="score-sub">average of logged days</div></div>
+        <div class="score"><div class="score-label">Sleep</div><div class="score-value"><th:block th:text="${@fmt.dec(v.avgSleep())}">—</th:block><small th:if="${v.avgSleep()}">h avg</small></div>
+            <div class="score-sub" th:text="${v.avgReadiness() != null ? 'readiness ' + @fmt.num(v.avgReadiness()) : 'no check-ins'}">readiness</div></div>
+        <div class="score"><div class="score-label">Weight change</div><div class="score-value"><th:block th:text="${v.weightChange() != null ? @fmt.signed(v.weightChange()) : '—'}">—</th:block><small th:if="${v.weightChange() != null}">lb</small></div></div>
+    </section>
+
+    <div class="grid split section">
+        <section class="card">
+            <div class="card-head"><div><span class="eyebrow">Consistency</span><h2>Sessions per week</h2></div></div>
+            <div class="card-body"><th:block th:replace="~{fragments/ui :: chart('chart-frequency', ${chart_frequency})}"></th:block></div>
+        </section>
+        <section class="card">
+            <div class="card-head"><div><span class="eyebrow">Signals</span><h2>What stands out</h2></div></div>
+            <div class="card-body muted small" th:if="${v.insights().isEmpty()}">Insights appear once there's enough data behind them — usually after a week of logging.</div>
+            <div class="insight" th:each="i : ${v.insights()}" th:classappend="${i.css()}">
+                <div><div class="title"><a th:href="${i.href()}" style="color:inherit;text-decoration:none" th:text="${i.title()}">Insight</a></div><div class="body" th:text="${i.body()}">body</div></div>
+            </div>
+        </section>
+    </div>
+
+    <section class="card section">
+        <div class="card-head"><div><span class="eyebrow">Frequency</span><h2>Training calendar</h2></div></div>
+        <div class="card-body"><th:block th:replace="~{fragments/ui :: chart('chart-cal', ${chart_calendar})}"></th:block></div>
+    </section>
+
+    <div class="grid cols-2 section">
+        <section class="card"><div class="card-head"><div><span class="eyebrow">Work</span><h2>Weekly volume</h2></div></div>
+            <div class="card-body"><th:block th:replace="~{fragments/ui :: chart('chart-vol', ${chart_volume})}"></th:block></div></section>
+        <section class="card" id="balance"><div class="card-head"><div><span class="eyebrow">Balance</span><h2>Working sets by muscle group</h2></div></div>
+            <div class="card-body">
+                <p class="muted small" th:if="${v.muscleBalance().isEmpty()}">Log strength sets to see how your training is distributed.</p>
+                <div class="stack" style="gap:10px">
+                    <div class="meter-row" th:each="m : ${v.muscleBalance()}">
+                        <header><strong th:text="${m.group().label}">Chest</strong><span class="num muted" th:text="|${m.sets()} sets · ${@fmt.pct(m.pct())}|">0</span></header>
+                        <div class="meter"><span th:style="${@fmt.width(m.pct() * 100 / v.muscleBalance()[0].pct())}"></span></div>
+                    </div>
+                </div>
+            </div></section>
+    </div>
+
+    <div class="grid cols-2 section">
+        <section class="card"><div class="card-head"><div><span class="eyebrow">Fuel</span><h2>Daily calories</h2></div></div>
+            <div class="card-body"><th:block th:replace="~{fragments/ui :: chart('chart-cal-in', ${chart_calories})}"></th:block></div></section>
+        <section class="card"><div class="card-head"><div><span class="eyebrow">Fuel</span><h2>Daily protein</h2></div></div>
+            <div class="card-body"><th:block th:replace="~{fragments/ui :: chart('chart-protein', ${chart_protein})}"></th:block></div></section>
+    </div>
+
+    <div class="grid cols-3 section">
+        <section class="card"><div class="card-head"><div><span class="eyebrow">Body</span><h2>Weight trend</h2></div></div>
+            <div class="card-body"><th:block th:replace="~{fragments/ui :: chart('chart-w', ${chart_weight})}"></th:block></div></section>
+        <section class="card"><div class="card-head"><div><span class="eyebrow">Recovery</span><h2>Sleep</h2></div></div>
+            <div class="card-body"><th:block th:replace="~{fragments/ui :: chart('chart-sl', ${chart_sleep})}"></th:block></div></section>
+        <section class="card"><div class="card-head"><div><span class="eyebrow">Recovery</span><h2>Readiness</h2></div></div>
+            <div class="card-body"><th:block th:replace="~{fragments/ui :: chart('chart-rd', ${chart_readiness})}"></th:block></div></section>
+    </div>
+
+    <section class="card section">
+        <div class="card-head"><div><span class="eyebrow">Conditioning</span><h2>Weekly cardio</h2></div></div>
+        <div class="card-body"><th:block th:replace="~{fragments/ui :: chart('chart-cardio', ${chart_cardio})}"></th:block></div>
+    </section>
+
+    <section class="section" th:unless="${v.comparisons().isEmpty()}">
+        <div class="section-title"><h2>Comparisons</h2><span class="small muted">Patterns in your own data — correlation, not proof.</span></div>
+        <div class="grid cols-3">
+            <article class="card" th:each="c : ${v.comparisons()}">
+                <div class="card-head"><div><span class="eyebrow" th:text="${c.metric()}">metric</span><h3 th:text="${c.title()}">title</h3></div></div>
+                <div class="card-body grid cols-2" style="gap:12px">
+                    <div><div class="stat-label" th:text="${c.leftLabel()}">left</div><div class="stat-value" th:text="${c.left()}">0</div></div>
+                    <div><div class="stat-label" th:text="${c.rightLabel()}">right</div><div class="stat-value" th:text="${c.right()}">0</div></div>
+                </div>
+                <div class="card-foot small muted" th:text="${c.note()}">note</div>
+            </article>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="section-title"><h2>Achievements</h2><span class="small muted" th:text="|${#lists.size(v.achievements().?[earned])} of ${#lists.size(v.achievements())} earned|">0 earned</span></div>
+        <div class="badges">
+            <div class="achv" th:each="a : ${v.achievements()}" th:classappend="${a.earned()} ? 'is-earned'">
+                <div class="achv-icon" th:text="${a.code()}">S1</div>
+                <div class="title" th:text="${a.title()}">title</div>
+                <div class="meta" th:text="${a.earned() ? 'Earned ' + @fmt.shortDate(a.earnedOn()) : a.description()}">desc</div>
+                <div class="meter" th:unless="${a.earned()}" th:title="${a.progressText()}"><span th:style="${@fmt.width(a.progress() * 100)}"></span></div>
+                <div class="meta" th:unless="${a.earned()}" th:text="${a.progressText()}">0 / 10</div>
+            </div>
+        </div>
+    </section>
+</th:block>
+</body>
+</html>

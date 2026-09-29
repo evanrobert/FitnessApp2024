@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: page(title='Food ledger', active='fuel', content=~{::content})}">
+<body>
+<th:block th:fragment="content">
+    <header class="page-head">
+        <div>
+            <nav class="breadcrumb"><a href="/fuel">Nutrition</a><span>/</span><span>Ledger</span></nav>
+            <h1 class="display">Food ledger</h1>
+            <p class="lede">Every entry you've logged, editable in place. Search and filter, fix several rows, then save once.</p>
+        </div>
+        <div class="page-actions">
+            <a class="btn" href="/export/nutrition.csv"><svg><use href="#i-download"/></svg>CSV</a>
+            <a class="btn btn-primary" href="/fuel/new"><svg><use href="#i-plus"/></svg>Log meal</a>
+        </div>
+    </header>
+
+    <form method="post" th:action="@{/fuel/ledger}" th:object="${calorieInformationForm}" class="card ledger" data-guard>
+        <div class="toolbar">
+            <div class="field grow"><label for="ledger-search">Search</label><input class="input" id="ledger-search" type="search" data-filter="#ledger" placeholder="Food, date, meal or value"></div>
+            <div class="field"><label for="ledger-meal">Meal</label>
+                <select class="input" id="ledger-meal" data-filter="#ledger" data-key="meal">
+                    <option value="">All meals</option>
+                    <option th:each="t : ${mealTypes}" th:value="${t.key}" th:text="${t.value}"></option>
+                </select></div>
+            <div class="row small" style="align-self:center">
+                <span><strong data-count-for="#ledger" th:text="${#lists.size(calorieInformationForm.calorieInformationList)}">0</strong> rows</span>
+                <span><strong data-total="calories">0</strong> kcal</span>
+                <span><strong data-total="protein">0</strong> g protein</span>
+            </div>
+        </div>
+        <div class="table-wrap">
+            <table class="table table-compact" id="ledger">
+                <thead><tr><th>Food</th><th>Date</th><th>Meal</th><th class="num">kcal</th><th class="num">Protein</th><th class="num">Carbs</th><th class="num">Fat</th><th class="num">Fiber</th><th class="num">Sodium</th><th><span class="sr-only">Actions</span></th></tr></thead>
+                <tbody>
+                <tr th:if="*{calorieInformationList.isEmpty()}" class="empty-row"><td colspan="10" class="empty-cell">No meals logged yet. <a href="/fuel/new">Log your first meal</a>.</td></tr>
+                <tr th:each="item, st : *{calorieInformationList}" data-row th:attr="data-meal=${item.mealType}">
+                    <td style="min-width:200px">
+                        <input type="hidden" th:field="*{calorieInformationList[__${st.index}__].id}">
+                        <input class="input input-sm" th:field="*{calorieInformationList[__${st.index}__].itemName}" aria-label="Food">
+                    </td>
+                    <td><input class="input input-sm" type="date" th:field="*{calorieInformationList[__${st.index}__].date}" aria-label="Date"></td>
+                    <td><select class="input input-sm" th:field="*{calorieInformationList[__${st.index}__].mealType}" aria-label="Meal">
+                        <option th:each="t : ${mealTypes}" th:value="${t.key}" th:text="${t.value}"></option></select></td>
+                    <td><input class="input input-sm num" data-nutrient="calories" type="number" min="0" step="1" th:field="*{calorieInformationList[__${st.index}__].calories}" style="width:84px" aria-label="Calories"></td>
+                    <td><input class="input input-sm num" data-nutrient="protein" type="number" min="0" step="0.1" th:field="*{calorieInformationList[__${st.index}__].proteins}" style="width:76px" aria-label="Protein"></td>
+                    <td><input class="input input-sm num" data-nutrient="carbs" type="number" min="0" step="0.1" th:field="*{calorieInformationList[__${st.index}__].carbohydrates}" style="width:76px" aria-label="Carbs"></td>
+                    <td><input class="input input-sm num" data-nutrient="fat" type="number" min="0" step="0.1" th:field="*{calorieInformationList[__${st.index}__].fats}" style="width:76px" aria-label="Fat"></td>
+                    <td><input class="input input-sm num" type="number" min="0" step="0.1" th:field="*{calorieInformationList[__${st.index}__].fiber}" style="width:70px" aria-label="Fiber"></td>
+                    <td><input class="input input-sm num" type="number" min="0" step="1" th:field="*{calorieInformationList[__${st.index}__].sodium}" style="width:80px" aria-label="Sodium mg">
+                        <input type="hidden" th:field="*{calorieInformationList[__${st.index}__].sugars}"><input type="hidden" th:field="*{calorieInformationList[__${st.index}__].cholesterol}"></td>
+                    <td><button class="icon-btn" type="submit" th:formaction="@{/fuel/{id}/delete(id=${item.id},returnTo='/fuel/ledger')}" aria-label="Delete entry" data-confirm="Delete this entry? This can't be undone." data-no-loading><svg><use href="#i-trash"/></svg></button></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="form-actions sticky-actions">
+            <p class="small muted spacer">Changes save together when you press Save.</p>
+            <button class="btn btn-ghost" type="reset">Undo edits</button>
+            <button class="btn btn-primary" type="submit">Save changes</button>
+        </div>
+    </form>
+</th:block>
+</body>
+</html>

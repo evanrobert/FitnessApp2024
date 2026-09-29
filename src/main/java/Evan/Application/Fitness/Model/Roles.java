@@ -1,28 +1,21 @@
 package Evan.Application.Fitness.Model;
 
-import lombok.AllArgsConstructor;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Table(name = "roles")
 public class Roles {
+    public static final String USER = "ROLE_USER";
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String name;
-
-
-    @ManyToMany(mappedBy = "roles")
-    private List<UserLoginDetails> userLoginDetails = new ArrayList<>();
 }
-
-

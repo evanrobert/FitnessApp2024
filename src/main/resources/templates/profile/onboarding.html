@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: page(title='Welcome', active='', content=~{::content})}">
+<body>
+<th:block th:fragment="content">
+    <div style="max-width: 760px; margin: 0 auto">
+        <div class="onboarding-steps" aria-hidden="true"><span class="is-done"></span><span class="is-done"></span><span></span></div>
+        <header class="page-head">
+            <div>
+                <span class="eyebrow">Step 2 of 3 · about a minute</span>
+                <h1 class="display">Make it yours</h1>
+                <p class="lede">A few answers turn generic numbers into your numbers: calorie targets, weekly training goal and correct dates. Everything can be changed later.</p>
+            </div>
+        </header>
+
+        <form class="card ledger" method="post" th:action="@{/onboarding}" th:object="${profile}" novalidate>
+            <input type="hidden" th:field="*{name}">
+            <div class="flash flash-error" th:if="${#fields.hasErrors('*')}" style="margin:16px 20px 0"><svg><use href="#i-alert"/></svg><span th:text="${#fields.hasErrors('primaryGoal') ? 'Pick what you are training for.' : 'Check the highlighted fields.'}"></span></div>
+            <div class="form-section">
+                <h3>What are you training for?</h3>
+                <div class="chips" role="radiogroup">
+                    <label class="chip" th:each="g : ${goals}"><input type="radio" th:field="*{primaryGoal}" th:value="${g}" style="accent-color:var(--blue)"><th:block th:text="${g.label}">Goal</th:block></label>
+                </div>
+            </div>
+            <div class="form-section">
+                <h3>Training</h3>
+                <div class="form-grid">
+                    <div class="field"><label for="experienceLevel">Experience</label>
+                        <select class="input" id="experienceLevel" th:field="*{experienceLevel}"><option value="">—</option><option th:each="e : ${experienceLevels}" th:value="${e}" th:text="${e.label}"></option></select></div>
+                    <div class="field"><label for="weeklyWorkoutTarget">Sessions per week</label><input class="input" id="weeklyWorkoutTarget" type="number" min="1" max="14" th:field="*{weeklyWorkoutTarget}"></div>
+                    <div class="field span-all"><label for="activityLevel">Activity outside the gym</label>
+                        <select class="input" id="activityLevel" th:field="*{activityLevel}"><option value="">—</option><option th:each="a : ${activityLevels}" th:value="${a}" th:text="${a.label}"></option></select></div>
+                </div>
+            </div>
+            <div class="form-section">
+                <h3>For your calorie estimate</h3>
+                <div class="form-grid">
+                    <div class="field"><label for="currentWeight">Current weight</label><div class="unit-wrap"><input class="input" id="currentWeight" name="currentWeight" type="number" step="0.1" th:value="${currentWeight}"><span class="unit">lb</span></div></div>
+                    <div class="field"><label for="heightIn">Height</label><div class="unit-wrap"><input class="input" id="heightIn" type="number" step="0.5" th:field="*{heightIn}" th:errorclass="is-invalid" placeholder="70"><span class="unit">in</span></div></div>
+                    <div class="field"><label for="birthYear">Birth year</label><input class="input" id="birthYear" type="number" th:field="*{birthYear}" th:errorclass="is-invalid" placeholder="1990"></div>
+                    <div class="field"><label for="sex">Sex</label><select class="input" id="sex" th:field="*{sex}"><option value="">—</option><option th:each="s : ${sexes}" th:value="${s}" th:text="${s.label}"></option></select></div>
+                    <div class="field span-all"><label for="timeZone">Time zone</label><select class="input" id="timeZone" th:field="*{timeZone}"><option value="">App default</option><option th:each="z : ${zones}" th:value="${z}" th:text="${z}"></option></select></div>
+                </div>
+            </div>
+            <div class="form-actions">
+                <a class="btn btn-ghost spacer" href="/home">Skip for now</a>
+                <button class="btn btn-primary" type="submit">Continue to targets <svg><use href="#i-right"/></svg></button>
+            </div>
+        </form>
+    </div>
+</th:block>
+</body>
+</html>

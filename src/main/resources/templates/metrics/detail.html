@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: page(title=${metric.name}, active='metrics', content=~{::content})}">
+<body>
+<th:block th:fragment="content">
+    <header class="page-head">
+        <div>
+            <nav class="breadcrumb"><a href="/metrics">Custom metrics</a><span>/</span><span th:text="${metric.category != null ? metric.category.label : 'Metric'}">type</span></nav>
+            <h1 class="display" th:text="${metric.name}">Metric</h1>
+            <p class="lede"><th:block th:text="${metric.description}"></th:block><th:block th:text="| ${metric.higherIsBetter ? 'Higher' : 'Lower'} is better.|"></th:block></p>
+        </div>
+        <div class="page-actions">
+            <a class="btn" th:href="@{/goals/new(metric='CUSTOM_METRIC',customMetricId=${metric.id})}"><svg><use href="#i-goals"/></svg>Set a goal</a>
+        </div>
+    </header>
+
+    <section class="scoreboard" th:if="${summary != null and summary.count() > 0}">
+        <div class="score"><div class="score-label">Latest</div><div class="score-value"><th:block th:text="${@fmt.dec(summary.latest())}">0</th:block><small th:text="${metric.unit}">unit</small></div><div class="score-sub" th:text="${@fmt.relative(summary.latestOn(), today)}">today</div></div>
+        <div class="score"><div class="score-label">Best</div><div class="score-value"><th:block th:text="${@fmt.dec(summary.best())}">0</th:block><small th:text="${metric.unit}">unit</small></div></div>
+        <div class="score"><div class="score-label">Since first</div><div class="score-value" th:text="${summary.change() != null ? @fmt.signed(summary.change()) : '—'}">—</div>
+            <div class="score-sub" th:if="${summary.improving() != null}"><span th:classappend="${summary.improving()} ? 'up' : 'down'" th:text="${summary.improving() ? 'improving' : 'going the wrong way'}">improving</span></div></div>
+        <div class="score"><div class="score-label">Entries</div><div class="score-value" th:text="${summary.count()}">0</div></div>
+    </section>
+
+    <div class="grid split section">
+        <section class="card">
+            <div class="card-head"><div><span class="eyebrow">Trend</span><h2>Over time</h2></div></div>
+            <div class="card-body"><th:block th:replace="~{fragments/ui :: chart('chart-metric', ${chart})}"></th:block></div>
+        </section>
+        <form class="card ledger" method="post" th:action="@{/metrics/{id}/entries(id=${metric.id})}" th:object="${entry}" novalidate>
+            <div class="card-head"><div><span class="eyebrow">New entry</span><h2>Log a value</h2></div></div>
+            <div class="card-body stack" style="gap:14px">
+                <div class="field"><label for="value">Value</label><div class="unit-wrap"><input class="input" id="value" type="number" step="any" th:field="*{value}" th:errorclass="is-invalid" required autofocus><span class="unit" th:text="${metric.unit}">unit</span></div>
+                    <p class="field-error" th:if="${#fields.hasErrors('value')}" th:errors="*{value}"></p></div>
+                <div class="field"><label for="recordedOn">Date</label><input class="input" id="recordedOn" type="date" th:field="*{recordedOn}"></div>
+                <div class="field"><label for="enotes">Notes</label><input class="input" id="enotes" th:field="*{notes}" placeholder="Conditions, variation…"></div>
+            </div>
+            <div class="form-actions"><button class="btn btn-primary" type="submit">Log value</button></div>
+        </form>
+    </div>
+
+    <section class="card ledger section">
+        <div class="card-head"><div><span class="eyebrow">History</span><h2>Entries</h2></div></div>
+        <div class="card-body" th:if="${entries.isEmpty()}"><p class="muted">No entries yet. Log your first value above.</p></div>
+        <div class="table-wrap" th:unless="${entries.isEmpty()}">
+            <table class="table">
+                <thead><tr><th>Date</th><th class="num">Value</th><th>Notes</th><th><span class="sr-only">Actions</span></th></tr></thead>
+                <tbody>
+                <tr th:each="e : ${entries}">
+                    <td th:text="${@fmt.shortDate(e.recordedOn)}">date</td>
+                    <td class="num strong" th:text="|${@fmt.dec(e.value)} ${metric.unit ?: ''}|">0</td>
+                    <td class="small muted" th:text="${e.notes}"></td>
+                    <td><form class="inline-form" method="post" th:action="@{/metrics/entries/{id}/delete(id=${e.id})}"><button class="icon-btn" type="submit" aria-label="Delete entry" data-confirm="Delete this entry?"><svg><use href="#i-trash"/></svg></button></form></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <details class="card section">
+        <summary class="card-head" style="cursor:pointer"><div><span class="eyebrow">Settings</span><h2>Edit metric</h2></div></summary>
+        <form method="post" th:action="@{/metrics/{id}(id=${metric.id})}" th:object="${metric}">
+            <div class="card-body form-grid">
+                <div class="field"><label for="m-name">Name</label><input class="input" id="m-name" th:field="*{name}" required></div>
+                <div class="field"><label for="m-unit">Unit</label><input class="input" id="m-unit" th:field="*{unit}"></div>
+                <div class="field"><label for="m-cat">Type</label><select class="input" id="m-cat" th:field="*{category}"><option th:each="c : ${categories}" th:value="${c}" th:text="${c.label}"></option></select></div>
+                <div class="field"><label for="m-dir">Better is</label><select class="input" id="m-dir" th:field="*{higherIsBetter}"><option value="true">Higher</option><option value="false">Lower</option></select></div>
+                <div class="field span-all"><label for="m-desc">Description</label><input class="input" id="m-desc" th:field="*{description}"></div>
+                <label class="check"><input type="checkbox" th:field="*{archived}"> Archive (hide from pickers, keep history)</label>
+            </div>
+            <div class="form-actions">
+                <button class="btn btn-danger spacer" type="submit" th:formaction="@{/metrics/{id}/delete(id=${metric.id})}" data-confirm="Delete this metric and all of its entries? This can't be undone.">Delete metric</button>
+                <button class="btn btn-primary" type="submit">Save</button>
+            </div>
+        </form>
+    </details>
+</th:block>
+</body>
+</html>

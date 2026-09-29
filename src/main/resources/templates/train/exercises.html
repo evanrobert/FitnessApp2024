@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: page(title='Exercises', active='exercises', content=~{::content})}">
+<body>
+<th:block th:fragment="content">
+    <header class="page-head">
+        <div>
+            <span class="eyebrow">Library</span>
+            <h1 class="display">Exercises</h1>
+            <p class="lede">The shared library plus your own movements. Open one to see every set you've logged, your best lifts and the trend.</p>
+        </div>
+    </header>
+
+    <div class="grid split">
+        <section class="card ledger">
+            <div class="toolbar">
+                <div class="field grow"><label for="ex-search">Search</label><input class="input" id="ex-search" type="search" data-filter="#ex-table" placeholder="Name or equipment"></div>
+                <div class="field"><label for="ex-muscle">Muscle group</label>
+                    <select class="input" id="ex-muscle" data-filter="#ex-table" data-key="muscle">
+                        <option value="">All</option>
+                        <option th:each="m : ${muscles}" th:value="${m}" th:text="${m.label}"></option>
+                    </select></div>
+                <p class="small muted" style="align-self:center"><span data-count-for="#ex-table" th:text="${#lists.size(exercises)}">0</span> shown</p>
+            </div>
+            <div class="table-wrap">
+                <table class="table" id="ex-table">
+                    <thead><tr><th data-sort="text">Exercise</th><th data-sort="text">Muscle</th><th data-sort="num" class="num">Sessions</th><th data-sort="num" class="num">Best e1RM</th><th data-sort="text">Last done</th></tr></thead>
+                    <tbody>
+                    <tr th:each="e : ${exercises}" data-row th:attr="data-muscle=${e.muscleGroup}" th:id="|ex-${e.id}|" th:with="r=${stats[e.id]}">
+                        <td>
+                            <a class="row-link" th:href="@{/exercises/{id}(id=${e.id})}" th:text="${e.name}">Name</a>
+                            <span class="badge" th:unless="${e.library}">Yours</span>
+                            <div class="small muted" th:if="${e.equipment}" th:text="${e.equipment.label}">Barbell</div>
+                        </td>
+                        <td th:text="${e.muscleGroup.label}">Chest</td>
+                        <td class="num" th:attr="data-value=${r != null ? r.sessions() : 0}" th:text="${r != null ? r.sessions() : '—'}">0</td>
+                        <td class="num" th:attr="data-value=${r != null ? r.bestE1rm() : 0}" th:text="${r != null and r.bestE1rm() > 0 ? @fmt.dec(r.bestE1rm()) + ' lb' : '—'}">—</td>
+                        <td th:attr="data-value=${r != null ? r.lastDone() : ''}" th:text="${r != null ? @fmt.relative(r.lastDone(), today) : 'never'}">never</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <aside>
+            <form class="card" method="post" th:action="@{/exercises}" th:object="${exercise}">
+                <div class="card-head"><div><span class="eyebrow">Add your own</span><h2>New exercise</h2></div></div>
+                <div class="card-body stack">
+                    <div class="field">
+                        <label for="name">Name</label>
+                        <input class="input" id="name" th:field="*{name}" th:errorclass="is-invalid" placeholder="e.g. Safety bar squat" required>
+                        <p class="field-error" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></p>
+                    </div>
+                    <div class="field">
+                        <label for="muscleGroup">Primary muscle group</label>
+                        <select class="input" id="muscleGroup" th:field="*{muscleGroup}" th:errorclass="is-invalid">
+                            <option value="">Choose…</option>
+                            <option th:each="m : ${muscles}" th:value="${m}" th:text="${m.label}"></option>
+                        </select>
+                        <p class="field-error" th:if="${#fields.hasErrors('muscleGroup')}" th:errors="*{muscleGroup}"></p>
+                        <p class="hint">Drives the muscle-group balance on Insights.</p>
+                    </div>
+                    <div class="field">
+                        <label for="equipment">Equipment</label>
+                        <select class="input" id="equipment" th:field="*{equipment}">
+                            <option value="">—</option>
+                            <option th:each="q : ${equipment}" th:value="${q}" th:text="${q.label}"></option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-actions"><button class="btn btn-primary" type="submit">Add exercise</button></div>
+            </form>
+        </aside>
+    </div>
+</th:block>
+</body>
+</html>

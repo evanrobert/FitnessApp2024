@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/auth :: page(title='Welcome', content=~{::content})}">
+<body>
+<th:block th:fragment="content">
+    <span class="eyebrow">Your training ledger</span>
+    <h2 class="display">Start tracking what matters</h2>
+    <p class="muted mt-2">Log a session in seconds, see your records build, and get insights from your own data — not generic advice.</p>
+    <ul class="list mt-3" style="border-top:2px solid var(--ink)">
+        <li><span><span class="title">Personal records, automatically</span><br><span class="meta">Estimated 1RM and PRs from every set you log</span></span></li>
+        <li><span><span class="title">Targets that fit you</span><br><span class="meta">Calories and macros from your profile and goal</span></span></li>
+        <li><span><span class="title">Readiness &amp; recovery</span><br><span class="meta">A 30-second check-in that becomes a trend</span></span></li>
+        <li><span><span class="title">Your data, exportable</span><br><span class="meta">Every dataset downloads as CSV</span></span></li>
+    </ul>
+    <div class="stack mt-3" style="gap:10px">
+        <a class="btn btn-primary btn-block" href="/signup">Create your account</a>
+        <a class="btn btn-block" href="/login">I already have an account</a>
+    </div>
+</th:block>
+</body>
+</html>

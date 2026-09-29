@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: page(title=${exercise.name}, active='exercises', content=~{::content})}">
+<body>
+<th:block th:fragment="content">
+    <header class="page-head">
+        <div>
+            <nav class="breadcrumb"><a href="/exercises">Exercises</a><span>/</span><span th:text="${exercise.muscleGroup.label}">Muscle</span></nav>
+            <h1 class="display" th:text="${exercise.name}">Exercise</h1>
+            <p class="lede"><th:block th:text="${exercise.muscleGroup.label}"></th:block><th:block th:if="${exercise.equipment}" th:text="| · ${exercise.equipment.label}|"></th:block><th:block th:unless="${exercise.library}"> · Your exercise</th:block></p>
+        </div>
+        <div class="page-actions">
+            <form class="inline-form" th:unless="${exercise.library or record != null}" method="post" th:action="@{/exercises/{id}/delete(id=${exercise.id})}">
+                <button class="btn btn-danger" type="submit" data-confirm="Remove this exercise from your library?">Remove</button>
+            </form>
+            <a class="btn btn-primary" href="/train/new"><svg><use href="#i-plus"/></svg>Log workout</a>
+        </div>
+    </header>
+
+    <th:block th:if="${record == null}"><div th:replace="~{fragments/ui :: empty('trophy', 'No sets logged yet', 'Log this exercise in a workout and its records and trends appear here.', '/train/new', 'Log a workout')}"></div></th:block>
+
+    <th:block th:if="${record != null}">
+        <section class="scoreboard">
+            <div class="score"><div class="score-label">Best e1RM</div><div class="score-value"><th:block th:text="${@fmt.dec(record.bestE1rm())}">0</th:block><small>lb</small></div><div class="score-sub" th:text="${@fmt.shortDate(record.bestE1rmOn())}">date</div></div>
+            <div class="score"><div class="score-label">Heaviest set</div><div class="score-value"><th:block th:text="${@fmt.dec(record.bestWeight())}">0</th:block><small th:text="|lb × ${record.bestWeightReps()}|">lb</small></div><div class="score-sub" th:text="${@fmt.shortDate(record.bestWeightOn())}">date</div></div>
+            <div class="score"><div class="score-label">Sessions</div><div class="score-value" th:text="${record.sessions()}">0</div><div class="score-sub" th:text="|${record.sets()} working sets|">sets</div></div>
+            <div class="score"><div class="score-label">Lifetime volume</div><div class="score-value"><th:block th:text="${@fmt.compact(record.totalVolume())}">0</th:block><small>lb</small></div><div class="score-sub" th:text="|last ${@fmt.relative(record.lastDone(), today)}|">last</div></div>
+        </section>
+
+        <div class="grid cols-2 section">
+            <section class="card">
+                <div class="card-head"><div><span class="eyebrow">Strength</span><h2>Estimated 1RM &amp; top set</h2></div></div>
+                <div class="card-body"><th:block th:replace="~{fragments/ui :: chart('chart-strength', ${strengthChart})}"></th:block></div>
+            </section>
+            <section class="card">
+                <div class="card-head"><div><span class="eyebrow">Work</span><h2>Volume per session</h2></div></div>
+                <div class="card-body"><th:block th:replace="~{fragments/ui :: chart('chart-ex-volume', ${volumeChart})}"></th:block></div>
+            </section>
+        </div>
+
+        <section class="card ledger section">
+            <div class="card-head"><div><span class="eyebrow">History</span><h2>Every session</h2></div></div>
+            <div class="table-wrap">
+                <table class="table">
+                    <thead><tr><th>Date</th><th>Sets</th><th class="num">Top set</th><th class="num">e1RM</th><th class="num">Volume</th></tr></thead>
+                    <tbody>
+                    <tr th:each="p : ${history}">
+                        <td><a class="row-link" th:href="@{/train/{id}(id=${p.sessionId()})}" th:text="${@fmt.shortDate(p.date())}">date</a></td>
+                        <td class="small"><th:block th:each="st, it : ${p.sets()}"><th:block th:unless="${st.warmup}" th:text="|${st.weightLb != null ? @fmt.dec(st.weightLb) : 'BW'}×${st.reps}${it.last ? '' : ', '}|"></th:block></th:block></td>
+                        <td class="num" th:text="${p.topWeight() > 0 ? @fmt.dec(p.topWeight()) + ' lb' : '—'}">0</td>
+                        <td class="num" th:text="${p.topE1rm() > 0 ? @fmt.dec(p.topE1rm()) : '—'}">0</td>
+                        <td class="num" th:text="${@fmt.compact(p.volume())}">0</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="card section" th:unless="${prs.isEmpty()}">
+            <div class="card-head"><div><span class="eyebrow">Milestones</span><h2>PR history</h2></div></div>
+            <ul class="list">
+                <li th:each="p : ${prs}">
+                    <div><div class="title" th:text="${p.kind().label}">kind</div><div class="meta" th:text="${@fmt.fullDate(p.date())}">date</div></div>
+                    <div class="num strong"><th:block th:text="|${@fmt.dec(p.value())} lb|"></th:block> <span class="badge badge-good" th:text="|${@fmt.signed(p.gain())}|">+5</span></div>
+                </li>
+            </ul>
+        </section>
+    </th:block>
+</th:block>
+</body>
+</html>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: page(title='Training', active='train', content=~{::content})}">
+<body>
+<th:block th:fragment="content">
+    <header class="page-head">
+        <div>
+            <span class="eyebrow">Training log</span>
+            <h1 class="display">Train</h1>
+            <p class="lede">Every session, set and cardio block in one ledger. Filter it, repeat past sessions, and watch your weekly volume.</p>
+        </div>
+        <div class="page-actions">
+            <a class="btn" href="/records"><svg><use href="#i-trophy"/></svg>Records</a>
+            <a class="btn btn-primary" href="/train/new"><svg><use href="#i-plus"/></svg>Log workout</a>
+        </div>
+    </header>
+
+    <section class="scoreboard" aria-label="Training summary">
+        <div class="score">
+            <div class="score-label">This week</div>
+            <div class="score-value"><th:block th:text="${weekCount}">0</th:block><small th:text="|/ ${weekTarget} sessions|">/ 3</small></div>
+            <div class="meter"><span th:style="${@fmt.width(weekCount * 100.0 / weekTarget)}"></span></div>
+        </div>
+        <div class="score">
+            <div class="score-label">Volume this week</div>
+            <div class="score-value"><th:block th:text="${@fmt.compact(weekVolume)}">0</th:block><small>lb</small></div>
+            <div class="score-sub">working sets × reps × load</div>
+        </div>
+        <div class="score">
+            <div class="score-label">4-week average</div>
+            <div class="score-value"><th:block th:text="${@fmt.dec(avgPerWeek)}">0</th:block><small>/ week</small></div>
+            <div class="score-sub" th:text="|target ${weekTarget} per week|">target</div>
+        </div>
+        <div class="score">
+            <div class="score-label">All sessions</div>
+            <div class="score-value" th:text="${@fmt.num(totalSessions)}">0</div>
+            <div class="score-sub">in your ledger</div>
+        </div>
+    </section>
+
+    <section class="card section">
+        <div class="card-head">
+            <div><span class="eyebrow">Last 12 weeks</span><h2>Weekly volume</h2></div>
+        </div>
+        <div class="card-body">
+            <th:block th:replace="~{fragments/ui :: chart('chart-volume', ${volumeChart})}"></th:block>
+        </div>
+    </section>
+
+    <section class="card ledger section">
+        <form class="toolbar" method="get" action="/train" role="search">
+            <div class="field grow">
+                <label for="q">Search</label>
+                <input class="input" id="q" name="q" type="search" th:value="${filter.q}" placeholder="Exercise, title or notes">
+            </div>
+            <div class="field">
+                <label for="focus">Focus</label>
+                <select class="input" id="focus" name="focus">
+                    <option value="">Any</option>
+                    <option th:each="f : ${focuses}" th:value="${f}" th:text="${f.label}" th:selected="${filter.focus == f}"></option>
+                </select>
+            </div>
+            <div class="field">
+                <label for="exercise">Exercise</label>
+                <select class="input" id="exercise" name="exercise">
+                    <option value="">Any</option>
+                    <option th:each="e : ${exercises}" th:value="${e.id}" th:text="${e.name}" th:selected="${filter.exerciseId == e.id}"></option>
+                </select>
+            </div>
+            <div class="field">
+                <label for="from">From</label>
+                <input class="input" id="from" name="from" type="date" th:value="${filter.from}">
+            </div>
+            <div class="field">
+                <label for="to">To</label>
+                <input class="input" id="to" name="to" type="date" th:value="${filter.to}">
+            </div>
+            <button class="btn btn-dark" type="submit" data-no-loading>Filter</button>
+            <a class="btn btn-ghost" href="/train" th:if="${filter.active}">Clear</a>
+        </form>
+
+        <div th:if="${sessions.isEmpty()}" class="card-body">
+            <th:block th:if="${filter.active}"><div th:replace="~{fragments/ui :: empty('train', 'No sessions match', 'Try a wider date range or clear the filters.', '/train', 'Clear filters')}"></div></th:block>
+            <th:block th:unless="${filter.active}"><div th:replace="~{fragments/ui :: empty('train', 'Your training ledger is empty', 'Log a session with sets, reps and load. Records, volume and trends build from there.', '/train/new', 'Log your first workout')}"></div></th:block>
+        </div>
+
+        <a class="session-card" th:each="s : ${sessions}" th:href="@{/train/{id}(id=${s.id})}">
+            <div th:replace="~{fragments/ui :: dateBlock(${s.sessionDate})}"></div>
+            <div>
+                <div class="title" th:text="${s.displayTitle()}">Session</div>
+                <div class="meta">
+                    <th:block th:text="${s.exerciseSummary()}">Exercises</th:block>
+                    <th:block th:if="${!s.cardio.isEmpty()}" th:text="|${s.sets.isEmpty() ? '' : ' · '}${#lists.size(s.cardio)} cardio|"></th:block>
+                </div>
+                <div class="row mt-1" style="gap:6px">
+                    <span class="badge" th:if="${s.focus}" th:text="${s.focus.label}">Strength</span>
+                    <span class="badge badge-dark" th:if="${s.locationType != null and s.locationType.name() == 'GYM'}">Gym</span>
+                    <span class="badge" th:if="${s.sessionRpe}" th:text="|RPE ${s.sessionRpe}|">RPE</span>
+                </div>
+            </div>
+            <div class="figures">
+                <strong th:text="|${@fmt.compact(s.volume())} lb|">0 lb</strong>
+                <th:block th:text="|${s.workingSetCount()} sets${s.durationMin != null ? ' · ' + @fmt.minutes(s.durationMin) : ''}|">sets</th:block>
+            </div>
+        </a>
+    </section>
+</th:block>
+</body>
+</html>

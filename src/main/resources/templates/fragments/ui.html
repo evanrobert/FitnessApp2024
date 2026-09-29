@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!--/* Empty state: explains what the area is for and offers the first action. */-->
+<div th:fragment="empty(icon, title, body, href, cta)" class="empty">
+    <div class="empty-icon"><svg><use th:href="${'#i-' + icon}"/></svg></div>
+    <h3 th:text="${title}">Nothing here yet</h3>
+    <p th:text="${body}">Start logging to see this fill up.</p>
+    <a th:if="${href != null}" class="btn btn-primary" th:href="${href}" th:text="${cta}">Get started</a>
+</div>
+
+<div th:fragment="dateBlock(date)" class="date-block" aria-hidden="true">
+    <div class="dow" th:text="${@fmt.dow(date)}">Mon</div>
+    <div class="day" th:text="${date.dayOfMonth}">1</div>
+    <div class="mon" th:text="${@fmt.mon(date)}">Jan</div>
+</div>
+
+<!--/* Chart mount + its JSON spec. */-->
+<th:block th:fragment="chart(id, json)">
+    <div class="chart" th:attr="data-chart=${id}"></div>
+    <script type="application/json" th:id="${id}" th:utext="${json}"></script>
+</th:block>
+
+<!--/* 1-5 segmented rating bound to a form field. */-->
+<fieldset th:fragment="rating(field, label, low, high)" class="field">
+    <legend class="field-label" th:text="${label}">Rating</legend>
+    <div class="rating" th:with="current=*{__${field}__}">
+        <th:block th:each="n : ${#numbers.sequence(1, 5)}">
+            <input type="radio" th:id="|${field}-${n}|" th:name="${field}" th:value="${n}" th:checked="${current == n}">
+            <label th:for="|${field}-${n}|" th:text="${n}">1</label>
+        </th:block>
+    </div>
+    <div class="rating-scale"><span th:text="${low}">Low</span><span th:text="${high}">High</span></div>
+</fieldset>
+
+</body>
+</html>

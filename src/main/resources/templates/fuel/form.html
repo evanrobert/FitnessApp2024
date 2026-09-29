@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: page(title=${entryId == null ? 'Log meal' : 'Edit meal'}, active='fuel', content=~{::content})}">
+<body>
+<th:block th:fragment="content">
+    <header class="page-head">
+        <div>
+            <nav class="breadcrumb"><a href="/fuel">Nutrition</a><span>/</span><span th:text="${entryId == null ? 'Log meal' : 'Edit'}">Log</span></nav>
+            <h1 class="display" th:text="${entryId == null ? 'Log a meal' : 'Edit meal'}">Log a meal</h1>
+            <p class="lede">Macros are enough for most days. Add micronutrients when you want the detail.</p>
+        </div>
+    </header>
+
+    <form class="card ledger" method="post" th:action="${entryId == null} ? @{/fuel} : @{/fuel/{id}(id=${entryId})}" th:object="${calorieInformation}" novalidate style="max-width: 880px">
+        <div class="form-section">
+            <h3>The basics</h3>
+            <div class="form-grid">
+                <div class="field span-all">
+                    <label for="itemName">Food or meal</label>
+                    <input class="input" id="itemName" th:field="*{itemName}" th:errorclass="is-invalid" placeholder="e.g. Ribeye, rice and greens" autocomplete="off" required autofocus>
+                    <p class="field-error" th:if="${#fields.hasErrors('itemName')}" th:errors="*{itemName}"></p>
+                </div>
+                <div class="field">
+                    <label for="date">Date</label>
+                    <input class="input" id="date" type="date" th:field="*{date}">
+                </div>
+                <div class="field">
+                    <label for="mealType">Meal</label>
+                    <select class="input" id="mealType" th:field="*{mealType}"><option th:each="t : ${mealTypes}" th:value="${t.key}" th:text="${t.value}"></option></select>
+                </div>
+            </div>
+        </div>
+        <div class="form-section">
+            <h3>Macros</h3>
+            <div class="form-grid form-grid-4">
+                <div class="field"><label for="proteins">Protein</label><div class="unit-wrap"><input class="input" id="proteins" type="number" min="0" step="0.1" th:field="*{proteins}" th:errorclass="is-invalid" inputmode="decimal"><span class="unit">g</span></div></div>
+                <div class="field"><label for="carbohydrates">Carbs</label><div class="unit-wrap"><input class="input" id="carbohydrates" type="number" min="0" step="0.1" th:field="*{carbohydrates}" th:errorclass="is-invalid" inputmode="decimal"><span class="unit">g</span></div></div>
+                <div class="field"><label for="fats">Fat</label><div class="unit-wrap"><input class="input" id="fats" type="number" min="0" step="0.1" th:field="*{fats}" th:errorclass="is-invalid" inputmode="decimal"><span class="unit">g</span></div></div>
+                <div class="field"><label for="calories">Calories</label><div class="unit-wrap"><input class="input" id="calories" type="number" min="0" step="1" th:field="*{calories}" th:errorclass="is-invalid" inputmode="numeric"><span class="unit">kcal</span></div>
+                    <button class="btn btn-ghost btn-xs" type="button" id="calculateCalories">Calculate from macros</button></div>
+            </div>
+            <p class="field-error mt-1" th:if="${#fields.hasErrors('calories') or #fields.hasErrors('proteins') or #fields.hasErrors('fats') or #fields.hasErrors('carbohydrates')}">Nutrient values can't be negative.</p>
+        </div>
+        <details class="form-section" th:open="${(calorieInformation.fiber ?: 0) > 0 or (calorieInformation.sodium ?: 0) > 0 or (calorieInformation.sugars ?: 0) > 0 or (calorieInformation.cholesterol ?: 0) > 0}">
+            <summary class="strong" style="cursor:pointer">Micronutrients <span class="muted small">(optional)</span></summary>
+            <div class="form-grid form-grid-4 mt-2">
+                <div class="field"><label for="fiber">Fiber</label><div class="unit-wrap"><input class="input" id="fiber" type="number" min="0" step="0.1" th:field="*{fiber}"><span class="unit">g</span></div></div>
+                <div class="field"><label for="sugars">Sugars</label><div class="unit-wrap"><input class="input" id="sugars" type="number" min="0" step="0.1" th:field="*{sugars}"><span class="unit">g</span></div></div>
+                <div class="field"><label for="sodium">Sodium</label><div class="unit-wrap"><input class="input" id="sodium" type="number" min="0" step="1" th:field="*{sodium}"><span class="unit">mg</span></div></div>
+                <div class="field"><label for="cholesterol">Cholesterol</label><div class="unit-wrap"><input class="input" id="cholesterol" type="number" min="0" step="1" th:field="*{cholesterol}"><span class="unit">mg</span></div></div>
+            </div>
+        </details>
+        <div class="form-actions">
+            <a class="btn btn-ghost spacer" href="/fuel">Cancel</a>
+            <button class="btn" type="submit" name="another" value="true" th:if="${entryId == null}">Save &amp; add another</button>
+            <button class="btn btn-primary" type="submit" th:text="${entryId == null ? 'Log meal' : 'Save changes'}">Log meal</button>
+        </div>
+    </form>
+</th:block>
+</body>
+</html>

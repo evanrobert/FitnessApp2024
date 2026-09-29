@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<!--/* Quick log: every common entry is at most two clicks from any page. */-->
+
+<details th:fragment="quickLog(style)" class="quick-log" th:classappend="${style == 'full'} ? 'mt-0'" th:style="${style == 'full'} ? 'margin: 4px 2px 12px'">
+    <summary th:if="${style == 'full'}" class="btn btn-primary btn-block"><svg><use href="#i-plus"/></svg>Quick log</summary>
+    <summary th:unless="${style == 'full'}" class="icon-btn" aria-label="Quick log"><svg><use href="#i-plus"/></svg></summary>
+    <div class="quick-menu" role="menu" th:style="${style == 'full'} ? 'left: 0; right: auto'">
+        <a href="/train/new" role="menuitem">Log a workout <span class="hint">sets &amp; cardio</span></a>
+        <a href="/fuel/new" role="menuitem">Log a meal <span class="hint">food &amp; macros</span></a>
+        <a href="/recover" role="menuitem">Daily check-in <span class="hint">sleep, energy</span></a>
+        <a href="/body#weigh-in" role="menuitem">Weigh in <span class="hint">weight, tape</span></a>
+        <a href="/metrics" role="menuitem">Custom metric <span class="hint">your own data</span></a>
+        <hr>
+        <form th:action="@{/recover/water}" method="post">
+            <input type="hidden" name="ounces" value="16">
+            <input type="hidden" name="returnTo" th:value="${currentPath}">
+            <button type="submit" role="menuitem">+16 oz water <span class="hint">today</span></button>
+        </form>
+    </div>
+</details>
+</body>
+</html>

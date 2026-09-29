@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: page(title='Custom metrics', active='metrics', content=~{::content})}">
+<body>
+<th:block th:fragment="content">
+    <header class="page-head">
+        <div>
+            <span class="eyebrow">Your own data</span>
+            <h1 class="display">Custom metrics</h1>
+            <p class="lede">Track anything with a number: fitness tests, benchmark workouts, habits. Each metric gets a history, a trend and can drive a goal.</p>
+        </div>
+    </header>
+
+    <div class="grid split">
+        <div class="stack">
+            <th:block th:if="${summaries.isEmpty()}"><div th:replace="~{fragments/ui :: empty('metrics', 'Nothing custom yet', 'Start from a template on the right or define your own — mile time, max push-ups, meditation minutes.', null, null)}"></div></th:block>
+            <div class="grid cols-2" th:unless="${summaries.isEmpty()}">
+                <a class="card card-link" th:each="s : ${summaries}" th:href="@{/metrics/{id}(id=${s.metric().id})}" th:style="${s.metric().archived} ? 'opacity:.6'">
+                    <div class="stat">
+                        <div class="row-between">
+                            <span class="eyebrow" th:text="${s.metric().category != null ? s.metric().category.label : 'Metric'}">Assessment</span>
+                            <span class="badge" th:if="${s.metric().archived}">Archived</span>
+                        </div>
+                        <div class="strong mt-1" th:text="${s.metric().name}">Metric</div>
+                        <div class="stat-value"><th:block th:text="${s.latest() != null ? @fmt.dec(s.latest()) : '—'}">—</th:block><small th:text="${s.metric().unit}">unit</small></div>
+                        <div class="stat-delta">
+                            <th:block th:if="${s.improving() != null}"><span th:classappend="${s.improving()} ? 'text-good' : 'text-bad'" th:text="|${@fmt.signed(s.change())} since first|">change</span> · </th:block>
+                            <th:block th:text="|${s.count()} entries${s.latestOn() != null ? ' · ' + @fmt.relative(s.latestOn(), today) : ''}|">entries</th:block>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <aside class="stack">
+            <section class="card" th:unless="${templates.isEmpty()}">
+                <div class="card-head"><div><span class="eyebrow">One click</span><h2>Common tests</h2></div></div>
+                <ul class="list">
+                    <li th:each="t : ${templates}">
+                        <div><div class="title" th:text="${t.name()}">Name</div><div class="meta" th:text="|${t.description()} · ${t.higherIsBetter() ? 'higher is better' : 'lower is better'}|">desc</div></div>
+                        <form class="inline-form" method="post" th:action="@{/metrics/template}"><input type="hidden" name="name" th:value="${t.name()}"><button class="btn btn-sm" type="submit">Track</button></form>
+                    </li>
+                </ul>
+            </section>
+
+            <form class="card" method="post" th:action="@{/metrics}" th:object="${metric}" novalidate>
+                <div class="card-head"><div><span class="eyebrow">Define your own</span><h2>New metric</h2></div></div>
+                <div class="card-body stack" style="gap:14px">
+                    <div class="field"><label for="name">Name</label><input class="input" id="name" th:field="*{name}" th:errorclass="is-invalid" placeholder="e.g. Murph time" required>
+                        <p class="field-error" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></p></div>
+                    <div class="form-grid">
+                        <div class="field"><label for="unit">Unit</label><input class="input" id="unit" th:field="*{unit}" placeholder="min, reps, in…"></div>
+                        <div class="field"><label for="category">Type</label><select class="input" id="category" th:field="*{category}"><option th:each="c : ${categories}" th:value="${c}" th:text="${c.label}"></option></select></div>
+                    </div>
+                    <fieldset class="field"><legend class="field-label">Better is</legend>
+                        <div class="segmented">
+                            <label class="check" style="padding:8px 12px"><input type="radio" th:field="*{higherIsBetter}" value="true"> Higher</label>
+                            <label class="check" style="padding:8px 12px"><input type="radio" th:field="*{higherIsBetter}" value="false"> Lower</label>
+                        </div>
+                        <p class="hint">Used to judge improvement and your best value.</p>
+                    </fieldset>
+                    <div class="field"><label for="description">Description</label><input class="input" id="description" th:field="*{description}" placeholder="How you measure it"></div>
+                </div>
+                <div class="form-actions"><button class="btn btn-primary" type="submit">Add metric</button></div>
+            </form>
+        </aside>
+    </div>
+</th:block>
+</body>
+</html>

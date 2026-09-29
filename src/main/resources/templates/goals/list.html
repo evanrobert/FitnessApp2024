@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: page(title='Goals', active='goals', content=~{::content})}">
+<body>
+<th:block th:fragment="content">
+    <header class="page-head">
+        <div>
+            <span class="eyebrow">Targets</span>
+            <h1 class="display">Goals</h1>
+            <p class="lede">Every goal measures itself against what you log: weigh-ins, lifts, sessions or your own metrics. No manual progress updates.</p>
+        </div>
+        <div class="page-actions"><a class="btn btn-primary" href="/goals/new"><svg><use href="#i-plus"/></svg>New goal</a></div>
+    </header>
+
+    <th:block th:if="${progress.isEmpty()}"><div th:replace="~{fragments/ui :: empty('goals', 'No goals yet', 'Set a target weight, a lift you want to hit, a weekly training habit or a custom metric. Progress and pace update automatically.', '/goals/new', 'Set your first goal')}"></div></th:block>
+
+    <div class="grid cols-2">
+        <article class="card" th:each="p : ${progress}" th:classappend="${p.goal().status.name() == 'ACTIVE'} ? 'ledger'" th:style="${p.goal().status.name() == 'ARCHIVED'} ? 'opacity:.7'">
+            <div class="card-head">
+                <div>
+                    <span class="eyebrow" th:text="${p.goal().metric.name() == 'EXERCISE_1RM' and p.goal().exercise != null ? p.goal().exercise.name + ' · e1RM' : (p.goal().metric.name() == 'CUSTOM_METRIC' and p.goal().customMetric != null ? p.goal().customMetric.name : p.goal().metric.label)}">metric</span>
+                    <h3 th:text="${p.goal().title}">Goal</h3>
+                </div>
+                <span th:if="${p.goal().status.name() == 'ACHIEVED'}" class="badge badge-good"><svg><use href="#i-check"/></svg>Achieved</span>
+                <span th:if="${p.goal().status.name() == 'ARCHIVED'}" class="badge">Archived</span>
+                <span th:if="${p.goal().status.name() == 'ACTIVE'}" class="badge" th:classappend="${p.pace().css}" th:text="${p.pace().label}">On track</span>
+            </div>
+            <div class="card-body">
+                <div class="row-between">
+                    <div>
+                        <div class="stat-label">Now</div>
+                        <div class="stat-value"><th:block th:text="${p.current() != null ? @fmt.dec(p.current()) : '—'}">—</th:block><small th:text="${p.unit()}">lb</small></div>
+                    </div>
+                    <div style="text-align:right">
+                        <div class="stat-label">Target</div>
+                        <div class="stat-value"><th:block th:text="${@fmt.dec(p.goal().targetValue)}">0</th:block><small th:text="${p.unit()}">lb</small></div>
+                    </div>
+                </div>
+                <div class="meter meter-lg mt-2" th:classappend="${p.reached()} ? 'is-done'" role="progressbar" th:attr="aria-valuenow=${#numbers.formatDecimal(p.pct(),1,0)}" aria-valuemin="0" aria-valuemax="100">
+                    <span th:style="${@fmt.width(p.pct())}"></span>
+                </div>
+                <div class="row-between small muted mt-1">
+                    <span th:text="|${@fmt.pct(p.pct())} · started at ${p.start() != null ? @fmt.dec(p.start()) : '—'} on ${@fmt.shortDate(p.goal().startDate)}|">progress</span>
+                    <span th:if="${p.daysLeft() != null and p.goal().status.name() == 'ACTIVE'}" th:text="${p.daysLeft() >= 0 ? p.daysLeft() + ' days left' : (-p.daysLeft()) + ' days past target'}">days</span>
+                </div>
+                <p class="small mt-2" th:if="${p.goal().notes}" th:text="${p.goal().notes}"></p>
+            </div>
+            <div class="card-foot row">
+                <form class="inline-form" method="post" th:action="@{/goals/{id}/status(id=${p.goal().id})}" th:if="${p.goal().status.name() == 'ACTIVE'}">
+                    <input type="hidden" name="status" value="ACHIEVED"><button class="btn btn-sm" th:classappend="${p.reached()} ? 'btn-primary'" type="submit"><svg><use href="#i-check"/></svg>Mark achieved</button>
+                </form>
+                <form class="inline-form" method="post" th:action="@{/goals/{id}/status(id=${p.goal().id})}" th:if="${p.goal().status.name() == 'ACTIVE'}">
+                    <input type="hidden" name="status" value="ARCHIVED"><button class="btn btn-ghost btn-sm" type="submit">Archive</button>
+                </form>
+                <form class="inline-form" method="post" th:action="@{/goals/{id}/status(id=${p.goal().id})}" th:unless="${p.goal().status.name() == 'ACTIVE'}">
+                    <input type="hidden" name="status" value="ACTIVE"><button class="btn btn-ghost btn-sm" type="submit">Reactivate</button>
+                </form>
+                <a class="btn btn-ghost btn-sm" th:href="@{/goals/{id}/edit(id=${p.goal().id})}">Edit</a>
+                <form class="inline-form" method="post" th:action="@{/goals/{id}/delete(id=${p.goal().id})}" style="margin-left:auto">
+                    <button class="icon-btn" type="submit" aria-label="Delete goal" data-confirm="Delete this goal?"><svg><use href="#i-trash"/></svg></button>
+                </form>
+            </div>
+        </article>
+    </div>
+</th:block>
+</body>
+</html>

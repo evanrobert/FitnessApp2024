@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: page(title=${s.displayTitle()}, active='train', content=~{::content})}">
+<body>
+<th:block th:fragment="content">
+    <header class="page-head">
+        <div>
+            <nav class="breadcrumb"><a href="/train">Training</a><span>/</span><span th:text="${@fmt.shortDate(s.sessionDate)}">Date</span></nav>
+            <h1 class="display" th:text="${s.displayTitle()}">Session</h1>
+            <p class="lede">
+                <th:block th:text="${@fmt.fullDate(s.sessionDate)}">date</th:block>
+                <th:block th:if="${s.locationType}" th:text="| · ${s.locationType.label}|"></th:block>
+                <th:block th:if="${s.focus}" th:text="| · ${s.focus.label}|"></th:block>
+            </p>
+        </div>
+        <div class="page-actions">
+            <a class="btn" th:href="@{/train/new(repeat=${s.id})}"><svg><use href="#i-copy"/></svg>Repeat today</a>
+            <a class="btn" th:href="@{/train/{id}/edit(id=${s.id})}"><svg><use href="#i-edit"/></svg>Edit</a>
+            <form class="inline-form" method="post" th:action="@{/train/{id}/delete(id=${s.id})}">
+                <button class="btn btn-danger" type="submit" data-confirm="Delete this session and all of its sets? This can't be undone."><svg><use href="#i-trash"/></svg>Delete</button>
+            </form>
+        </div>
+    </header>
+
+    <section class="scoreboard">
+        <div class="score"><div class="score-label">Volume</div><div class="score-value"><th:block th:text="${@fmt.compact(s.volume())}">0</th:block><small>lb</small></div></div>
+        <div class="score"><div class="score-label">Working sets</div><div class="score-value" th:text="${s.workingSetCount()}">0</div></div>
+        <div class="score"><div class="score-label">Duration</div><div class="score-value" th:text="${@fmt.minutes(s.durationMin)}">—</div></div>
+        <div class="score"><div class="score-label">Session RPE</div><div class="score-value"><th:block th:text="${s.sessionRpe != null ? s.sessionRpe : '—'}">—</th:block><small th:if="${s.sessionRpe}">/ 10</small></div></div>
+        <div class="score" th:if="${!s.cardio.isEmpty()}"><div class="score-label">Cardio</div><div class="score-value" th:text="${@fmt.minutes(s.cardioMinutes())}">0</div></div>
+    </section>
+
+    <section class="card section" th:unless="${prs.isEmpty()}" style="border-color: var(--blue)">
+        <div class="card-head"><div><span class="eyebrow">New personal records</span><h2 th:text="|${#lists.size(prs)} PR${#lists.size(prs) == 1 ? '' : 's'} this session|">PRs</h2></div><svg style="width:28px;height:28px;stroke:var(--blue)"><use href="#i-trophy"/></svg></div>
+        <ul class="list">
+            <li th:each="p : ${prs}">
+                <div><div class="title" th:text="${p.exercise().name}">Exercise</div><div class="meta" th:text="${p.kind().label}">kind</div></div>
+                <div class="num strong"><th:block th:text="|${@fmt.dec(p.value())} lb|">0</th:block> <span class="badge badge-good" th:text="|${@fmt.signed(p.gain())} lb|">+5</span></div>
+            </li>
+        </ul>
+    </section>
+
+    <section class="section">
+        <div class="section-title"><h2>Exercises</h2></div>
+        <th:block th:if="${blocks.isEmpty() and s.cardio.isEmpty()}"><div th:replace="~{fragments/ui :: empty('train', 'No sets or cardio recorded', 'Edit the session to add what you did.', @{/train/{id}/edit(id=${s.id})}, 'Add sets')}"></div></th:block>
+        <div class="grid cols-2">
+            <article class="card" th:each="b : ${blocks}">
+                <div class="card-head">
+                    <div>
+                        <span class="eyebrow" th:text="${b.exercise().muscleGroup.label}">Muscle</span>
+                        <h3><a class="row-link" style="color:inherit;text-decoration:none" th:href="@{/exercises/{id}(id=${b.exercise().id})}" th:text="${b.exercise().name}">Exercise</a></h3>
+                    </div>
+                    <span class="badge badge-blue" th:if="${prExercises.contains(b.exercise().id)}"><svg><use href="#i-trophy"/></svg>PR</span>
+                </div>
+                <table class="table table-compact">
+                    <thead><tr><th>Set</th><th class="num">Load</th><th class="num">Reps</th><th class="num">RPE</th><th class="num">e1RM</th></tr></thead>
+                    <tbody>
+                    <tr th:each="st : ${b.sets()}" th:classappend="${st.warmup} ? 'muted'">
+                        <td><th:block th:text="${st.setNumber}">1</th:block> <span class="badge" th:if="${st.warmup}">warm-up</span></td>
+                        <td class="num" th:text="${st.weightLb != null ? @fmt.dec(st.weightLb) + ' lb' : 'BW'}">0</td>
+                        <td class="num" th:text="${st.reps != null ? st.reps : '—'}">0</td>
+                        <td class="num" th:text="${st.rpe != null ? @fmt.dec(st.rpe) : '—'}">—</td>
+                        <td class="num" th:text="${st.estimatedOneRepMax() > 0 ? @fmt.dec(st.estimatedOneRepMax()) : '—'}">—</td>
+                    </tr>
+                    </tbody>
+                </table>
+                <div class="card-foot small row-between">
+                    <span th:text="|${@fmt.compact(b.volume())} lb volume|">volume</span>
+                    <span th:text="|best e1RM ${@fmt.dec(b.bestE1rm())} lb|">e1rm</span>
+                </div>
+                <div class="card-body small muted" th:each="st : ${b.sets()}" th:if="${st.notes}" th:text="|Set ${st.setNumber}: ${st.notes}|"></div>
+            </article>
+        </div>
+    </section>
+
+    <section class="card section" th:unless="${s.cardio.isEmpty()}">
+        <div class="card-head"><div><span class="eyebrow">Conditioning</span><h2>Cardio</h2></div></div>
+        <div class="table-wrap">
+            <table class="table">
+                <thead><tr><th>Activity</th><th class="num">Time</th><th class="num">Distance</th><th class="num">Pace</th><th class="num">Avg HR</th><th class="num">kcal</th></tr></thead>
+                <tbody>
+                <tr th:each="c : ${s.cardio}">
+                    <td class="strong" th:text="${c.activity.label}">Run</td>
+                    <td class="num" th:text="${@fmt.minutes(c.durationMin)}">0</td>
+                    <td class="num" th:text="${c.distanceMi != null ? @fmt.dec(c.distanceMi) + ' mi' : '—'}">—</td>
+                    <td class="num" th:text="${c.paceMinPerMile() != null ? @fmt.pace(c.paceMinPerMile()) + ' /mi' : '—'}">—</td>
+                    <td class="num" th:text="${c.avgHr != null ? c.avgHr : '—'}">—</td>
+                    <td class="num" th:text="${c.calories != null ? c.calories : '—'}">—</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="card section" th:if="${s.notes}">
+        <div class="card-head"><div><span class="eyebrow">Notes</span></div></div>
+        <div class="card-body" th:text="${s.notes}" style="white-space: pre-line">notes</div>
+    </section>
+</th:block>
+</body>
+</html>

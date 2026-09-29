@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: page(title='Body', active='body', content=~{::content})}">
+<body>
+<th:block th:fragment="content">
+    <header class="page-head">
+        <div>
+            <span class="eyebrow">Body composition</span>
+            <h1 class="display">Body</h1>
+            <p class="lede">Weigh-ins and tape measurements. The trend line averages out daily water swings, so you see real change instead of noise.</p>
+        </div>
+        <div class="page-actions">
+            <a class="btn" href="/goals/new?metric=BODY_WEIGHT"><svg><use href="#i-goals"/></svg>Set a weight goal</a>
+            <a class="btn btn-primary" href="#weigh-in"><svg><use href="#i-plus"/></svg>Weigh in</a>
+        </div>
+    </header>
+
+    <section class="scoreboard">
+        <div class="score">
+            <div class="score-label">Current weight</div>
+            <div class="score-value"><th:block th:text="${latest != null ? @fmt.dec(latest.weightLb) : '—'}">—</th:block><small th:if="${latest}">lb</small></div>
+            <div class="score-sub" th:if="${latest}" th:text="${@fmt.relative(latest.measuredOn, today)}">today</div>
+        </div>
+        <div class="score">
+            <div class="score-label">7-day change</div>
+            <div class="score-value"><th:block th:text="${change7 != null ? @fmt.signed(change7) : '—'}">—</th:block><small th:if="${change7 != null}">lb</small></div>
+        </div>
+        <div class="score">
+            <div class="score-label">30-day change</div>
+            <div class="score-value"><th:block th:text="${change30 != null ? @fmt.signed(change30) : '—'}">—</th:block><small th:if="${change30 != null}">lb</small></div>
+        </div>
+        <div class="score">
+            <div class="score-label">Rate (4 wk trend)</div>
+            <div class="score-value"><th:block th:text="${weeklyRate != null ? @fmt.signed(weeklyRate) : '—'}">—</th:block><small th:if="${weeklyRate != null}">lb / wk</small></div>
+            <div class="score-sub" th:if="${weeklyRate == null}">needs 3 weigh-ins in 4 weeks</div>
+        </div>
+        <div class="score" th:if="${weightGoal != null}">
+            <div class="score-label">Goal progress</div>
+            <div class="score-value"><th:block th:text="${@fmt.pct(weightGoal.pct())}">0%</th:block></div>
+            <div class="meter"><span th:style="${@fmt.width(weightGoal.pct())}"></span></div>
+            <div class="score-sub" th:text="|target ${@fmt.dec(weightGoal.goal().targetValue)} lb|">target</div>
+        </div>
+    </section>
+
+    <div class="grid split section">
+        <section class="card">
+            <div class="card-head"><div><span class="eyebrow">Trend</span><h2>Body weight</h2></div></div>
+            <div class="card-body"><th:block th:replace="~{fragments/ui :: chart('chart-weight', ${weightChart})}"></th:block></div>
+        </section>
+
+        <form class="card ledger" id="weigh-in" method="post" th:action="${editId == null} ? @{/body} : @{/body/{id}(id=${editId})}" th:object="${measurement}" novalidate>
+            <div class="card-head"><div><span class="eyebrow" th:text="${editId == null ? 'New entry' : 'Editing'}">New entry</span><h2 th:text="${editId == null ? 'Weigh in' : 'Edit measurement'}">Weigh in</h2></div></div>
+            <div class="flash flash-error" th:if="${#fields.hasGlobalErrors()}" style="margin:16px 20px 0"><svg><use href="#i-alert"/></svg><span th:text="${#fields.globalErrors()[0]}"></span></div>
+            <div class="form-section">
+                <div class="form-grid">
+                    <div class="field"><label for="measuredOn">Date</label><input class="input" id="measuredOn" type="date" th:field="*{measuredOn}" th:errorclass="is-invalid"></div>
+                    <div class="field"><label for="weightLb">Weight</label><div class="unit-wrap"><input class="input" id="weightLb" type="number" step="0.1" th:field="*{weightLb}" th:errorclass="is-invalid" inputmode="decimal" autofocus><span class="unit">lb</span></div>
+                        <p class="field-error" th:if="${#fields.hasErrors('weightLb')}" th:errors="*{weightLb}"></p></div>
+                    <div class="field"><label for="bodyFatPct">Body fat</label><div class="unit-wrap"><input class="input" id="bodyFatPct" type="number" step="0.1" th:field="*{bodyFatPct}" th:errorclass="is-invalid" inputmode="decimal"><span class="unit">%</span></div></div>
+                    <div class="field"><label for="waistIn">Waist</label><div class="unit-wrap"><input class="input" id="waistIn" type="number" step="0.1" th:field="*{waistIn}" th:errorclass="is-invalid" inputmode="decimal"><span class="unit">in</span></div></div>
+                </div>
+            </div>
+            <details class="form-section" th:open="${measurement.hipsIn != null or measurement.chestIn != null or measurement.armIn != null or measurement.thighIn != null or measurement.neckIn != null}">
+                <summary class="strong" style="cursor:pointer">More tape measurements</summary>
+                <div class="form-grid mt-2">
+                    <div class="field"><label for="hipsIn">Hips</label><div class="unit-wrap"><input class="input" id="hipsIn" type="number" step="0.1" th:field="*{hipsIn}" th:errorclass="is-invalid"><span class="unit">in</span></div></div>
+                    <div class="field"><label for="chestIn">Chest</label><div class="unit-wrap"><input class="input" id="chestIn" type="number" step="0.1" th:field="*{chestIn}" th:errorclass="is-invalid"><span class="unit">in</span></div></div>
+                    <div class="field"><label for="armIn">Arm</label><div class="unit-wrap"><input class="input" id="armIn" type="number" step="0.1" th:field="*{armIn}" th:errorclass="is-invalid"><span class="unit">in</span></div></div>
+                    <div class="field"><label for="thighIn">Thigh</label><div class="unit-wrap"><input class="input" id="thighIn" type="number" step="0.1" th:field="*{thighIn}" th:errorclass="is-invalid"><span class="unit">in</span></div></div>
+                    <div class="field"><label for="neckIn">Neck</label><div class="unit-wrap"><input class="input" id="neckIn" type="number" step="0.1" th:field="*{neckIn}" th:errorclass="is-invalid"><span class="unit">in</span></div></div>
+                    <div class="field span-all"><label for="notes">Notes</label><input class="input" id="notes" th:field="*{notes}" placeholder="Morning, fasted, after travel…"></div>
+                </div>
+            </details>
+            <p class="field-error" style="padding:0 20px 12px" th:if="${#fields.hasErrors('*') and !#fields.hasGlobalErrors()}">Check the highlighted values — they're outside a realistic range.</p>
+            <div class="form-actions">
+                <a class="btn btn-ghost spacer" href="/body" th:if="${editId != null}">Cancel</a>
+                <button class="btn btn-primary" type="submit" th:text="${editId == null ? 'Save weigh-in' : 'Save changes'}">Save</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="grid cols-2 section">
+        <section class="card"><div class="card-head"><div><span class="eyebrow">Tape</span><h2>Waist</h2></div><span class="badge" th:if="${latestWaist}" th:text="|${@fmt.dec(latestWaist)} in now|">now</span></div>
+            <div class="card-body"><th:block th:replace="~{fragments/ui :: chart('chart-waist', ${waistChart})}"></th:block></div></section>
+        <section class="card"><div class="card-head"><div><span class="eyebrow">Composition</span><h2>Body fat</h2></div><span class="badge" th:if="${latestBodyFat}" th:text="|${@fmt.dec(latestBodyFat)}% now|">now</span></div>
+            <div class="card-body"><th:block th:replace="~{fragments/ui :: chart('chart-bodyfat', ${bodyFatChart})}"></th:block></div></section>
+    </div>
+
+    <section class="card ledger section" id="history">
+        <div class="card-head"><div><span class="eyebrow">History</span><h2>All measurements</h2></div>
+            <div class="row"><a class="btn btn-ghost btn-sm" th:if="${historyTotal > #lists.size(history)}" href="/body?all=true#history" th:text="|Show all ${historyTotal}|">Show all</a>
+            <a class="btn btn-sm" href="/export/body.csv"><svg><use href="#i-download"/></svg>CSV</a></div></div>
+        <div class="card-body" th:if="${history.isEmpty()}"><div th:replace="~{fragments/ui :: empty('scale', 'No measurements yet', 'Weigh in above. Two or more weigh-ins draw your trend and rate of change.', null, null)}"></div></div>
+        <div class="table-wrap" th:unless="${history.isEmpty()}">
+            <table class="table">
+                <thead><tr><th data-sort="text">Date</th><th data-sort="num" class="num">Weight</th><th class="num">Body fat</th><th class="num">Waist</th><th class="num">Hips</th><th class="num">Chest</th><th class="num">Arm</th><th class="num">Thigh</th><th>Notes</th><th><span class="sr-only">Actions</span></th></tr></thead>
+                <tbody>
+                <tr th:each="m : ${history}">
+                    <td th:attr="data-value=${m.measuredOn}" th:text="${@fmt.shortDate(m.measuredOn)}">date</td>
+                    <td class="num strong" th:text="${m.weightLb != null ? @fmt.dec(m.weightLb) : '—'}">—</td>
+                    <td class="num" th:text="${m.bodyFatPct != null ? @fmt.dec(m.bodyFatPct) + '%' : '—'}">—</td>
+                    <td class="num" th:text="${m.waistIn != null ? @fmt.dec(m.waistIn) : '—'}">—</td>
+                    <td class="num" th:text="${m.hipsIn != null ? @fmt.dec(m.hipsIn) : '—'}">—</td>
+                    <td class="num" th:text="${m.chestIn != null ? @fmt.dec(m.chestIn) : '—'}">—</td>
+                    <td class="num" th:text="${m.armIn != null ? @fmt.dec(m.armIn) : '—'}">—</td>
+                    <td class="num" th:text="${m.thighIn != null ? @fmt.dec(m.thighIn) : '—'}">—</td>
+                    <td class="small muted" th:text="${m.notes}"></td>
+                    <td><div class="row-actions">
+                        <a class="icon-btn" th:href="@{/body/{id}/edit(id=${m.id})} + '#weigh-in'" aria-label="Edit"><svg><use href="#i-edit"/></svg></a>
+                        <form class="inline-form" method="post" th:action="@{/body/{id}/delete(id=${m.id})}"><button class="icon-btn" type="submit" aria-label="Delete" data-confirm="Delete this measurement?"><svg><use href="#i-trash"/></svg></button></form>
+                    </div></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</th:block>
+</body>
+</html>
