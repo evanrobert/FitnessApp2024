@@ -322,7 +322,6 @@ label {
 
 .input,
 select,
-input[type="file"],
 .textarea {
     width: 100%;
     min-height: 44px;
@@ -335,8 +334,7 @@ input[type="file"],
 }
 
 .input:focus,
-select:focus,
-input[type="file"]:focus {
+select:focus {
     outline: 3px solid rgba(24, 169, 153, 0.18);
     border-color: var(--accent);
 }
