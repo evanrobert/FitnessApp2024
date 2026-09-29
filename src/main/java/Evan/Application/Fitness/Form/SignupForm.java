@@ -18,9 +18,7 @@ public class SignupForm {
     @Size(max = 80)
     private String name;
 
-    @Min(value = 13, message = "You must be at least 13") @Max(value = 110, message = "Check your age")
-    private Integer age;
-
-    @Min(value = 50, message = "Check your weight") @Max(value = 900, message = "Check your weight")
-    private Integer weight;
+    /** Optional; becomes the member's first weigh-in. */
+    @DecimalMin(value = "50", message = "Check your weight") @DecimalMax(value = "900", message = "Check your weight")
+    private Double weight;
 }

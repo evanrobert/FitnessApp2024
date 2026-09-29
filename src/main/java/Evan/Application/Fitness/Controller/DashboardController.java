@@ -1,9 +1,9 @@
 package Evan.Application.Fitness.Controller;
 
 import Evan.Application.Fitness.Model.UserMacroInformation;
-import Evan.Application.Fitness.Model.WorkoutInformation;
+import Evan.Application.Fitness.Model.WorkoutSession;
 import Evan.Application.Fitness.Repositorys.CalorieInformationRepository;
-import Evan.Application.Fitness.Repositorys.WorkoutInformationRepository;
+import Evan.Application.Fitness.Repositorys.WorkoutSessionRepository;
 import Evan.Application.Fitness.Security.AppUserPrincipal;
 import Evan.Application.Fitness.Service.NutritionService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -17,10 +17,10 @@ import java.util.List;
 public class DashboardController {
     private final NutritionService nutrition;
     private final CalorieInformationRepository entries;
-    private final WorkoutInformationRepository workouts;
+    private final WorkoutSessionRepository workouts;
 
     public DashboardController(NutritionService nutrition, CalorieInformationRepository entries,
-                               WorkoutInformationRepository workouts) {
+                               WorkoutSessionRepository workouts) {
         this.nutrition = nutrition;
         this.entries = entries;
         this.workouts = workouts;
@@ -31,7 +31,7 @@ public class DashboardController {
         UserMacroInformation macroInfo = nutrition.targetsFor(me.getId()).orElse(null);
         double dailyGoal = macroInfo != null ? macroInfo.getDailyCalories() : 0;
         double consumed = nutrition.caloriesToday(me.getId());
-        List<WorkoutInformation> history = workouts.findAllByUserIdOrderByDateDescIdDesc(me.getId());
+        List<WorkoutSession> history = workouts.findAllByUserIdOrderBySessionDateDescIdDesc(me.getId());
 
         model.addAttribute("dailyGoal", dailyGoal);
         model.addAttribute("caloriesConsumed", consumed);
@@ -40,7 +40,7 @@ public class DashboardController {
         model.addAttribute("mealCount", entries.countByUserId(me.getId()));
         model.addAttribute("workoutCount", history.size());
         model.addAttribute("trainingVolume", history.stream()
-                .mapToDouble(w -> w.getSets() * w.getReps() * w.getWeight()).sum());
+                .mapToDouble(WorkoutSession::volume).sum());
         model.addAttribute("macroInfo", macroInfo);
         return "home";
     }

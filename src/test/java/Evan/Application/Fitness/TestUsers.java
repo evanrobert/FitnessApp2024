@@ -22,8 +22,7 @@ public final class TestUsers {
         form.setUsername("member-" + UUID.randomUUID().toString().substring(0, 8));
         form.setPassword("correct-horse-battery");
         form.setName("Test Member");
-        form.setAge(30);
-        form.setWeight(180);
+        form.setWeight(180.0);
         return accounts.register(form);
     }
 

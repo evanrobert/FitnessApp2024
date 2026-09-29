@@ -5,9 +5,11 @@ import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 /** One logged food or meal entry. */
 @Entity
@@ -35,8 +37,17 @@ public class CalorieInformation {
 
     private String mealType;
 
+    /** Protein 4, carbs 4, fat 9 kcal per gram. */
+    public double macroCalories() {
+        return proteins * 4 + carbohydrates * 4 + fats * 9;
+    }
+
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate date;
+
+    @CreationTimestamp
+    @Column(updatable = false)
+    private LocalDateTime createdAt;
 
     // Many entries per member (was mapped as one-to-one).
     @ManyToOne(fetch = FetchType.LAZY)

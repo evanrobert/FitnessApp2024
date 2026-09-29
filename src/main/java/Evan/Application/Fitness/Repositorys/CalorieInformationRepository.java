@@ -18,6 +18,13 @@ public interface CalorieInformationRepository extends JpaRepository<CalorieInfor
 
     long countByUserId(Long userId);
 
+    List<CalorieInformation> findAllByUserIdAndDateBetweenOrderByDateAscIdAsc(Long userId, LocalDate from, LocalDate to);
+
+    List<CalorieInformation> findAllByUserIdAndDateOrderByIdAsc(Long userId, LocalDate date);
+
+    @Query("SELECT DISTINCT c.date FROM CalorieInformation c WHERE c.user.id = :userId AND c.date IS NOT NULL")
+    List<LocalDate> loggedDates(@Param("userId") Long userId);
+
     @Query("SELECT COALESCE(SUM(c.calories), 0) FROM CalorieInformation c " +
             "WHERE c.user.id = :userId AND c.date = :day")
     double sumCaloriesForDay(@Param("userId") Long userId, @Param("day") LocalDate day);

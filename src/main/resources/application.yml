@@ -9,12 +9,14 @@ spring:
     username: ${DB_USERNAME:}
     password: ${DB_PASSWORD:}
   jpa:
-    open-in-view: false
+    # Server-rendered views read lazy associations; batch fetching keeps that N+1-safe.
+    open-in-view: true
     hibernate:
       # Flyway owns the schema; Hibernate only verifies the mapping matches it.
       ddl-auto: validate
     properties:
       hibernate.jdbc.time_zone: UTC
+      hibernate.default_batch_fetch_size: 64
   flyway:
     # Existing databases created by the legacy app (Hibernate ddl-auto) have no
     # Flyway history. Baseline them at V1 (the legacy schema) and apply V2+.

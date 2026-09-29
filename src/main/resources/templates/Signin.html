@@ -33,15 +33,10 @@
             </div>
 
             <div class="grid form-grid">
-                <div class="field">
-                    <label for="age">Age</label>
-                    <input class="input" type="number" id="age" th:field="*{age}" th:errorclass="is-invalid" placeholder="Age" min="1" required>
-                <p class="field-error" th:if="${#fields.hasErrors('age')}" th:errors="*{age}"></p>
-                </div>
 
                 <div class="field with-unit">
                     <label for="weight">Weight</label>
-                    <input class="input" type="number" id="weight" th:field="*{weight}" th:errorclass="is-invalid" placeholder="Weight" min="1" required>
+                    <input class="input" type="number" id="weight" th:field="*{weight}" th:errorclass="is-invalid" placeholder="Optional" min="50" step="0.1">
                 <p class="field-error" th:if="${#fields.hasErrors('weight')}" th:errors="*{weight}"></p>
                     <span class="unit">lb</span>
                 </div>

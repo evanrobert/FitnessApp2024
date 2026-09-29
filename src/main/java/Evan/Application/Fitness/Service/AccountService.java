@@ -1,9 +1,11 @@
 package Evan.Application.Fitness.Service;
 
 import Evan.Application.Fitness.Form.SignupForm;
+import Evan.Application.Fitness.Model.BodyMeasurement;
 import Evan.Application.Fitness.Model.Roles;
 import Evan.Application.Fitness.Model.UserInformation;
 import Evan.Application.Fitness.Model.UserLoginDetails;
+import Evan.Application.Fitness.Repositorys.BodyMeasurementRepository;
 import Evan.Application.Fitness.Repositorys.RoleRepository;
 import Evan.Application.Fitness.Repositorys.UserLoginDetailsRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -15,11 +17,16 @@ public class AccountService {
     private final UserLoginDetailsRepository users;
     private final RoleRepository roles;
     private final PasswordEncoder passwordEncoder;
+    private final BodyMeasurementRepository measurements;
+    private final TodayService todayService;
 
-    public AccountService(UserLoginDetailsRepository users, RoleRepository roles, PasswordEncoder passwordEncoder) {
+    public AccountService(UserLoginDetailsRepository users, RoleRepository roles, PasswordEncoder passwordEncoder,
+                          BodyMeasurementRepository measurements, TodayService todayService) {
         this.users = users;
         this.roles = roles;
         this.passwordEncoder = passwordEncoder;
+        this.measurements = measurements;
+        this.todayService = todayService;
     }
 
     public boolean usernameTaken(String username) {
@@ -37,10 +44,17 @@ public class AccountService {
 
         UserInformation profile = new UserInformation();
         profile.setName(form.getName().trim());
-        profile.setAge(form.getAge() == null ? 0 : form.getAge());
-        profile.setWeight(form.getWeight() == null ? 0 : form.getWeight());
         account.setUserInformation(profile);
+        UserLoginDetails saved = users.save(account);
 
-        return users.save(account);
+        if (form.getWeight() != null) {
+            BodyMeasurement first = new BodyMeasurement();
+            first.setUser(saved);
+            first.setMeasuredOn(todayService.today(saved.getId()));
+            first.setWeightLb(form.getWeight());
+            first.setNotes("Starting weight from sign-up");
+            measurements.save(first);
+        }
+        return saved;
     }
 }
