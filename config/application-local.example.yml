@@ -1,0 +1,19 @@
+# Local MySQL connection.
+#
+# 1. Copy this file to  config/application-local.yml  (same folder).
+#    That copy is git-ignored, so your credentials never get committed.
+# 2. Fill in the three values below.
+# 3. Start the app on MySQL:   gradlew bootRun -Pprofile=local
+#    (Windows PowerShell:      .\gradlew.bat bootRun -Pprofile=local)
+#
+# The first start creates all tables automatically (Flyway migrations), so point
+# it at an empty database - create one with config/mysql-setup.sql in Workbench.
+
+spring:
+  datasource:
+    # Change the host/port/database name if yours differ (3306 is MySQL's default).
+    # allowPublicKeyRetrieval=true lets MySQL 8's default login method work over a
+    # local non-SSL connection; without it you get "Public Key Retrieval is not allowed".
+    url: jdbc:mysql://localhost:3306/fitness?allowPublicKeyRetrieval=true&useSSL=false
+    username: fitness_app
+    password: CHANGE_ME

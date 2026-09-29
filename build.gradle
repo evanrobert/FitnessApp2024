@@ -54,6 +54,8 @@ tasks.named('test') {
 }
 
 tasks.named('bootRun') {
-	// Zero-setup local run against in-memory H2 unless a profile is supplied.
-	systemProperty 'spring.profiles.active', System.getProperty('spring.profiles.active', 'dev')
+	// Zero-setup run against in-memory H2 by default. Pick another profile with
+	// -Pprofile=local (your MySQL, see config/application-local.example.yml).
+	systemProperty 'spring.profiles.active',
+			project.findProperty('profile') ?: System.getProperty('spring.profiles.active', 'dev')
 }

@@ -31,10 +31,35 @@ Open http://localhost:8080 and log in as **demo / demo-password** — a syntheti
 with ~16 weeks of made-up history — or create your own account. Dev data is in memory
 and resets on restart.
 
-## Run against MySQL
+## Run against your own MySQL
 
-The default profile uses MySQL 8. Credentials are never committed; pass them as
-environment variables:
+One-time setup (MySQL 8 + MySQL Workbench):
+
+1. In Workbench, connected as root, open `config/mysql-setup.sql`, replace `CHANGE_ME`
+   with a password of your choice and run it. It creates an empty `fitness` database
+   and a `fitness_app` account that can only use that database.
+2. Copy `config/application-local.example.yml` to `config/application-local.yml` and
+   enter the same username and password (and host/port if not `localhost:3306`).
+   That file is git-ignored, so credentials never get committed.
+3. Start the app on MySQL:
+
+   ```bash
+   ./gradlew bootRun -Pprofile=local        # macOS / Linux
+   .\gradlew.bat bootRun -Pprofile=local    # Windows PowerShell
+   ```
+
+The first start creates every table automatically (Flyway); later starts only apply new
+migrations. Your data persists between runs. Plain `bootRun` (no `-Pprofile`) still uses
+the in-memory demo database.
+
+Troubleshooting: *"MySQL credentials are not set"* → step 2 wasn't done or still says
+`CHANGE_ME`. *"Access denied for user"* → the password in the file doesn't match the one
+in the setup script. *"Communications link failure"* → MySQL isn't running or isn't on
+the host/port in the URL.
+
+### Servers and deployments
+
+Instead of the file, supply credentials as environment variables:
 
 | Variable | Default | Purpose |
 |---|---|---|
@@ -49,9 +74,6 @@ environment variables:
 DB_URL=jdbc:mysql://db:3306/fitness DB_USERNAME=... DB_PASSWORD=... \
 SESSION_COOKIE_SECURE=true java -jar build/libs/Application-Fitness-0.1.0-SNAPSHOT.jar
 ```
-
-For personal local overrides, `src/main/resources/application-local.yml` is git-ignored
-(`--spring.profiles.active=local`).
 
 ## Upgrading an existing (legacy) database
 
