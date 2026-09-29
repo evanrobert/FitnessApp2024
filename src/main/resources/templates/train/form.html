@@ -37,13 +37,17 @@
                             <div class="exercise-block" th:each="b, bs : ${blocks}" th:attr="data-block=${bs.index}">
                                 <header>
                                     <span class="block-no" th:text="${bs.count}">1</span>
-                                    <select class="input" data-block-exercise aria-label="Exercise">
-                                        <option value="">Choose exercise…</option>
-                                        <optgroup th:each="g : ${grouped}" th:label="${g.key.label}">
-                                            <option th:each="e : ${g.value}" th:value="${e.id}" th:text="${e.name}" th:selected="${e.id == b.exerciseId}"></option>
-                                        </optgroup>
-                                    </select>
+                                    <input class="input" data-block-exercise list="exercise-options" autocomplete="off" th:value="${b.exerciseName}"
+                                           placeholder="Search or type any exercise…" aria-label="Exercise" maxlength="100">
                                     <button class="btn btn-ghost btn-sm" type="button" data-action="remove-block">Remove</button>
+                                    <div class="new-exercise" hidden>
+                                        <span class="badge badge-blue">New</span>
+                                        <span class="small muted">Not in your library yet — it'll be added. Which muscle group?</span>
+                                        <select class="input input-sm" data-block-muscle aria-label="Muscle group for the new exercise">
+                                            <option value="">Muscle group…</option>
+                                            <option th:each="m : ${muscles}" th:value="${m}" th:text="${m.label}" th:selected="${b.muscleGroup == m}"></option>
+                                        </select>
+                                    </div>
                                 </header>
                                 <div class="last-time"></div>
                                 <table class="set-table">
@@ -52,7 +56,8 @@
                                     <tr class="set-row" th:each="r, rs : ${b.rows}" th:with="i=${bs.index * 20 + rs.index}">
                                         <td class="set-no" th:text="${rs.count}">1</td>
                                         <td>
-                                            <input type="hidden" data-hidden="exerciseId" th:name="|sets[${i}].exerciseId|" th:value="${b.exerciseId}">
+                                            <input type="hidden" data-hidden="exerciseName" th:name="|sets[${i}].exerciseName|" th:value="${b.exerciseName}">
+                                            <input type="hidden" data-hidden="muscleGroup" th:name="|sets[${i}].muscleGroup|" th:value="${b.muscleGroup}">
                                             <input type="hidden" data-hidden="block" th:name="|sets[${i}].block|" th:value="${bs.index}">
                                             <input class="input" data-field="weightLb" th:name="|sets[${i}].weightLb|" th:value="${r.weightLb}" type="number" step="0.5" min="0" inputmode="decimal" placeholder="lb" aria-label="Load in pounds">
                                         </td>
@@ -68,7 +73,7 @@
                         </div>
                         <div class="row">
                             <button class="btn btn-dark" type="button" data-action="add-block"><svg><use href="#i-plus"/></svg>Add exercise</button>
-                            <a class="small" href="/exercises" target="_blank" rel="noopener">Missing an exercise? Add it to your library</a>
+                            <span class="small muted">Start typing to search <th:block th:text="${#lists.size(exerciseCount)}"></th:block> exercises, or type any name to add your own.</span>
                         </div>
                     </div>
                 </section>
@@ -151,18 +156,28 @@
     </form>
 
     <script type="application/json" id="last-times" th:utext="${lastTimes}"></script>
+    <datalist id="exercise-options">
+        <th:block th:each="g : ${grouped}">
+            <option th:each="e : ${g.value}" th:value="${e.name}"
+                    th:attr="label=${g.key.label + (e.equipment != null ? ' · ' + e.equipment.label : '') + (e.library ? '' : ' · yours')},data-group=${g.key.name()}"></option>
+        </th:block>
+    </datalist>
 
     <template id="tpl-block">
         <div class="exercise-block">
             <header>
                 <span class="block-no">1</span>
-                <select class="input" data-block-exercise aria-label="Exercise">
-                    <option value="">Choose exercise…</option>
-                    <optgroup th:each="g : ${grouped}" th:label="${g.key.label}">
-                        <option th:each="e : ${g.value}" th:value="${e.id}" th:text="${e.name}"></option>
-                    </optgroup>
-                </select>
+                <input class="input" data-block-exercise list="exercise-options" autocomplete="off"
+                       placeholder="Search or type any exercise…" aria-label="Exercise" maxlength="100">
                 <button class="btn btn-ghost btn-sm" type="button" data-action="remove-block">Remove</button>
+                <div class="new-exercise" hidden>
+                    <span class="badge badge-blue">New</span>
+                    <span class="small muted">Not in your library yet — it'll be added. Which muscle group?</span>
+                    <select class="input input-sm" data-block-muscle aria-label="Muscle group for the new exercise">
+                        <option value="">Muscle group…</option>
+                        <option th:each="m : ${muscles}" th:value="${m}" th:text="${m.label}"></option>
+                    </select>
+                </div>
             </header>
             <div class="last-time"></div>
             <table class="set-table">
@@ -176,7 +191,8 @@
         <tr class="set-row">
             <td class="set-no">1</td>
             <td>
-                <input type="hidden" data-hidden="exerciseId">
+                <input type="hidden" data-hidden="exerciseName">
+                <input type="hidden" data-hidden="muscleGroup">
                 <input type="hidden" data-hidden="block">
                 <input class="input" data-field="weightLb" type="number" step="0.5" min="0" inputmode="decimal" placeholder="lb" aria-label="Load in pounds">
             </td>

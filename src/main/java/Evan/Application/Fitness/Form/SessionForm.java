@@ -2,6 +2,7 @@ package Evan.Application.Fitness.Form;
 
 import Evan.Application.Fitness.Model.CardioActivity;
 import Evan.Application.Fitness.Model.LocationType;
+import Evan.Application.Fitness.Model.MuscleGroup;
 import Evan.Application.Fitness.Model.SessionFocus;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
@@ -46,6 +47,11 @@ public class SessionForm {
     @Data
     public static class SetRow {
         private Long exerciseId;
+        /** Free-form name: matched to the library or the member's exercises, else created as a personal one. */
+        @Size(max = 100, message = "Exercise names are up to 100 characters")
+        private String exerciseName;
+        /** Muscle group for a newly typed exercise (ignored when the name already exists). */
+        private MuscleGroup muscleGroup;
         /** Exercise block this set belongs to (keeps order when an exercise repeats). */
         private Integer block;
         @Min(value = 0, message = "Reps can't be negative") @Max(value = 1000)
@@ -59,7 +65,8 @@ public class SessionForm {
         private String notes;
 
         public boolean isBlank() {
-            return exerciseId == null || (reps == null && weightLb == null);
+            boolean noExercise = exerciseId == null && (exerciseName == null || exerciseName.isBlank());
+            return noExercise || (reps == null && weightLb == null);
         }
     }
 

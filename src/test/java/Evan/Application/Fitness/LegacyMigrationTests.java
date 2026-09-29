@@ -40,7 +40,8 @@ class LegacyMigrationTests {
                 + "(2, '2026-09-20', 'bench press ', '', 6, 4, 205, 'STRENGTH', 1), "
                 + "(3, '2026-09-22', 'Zercher Squat', 'Grip limited', 10, 3, 185, 'HYPERTROPHY', 1), "
                 + "(4, '2026-09-24', 'zercher squat', NULL, 3, 5, 205, 'STRENGTH', 1), "
-                + "(5, '2026-09-24', 'Zercher Squat', NULL, 8, 2, 135, 'ACCESSORY', 2)");
+                + "(5, '2026-09-24', 'Zercher Squat', NULL, 8, 2, 135, 'ACCESSORY', 2), "
+                + "(6, '2026-09-26', 'goblet squat', 'Warm-up block', 12, 3, 60, 'ACCESSORY', 2)");
         jdbc.execute("INSERT INTO reports (id, file_name, file_type, userid) VALUES (1, 'synthetic.txt', 'text/plain', 1)");
     }
 
@@ -63,10 +64,10 @@ class LegacyMigrationTests {
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM information_schema.tables WHERE table_name = 'workout_information'", Integer.class)).isZero();
         // one session per member per day
         assertThat(jdbc.queryForList("SELECT CONCAT(user_id, '@', session_date) FROM workout_session ORDER BY user_id, session_date", String.class))
-                .containsExactly("1@2026-09-20", "1@2026-09-22", "1@2026-09-24", "2@2026-09-24");
-        // "sets = N" becomes N rows: 5 + 4 + 3 + 5 for member 1, 2 for member 2
+                .containsExactly("1@2026-09-20", "1@2026-09-22", "1@2026-09-24", "2@2026-09-24", "2@2026-09-26");
+        // "sets = N" becomes N rows: 5 + 4 + 3 + 5 for member 1, 2 + 3 for member 2
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM exercise_set st JOIN workout_session s ON s.id = st.session_id WHERE s.user_id = 1", Integer.class)).isEqualTo(17);
-        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM exercise_set st JOIN workout_session s ON s.id = st.session_id WHERE s.user_id = 2", Integer.class)).isEqualTo(2);
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM exercise_set st JOIN workout_session s ON s.id = st.session_id WHERE s.user_id = 2", Integer.class)).isEqualTo(5);
         // names that match the library reuse it (case/whitespace-insensitive); others become personal exercises
         assertThat(jdbc.queryForList("SELECT DISTINCT e.owner_id FROM exercise_set st JOIN exercise e ON e.id = st.exercise_id WHERE LOWER(e.name) IN ('back squat', 'bench press')", Long.class))
                 .containsOnlyNulls();
@@ -74,9 +75,29 @@ class LegacyMigrationTests {
                 .containsExactly(1L, 2L);
         // notes survive on the first set of each legacy row; load and reps are preserved
         assertThat(jdbc.queryForList("SELECT notes FROM exercise_set WHERE notes IS NOT NULL ORDER BY notes", String.class))
-                .containsExactly("Grip limited", "Top set felt fast");
+                .containsExactly("Grip limited", "Top set felt fast", "Warm-up block");
         assertThat(jdbc.queryForObject("SELECT SUM(reps * weight_lb) FROM exercise_set", Double.class))
-                .isEqualTo(5 * 5 * 275.0 + 4 * 6 * 205.0 + 3 * 10 * 185.0 + 5 * 3 * 205.0 + 2 * 8 * 135.0);
+                .isEqualTo(5 * 5 * 275.0 + 4 * 6 * 205.0 + 3 * 10 * 185.0 + 5 * 3 * 205.0 + 2 * 8 * 135.0 + 3 * 12 * 60.0);
+    }
+
+    @Test
+    void expandedLibraryAbsorbsMatchingPersonalExercisesWithoutLosingHistory() {
+        // V3 turned member 2's "goblet squat" into a personal exercise (not in the V3 library).
+        flyway.target("3").load().migrate();
+        Long personal = jdbc.queryForObject("SELECT id FROM exercise WHERE owner_id = 2 AND LOWER(name) = 'goblet squat'", Long.class);
+        jdbc.update("INSERT INTO goal (user_id, title, metric, exercise_id, target_value, start_date, status) VALUES (2, 'Goblet 100', 'EXERCISE_1RM', ?, 100, '2026-09-01', 'ACTIVE')", personal);
+
+        flyway.target("latest").load().migrate();
+
+        Long library = jdbc.queryForObject("SELECT id FROM exercise WHERE owner_id IS NULL AND name = 'Goblet Squat'", Long.class);
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM exercise WHERE owner_id IS NULL", Integer.class)).isEqualTo(132);
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM exercise WHERE id = ?", Integer.class, personal)).isZero();
+        assertThat(jdbc.queryForList("SELECT DISTINCT exercise_id FROM exercise_set st JOIN workout_session s ON s.id = st.session_id WHERE s.session_date = '2026-09-26'", Long.class))
+                .containsExactly(library);
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM exercise_set WHERE exercise_id = ?", Integer.class, library)).isEqualTo(3);
+        assertThat(jdbc.queryForObject("SELECT exercise_id FROM goal WHERE title = 'Goblet 100'", Long.class)).isEqualTo(library);
+        // Personal exercises with no library twin are untouched.
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM exercise WHERE owner_id IS NOT NULL AND LOWER(name) = 'zercher squat'", Integer.class)).isEqualTo(2);
     }
 
     @Test

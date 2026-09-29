@@ -20,4 +20,9 @@ public interface ExerciseRepository extends JpaRepository<Exercise, Long> {
     boolean nameInUse(@Param("name") String name, @Param("userId") Long userId);
 
     Optional<Exercise> findByIdAndOwnerId(Long id, Long ownerId);
+
+    /** Library first, then the member's own, matched case-insensitively. */
+    @Query("SELECT e FROM Exercise e WHERE LOWER(e.name) = LOWER(:name) AND (e.owner IS NULL OR e.owner.id = :userId) " +
+            "ORDER BY CASE WHEN e.owner IS NULL THEN 0 ELSE 1 END, e.id")
+    List<Exercise> findVisibleByName(@Param("name") String name, @Param("userId") Long userId);
 }

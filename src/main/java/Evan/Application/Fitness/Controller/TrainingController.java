@@ -152,16 +152,21 @@ public class TrainingController {
         Map<MuscleGroup, List<Exercise>> grouped = new EnumMap<>(MuscleGroup.class);
         exercises.forEach(e -> grouped.computeIfAbsent(e.getMuscleGroup(), g -> new ArrayList<>()).add(e));
 
-        // Server-render existing blocks (edit / repeat / validation errors) so the form works without JS too.
+        // Server-render existing blocks (edit / repeat / validation errors) so nothing typed is lost.
+        Map<Long, Exercise> byId = new HashMap<>();
+        exercises.forEach(e -> byId.put(e.getId(), e));
         List<BlockView> blocks = new ArrayList<>();
         Map<String, BlockView> byKey = new LinkedHashMap<>();
         for (SessionForm.SetRow row : form.getSets()) {
-            if (row == null || (row.getExerciseId() == null && row.getReps() == null && row.getWeightLb() == null)) {
+            if (row == null || (row.getExerciseId() == null && (row.getExerciseName() == null || row.getExerciseName().isBlank())
+                    && row.getReps() == null && row.getWeightLb() == null)) {
                 continue;
             }
+            String name = row.getExerciseName() != null && !row.getExerciseName().isBlank() ? row.getExerciseName()
+                    : row.getExerciseId() != null && byId.containsKey(row.getExerciseId()) ? byId.get(row.getExerciseId()).getName() : "";
             String key = row.getBlock() == null ? "x" + byKey.size() : String.valueOf(row.getBlock());
             byKey.computeIfAbsent(key, k -> {
-                BlockView b = new BlockView(k, row.getExerciseId(), new ArrayList<>());
+                BlockView b = new BlockView(k, name, row.getMuscleGroup(), new ArrayList<>());
                 blocks.add(b);
                 return b;
             }).rows().add(row);
@@ -171,13 +176,15 @@ public class TrainingController {
             for (int i = 0; i < 3; i++) {
                 spare.add(new SessionForm.SetRow());
             }
-            blocks.add(new BlockView("0", null, spare));
+            blocks.add(new BlockView("0", "", null, spare));
         }
         form.getCardio().removeIf(java.util.Objects::isNull);
         model.addAttribute("form", form);
         model.addAttribute("blocks", blocks);
         model.addAttribute("sessionId", sessionId);
         model.addAttribute("grouped", grouped);
+        model.addAttribute("muscles", MuscleGroup.values());
+        model.addAttribute("exerciseCount", exercises);
         model.addAttribute("focuses", SessionFocus.values());
         model.addAttribute("locations", LocationType.values());
         model.addAttribute("activities", CardioActivity.values());
@@ -186,6 +193,6 @@ public class TrainingController {
         return "train/form";
     }
 
-    public record BlockView(String key, Long exerciseId, List<SessionForm.SetRow> rows) {
+    public record BlockView(String key, String exerciseName, MuscleGroup muscleGroup, List<SessionForm.SetRow> rows) {
     }
 }
