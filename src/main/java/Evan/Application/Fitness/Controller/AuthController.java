@@ -1,7 +1,16 @@
 package Evan.Application.Fitness.Controller;
 
 import Evan.Application.Fitness.Form.SignupForm;
+import Evan.Application.Fitness.Model.UserLoginDetails;
+import Evan.Application.Fitness.Security.SecurityDetailsService;
 import Evan.Application.Fitness.Service.AccountService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.web.context.SecurityContextRepository;
 import jakarta.validation.Valid;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -11,14 +20,18 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 public class AuthController {
     private final AccountService accounts;
+    private final SecurityDetailsService userDetails;
+    private final SecurityContextRepository contextRepository;
 
-    public AuthController(AccountService accounts) {
+    public AuthController(AccountService accounts, SecurityDetailsService userDetails,
+                          SecurityContextRepository contextRepository) {
         this.accounts = accounts;
+        this.userDetails = userDetails;
+        this.contextRepository = contextRepository;
     }
 
     @GetMapping("/")
@@ -39,16 +52,27 @@ public class AuthController {
 
     @PostMapping("/signup")
     public String signup(@Valid @ModelAttribute SignupForm signupForm, BindingResult result,
-                         RedirectAttributes redirect) {
+                         HttpServletRequest request, HttpServletResponse response) {
         if (!result.hasFieldErrors("username") && accounts.usernameTaken(signupForm.getUsername())) {
             result.rejectValue("username", "taken", "That username is already taken");
         }
         if (result.hasErrors()) {
             return "Signin";
         }
-        accounts.register(signupForm);
-        redirect.addFlashAttribute("flashSuccess", "Account created. Sign in to get started.");
-        return "redirect:/login";
+        UserLoginDetails account = accounts.register(signupForm);
+        signIn(account.getUsername(), request, response);
+        return "redirect:/onboarding";
+    }
+
+    /** New members go straight to onboarding instead of re-typing their password. */
+    private void signIn(String username, HttpServletRequest request, HttpServletResponse response) {
+        UserDetails principal = userDetails.loadUserByUsername(username);
+        SecurityContext context = SecurityContextHolder.createEmptyContext();
+        context.setAuthentication(UsernamePasswordAuthenticationToken.authenticated(principal, null, principal.getAuthorities()));
+        SecurityContextHolder.setContext(context);
+        request.getSession(true);
+        request.changeSessionId();
+        contextRepository.saveContext(context, request, response);
     }
 
     private static boolean isSignedIn(Authentication auth) {

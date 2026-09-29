@@ -28,7 +28,7 @@ public class DailyCheckIn {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull
+    /** Defaults to the member's today when omitted. */
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate checkInDate;
 

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: page(title='Nutrition', active='fuel', content=~{::content})}">
+<body>
+<th:block th:fragment="content">
+    <header class="page-head">
+        <div>
+            <span class="eyebrow">Nutrition</span>
+            <h1 class="display">Fuel</h1>
+            <p class="lede">What you ate against what you planned: calories, macros and fiber for the day, with your last two weeks for context.</p>
+        </div>
+        <div class="page-actions">
+            <div class="day-nav" aria-label="Change day">
+                <a th:href="@{/fuel(date=${day.minusDays(1)})}" aria-label="Previous day">&lsaquo;</a>
+                <span th:text="${isToday ? 'Today' : @fmt.shortDate(day)}">Today</span>
+                <a th:href="@{/fuel(date=${day.plusDays(1)})}" th:classappend="${isToday} ? 'is-disabled'" aria-label="Next day">&rsaquo;</a>
+            </div>
+            <a class="btn" href="/fuel/ledger">Ledger</a>
+            <a class="btn" href="/fuel/targets">Targets</a>
+            <a class="btn btn-primary" th:href="@{/fuel/new(date=${day})}"><svg><use href="#i-plus"/></svg>Log meal</a>
+        </div>
+    </header>
+
+    <div class="flash flash-info" th:if="${targets == null}">
+        <svg><use href="#i-info"/></svg><span>Set daily targets to see progress bars and adherence. <a href="/fuel/targets">Set targets</a> — we'll suggest numbers from your profile.</span>
+    </div>
+
+    <section class="scoreboard" th:with="goal=${targets != null ? targets.dailyCalories : 0}">
+        <div class="score" style="grid-column: span 2">
+            <div class="score-label" th:text="${isToday ? 'Calories today' : 'Calories · ' + @fmt.shortDate(day)}">Calories today</div>
+            <div class="score-value"><th:block th:text="${@fmt.num(totals.calories())}">0</th:block><small th:if="${goal > 0}" th:text="|/ ${@fmt.num(goal)} kcal|">/ 0</small></div>
+            <div class="meter" th:if="${goal > 0}" th:classappend="${totals.calories() > goal * 1.05} ? 'is-over'"><span th:style="${@fmt.width(totals.calories() * 100 / goal)}"></span></div>
+            <div class="score-sub" th:if="${goal > 0}">
+                <th:block th:if="${goal - totals.calories() >= 0}" th:text="|${@fmt.num(goal - totals.calories())} kcal remaining|"></th:block>
+                <th:block th:if="${goal - totals.calories() < 0}" th:text="|${@fmt.num(totals.calories() - goal)} kcal over target|"></th:block>
+            </div>
+        </div>
+        <div class="score">
+            <div class="score-label">Protein</div>
+            <div class="score-value"><th:block th:text="${@fmt.num(totals.protein())}">0</th:block><small th:text="${targets != null ? '/ ' + @fmt.num(targets.dailyProtein) + ' g' : 'g'}">g</small></div>
+            <div class="meter" th:if="${targets != null and targets.dailyProtein > 0}"><span th:style="${@fmt.width(totals.protein() * 100 / targets.dailyProtein)}"></span></div>
+        </div>
+        <div class="score">
+            <div class="score-label">Carbs</div>
+            <div class="score-value"><th:block th:text="${@fmt.num(totals.carbs())}">0</th:block><small th:text="${targets != null ? '/ ' + @fmt.num(targets.dailyCarbohydrates) + ' g' : 'g'}">g</small></div>
+            <div class="meter" th:if="${targets != null and targets.dailyCarbohydrates > 0}"><span th:style="${@fmt.width(totals.carbs() * 100 / targets.dailyCarbohydrates)}"></span></div>
+        </div>
+        <div class="score">
+            <div class="score-label">Fat</div>
+            <div class="score-value"><th:block th:text="${@fmt.num(totals.fat())}">0</th:block><small th:text="${targets != null ? '/ ' + @fmt.num(targets.dailyFat) + ' g' : 'g'}">g</small></div>
+            <div class="meter" th:if="${targets != null and targets.dailyFat > 0}"><span th:style="${@fmt.width(totals.fat() * 100 / targets.dailyFat)}"></span></div>
+        </div>
+        <div class="score">
+            <div class="score-label">Fiber</div>
+            <div class="score-value"><th:block th:text="${@fmt.num(totals.fiber())}">0</th:block><small th:text="${targets != null and targets.dailyFiber != null ? '/ ' + @fmt.num(targets.dailyFiber) + ' g' : 'g'}">g</small></div>
+            <div class="meter" th:if="${targets != null and targets.dailyFiber != null and targets.dailyFiber > 0}"><span th:style="${@fmt.width(totals.fiber() * 100 / targets.dailyFiber)}"></span></div>
+        </div>
+    </section>
+
+    <div class="grid split section">
+        <div class="stack">
+            <section class="card ledger">
+                <div class="card-head">
+                    <div><span class="eyebrow" th:text="${@fmt.dayTitle(day)}">Day</span><h2>Meals</h2></div>
+                    <span class="badge" th:text="|${totals.entries()} entries|">0 entries</span>
+                </div>
+                <div class="card-body" th:if="${byMeal.isEmpty()}">
+                    <div th:replace="~{fragments/ui :: empty('fuel', 'Nothing logged for this day', 'Add a meal below, or re-log something you eat often with one click.', null, null)}"></div>
+                </div>
+                <div th:unless="${byMeal.isEmpty()}">
+                    <div class="food-row food-head"><span>Food</span><span class="v">kcal</span><span class="v opt">P</span><span class="v opt">C</span><span class="v opt">F</span><span></span></div>
+                </div>
+                <div class="meal-group" th:each="group : ${byMeal}">
+                    <h3><span th:text="${mealTypes[group.key] ?: group.key}">Meal</span><span th:text="|${@fmt.num(#aggregates.sum(group.value.![calories]))} kcal|">0</span></h3>
+                    <div class="food-row" th:each="e : ${group.value}">
+                        <span class="name" th:text="${e.itemName}">Food</span>
+                        <span class="v"><b th:text="${@fmt.num(e.calories)}">0</b></span>
+                        <span class="v opt" th:text="${@fmt.num(e.proteins)}">0</span>
+                        <span class="v opt" th:text="${@fmt.num(e.carbohydrates)}">0</span>
+                        <span class="v opt" th:text="${@fmt.num(e.fats)}">0</span>
+                        <span class="row-actions">
+                            <a class="icon-btn" th:href="@{/fuel/{id}/edit(id=${e.id})}" aria-label="Edit entry" title="Edit"><svg><use href="#i-edit"/></svg></a>
+                            <form class="inline-form" method="post" th:action="@{/fuel/{id}/relog(id=${e.id})}" th:unless="${isToday}">
+                                <button class="icon-btn" type="submit" aria-label="Log again today" title="Log again today" data-no-loading><svg><use href="#i-copy"/></svg></button>
+                            </form>
+                            <form class="inline-form" method="post" th:action="@{/fuel/{id}/delete(id=${e.id})}">
+                                <button class="icon-btn" type="submit" aria-label="Delete entry" title="Delete" data-confirm="Delete this entry?"><svg><use href="#i-trash"/></svg></button>
+                            </form>
+                        </span>
+                    </div>
+                </div>
+                <div class="card-foot" th:if="${totals.calories() > 0}" th:with="split=${totals.macroSplit()}">
+                    <div class="small muted" style="margin-bottom:6px">Energy from macros</div>
+                    <div style="display:flex;height:10px;border-radius:99px;overflow:hidden;gap:2px;background:var(--surface)" role="img"
+                         th:attr="aria-label=|Protein ${@fmt.pct(split[0])}, carbs ${@fmt.pct(split[1])}, fat ${@fmt.pct(split[2])}|">
+                        <span th:style="|width:${split[0]}%;background:var(--s1)|"></span>
+                        <span th:style="|width:${split[1]}%;background:var(--s2)|"></span>
+                        <span th:style="|width:${split[2]}%;background:var(--s3)|"></span>
+                    </div>
+                    <div class="chart-legend mt-1" style="margin-bottom:0">
+                        <span><i class="box" style="background:var(--s1)"></i><th:block th:text="|Protein ${@fmt.pct(split[0])}|"></th:block></span>
+                        <span><i class="box" style="background:var(--s2)"></i><th:block th:text="|Carbs ${@fmt.pct(split[1])}|"></th:block></span>
+                        <span><i class="box" style="background:var(--s3)"></i><th:block th:text="|Fat ${@fmt.pct(split[2])}|"></th:block></span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="card">
+                <div class="card-head"><div><span class="eyebrow">Last 14 days</span><h2>Daily calories</h2></div></div>
+                <div class="card-body"><th:block th:replace="~{fragments/ui :: chart('chart-calories', ${calorieChart})}"></th:block></div>
+            </section>
+        </div>
+
+        <aside class="stack">
+            <form class="card" method="post" th:action="@{/fuel}" th:object="${calorieInformation}">
+                <div class="card-head"><div><span class="eyebrow">Quick add</span><h2>Log a meal</h2></div></div>
+                <div class="card-body stack" style="gap:12px">
+                    <input type="hidden" th:field="*{date}">
+                    <div class="field"><label for="q-name">Food</label><input class="input" id="q-name" th:field="*{itemName}" placeholder="e.g. Chicken burrito bowl" required autocomplete="off"></div>
+                    <div class="form-grid" style="gap:10px">
+                        <div class="field"><label for="q-cal">kcal</label><input class="input" id="q-cal" type="number" min="0" step="1" th:field="*{calories}" inputmode="numeric"></div>
+                        <div class="field"><label for="q-type">Meal</label>
+                            <select class="input" id="q-type" th:field="*{mealType}"><option th:each="t : ${mealTypes}" th:value="${t.key}" th:text="${t.value}"></option></select></div>
+                        <div class="field"><label for="q-p">Protein g</label><input class="input" id="q-p" type="number" min="0" step="0.1" th:field="*{proteins}" inputmode="decimal"></div>
+                        <div class="field"><label for="q-c">Carbs g</label><input class="input" id="q-c" type="number" min="0" step="0.1" th:field="*{carbohydrates}" inputmode="decimal"></div>
+                        <div class="field"><label for="q-f">Fat g</label><input class="input" id="q-f" type="number" min="0" step="0.1" th:field="*{fats}" inputmode="decimal"></div>
+                        <div class="field"><label for="q-fb">Fiber g</label><input class="input" id="q-fb" type="number" min="0" step="0.1" th:field="*{fiber}" inputmode="decimal"></div>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <a class="btn btn-ghost spacer" th:href="@{/fuel/new(date=${day})}">More nutrients</a>
+                    <button class="btn btn-primary" type="submit">Add</button>
+                </div>
+            </form>
+
+            <section class="card" th:unless="${recent.isEmpty()}">
+                <div class="card-head"><div><span class="eyebrow">One click</span><h2>Recent foods</h2></div></div>
+                <ul class="list">
+                    <li th:each="r : ${recent}">
+                        <div style="min-width:0">
+                            <div class="title" th:text="${r.itemName}" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Food</div>
+                            <div class="meta" th:text="|${@fmt.num(r.calories)} kcal · ${@fmt.num(r.proteins)} g protein|">kcal</div>
+                        </div>
+                        <form class="inline-form" method="post" th:action="@{/fuel/{id}/relog(id=${r.id},date=${day})}">
+                            <button class="btn btn-sm" type="submit"><svg><use href="#i-plus"/></svg>Log</button>
+                        </form>
+                    </li>
+                </ul>
+            </section>
+        </aside>
+    </div>
+</th:block>
+</body>
+</html>

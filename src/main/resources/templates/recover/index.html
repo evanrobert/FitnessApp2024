@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: page(title='Recovery', active='recover', content=~{::content})}">
+<body>
+<th:block th:fragment="content">
+    <header class="page-head">
+        <div>
+            <span class="eyebrow">Recovery &amp; wellbeing</span>
+            <h1 class="display">Recover</h1>
+            <p class="lede">A 30-second daily check-in: sleep, energy, mood, stress, soreness and water. It becomes your readiness score and shows how recovery tracks with training.</p>
+        </div>
+        <div class="page-actions">
+            <div class="day-nav" aria-label="Change day">
+                <a th:href="@{/recover(date=${day.minusDays(1)})}" aria-label="Previous day">&lsaquo;</a>
+                <span th:text="${isToday ? 'Today' : @fmt.shortDate(day)}">Today</span>
+                <a th:href="@{/recover(date=${day.plusDays(1)})}" th:classappend="${isToday} ? 'is-disabled'" aria-label="Next day">&rsaquo;</a>
+            </div>
+        </div>
+    </header>
+
+    <section class="scoreboard">
+        <div class="score">
+            <div class="score-label">Readiness today</div>
+            <div class="score-value"><th:block th:text="${todayCheckIn != null and todayCheckIn.readinessScore() != null ? todayCheckIn.readinessScore() : '—'}">—</th:block><small th:if="${todayCheckIn != null and todayCheckIn.readinessScore() != null}">/ 100</small></div>
+            <div class="score-sub" th:text="${todayCheckIn == null ? 'Not checked in yet' : 'from today''s check-in'}">status</div>
+        </div>
+        <div class="score">
+            <div class="score-label">Water today</div>
+            <div class="score-value"><th:block th:text="${todayCheckIn != null and todayCheckIn.waterOz != null ? @fmt.num(todayCheckIn.waterOz) : 0}">0</th:block><small th:text="${waterTarget != null ? '/ ' + @fmt.num(waterTarget) + ' oz' : 'oz'}">oz</small></div>
+            <div class="meter" th:if="${waterTarget != null and waterTarget > 0}"><span th:style="${@fmt.width((todayCheckIn != null and todayCheckIn.waterOz != null ? todayCheckIn.waterOz : 0) * 100 / waterTarget)}"></span></div>
+        </div>
+        <div class="score">
+            <div class="score-label">30-day sleep avg</div>
+            <div class="score-value"><th:block th:text="${avgSleep.isNaN() ? '—' : @fmt.dec(avgSleep)}">—</th:block><small th:unless="${avgSleep.isNaN()}">h</small></div>
+        </div>
+        <div class="score">
+            <div class="score-label">Check-ins</div>
+            <div class="score-value"><th:block th:text="${checkInDays}">0</th:block><small>/ 30 days</small></div>
+        </div>
+    </section>
+
+    <div class="grid split section">
+        <form class="card ledger" method="post" th:action="@{/recover}" th:object="${checkIn}" novalidate>
+            <div class="card-head">
+                <div><span class="eyebrow" th:text="${@fmt.dayTitle(day)}">Day</span><h2 th:text="${checkIn.id == null ? 'Daily check-in' : 'Update check-in'}">Daily check-in</h2></div>
+                <span class="badge badge-good" th:if="${checkIn.id != null}"><svg><use href="#i-check"/></svg>Logged</span>
+            </div>
+            <input type="hidden" th:field="*{checkInDate}">
+            <div class="form-section">
+                <h3>Sleep</h3>
+                <div class="form-grid">
+                    <div class="field"><label for="sleepHours">Hours slept</label><div class="unit-wrap"><input class="input" id="sleepHours" type="number" step="0.25" min="0" max="24" th:field="*{sleepHours}" th:errorclass="is-invalid" inputmode="decimal" placeholder="7.5"><span class="unit">h</span></div>
+                        <p class="field-error" th:if="${#fields.hasErrors('sleepHours')}" th:errors="*{sleepHours}"></p></div>
+                    <fieldset th:replace="~{fragments/ui :: rating('sleepQuality', 'Sleep quality', 'Restless', 'Deep')}"></fieldset>
+                </div>
+            </div>
+            <div class="form-section">
+                <h3>How you feel</h3>
+                <div class="form-grid">
+                    <fieldset th:replace="~{fragments/ui :: rating('energy', 'Energy', 'Drained', 'Charged')}"></fieldset>
+                    <fieldset th:replace="~{fragments/ui :: rating('mood', 'Mood', 'Low', 'Great')}"></fieldset>
+                    <fieldset th:replace="~{fragments/ui :: rating('stress', 'Stress', 'Calm', 'Very high')}"></fieldset>
+                    <fieldset th:replace="~{fragments/ui :: rating('soreness', 'Soreness', 'Fresh', 'Very sore')}"></fieldset>
+                </div>
+            </div>
+            <div class="form-section">
+                <h3>Daily activity</h3>
+                <div class="form-grid form-grid-3">
+                    <div class="field"><label for="waterOz">Water</label><div class="unit-wrap"><input class="input" id="waterOz" type="number" step="1" min="0" th:field="*{waterOz}" inputmode="numeric"><span class="unit">oz</span></div></div>
+                    <div class="field"><label for="steps">Steps</label><input class="input" id="steps" type="number" step="1" min="0" th:field="*{steps}" inputmode="numeric" placeholder="8,000"></div>
+                    <div class="field"><label for="restingHr">Resting HR</label><div class="unit-wrap"><input class="input" id="restingHr" type="number" min="25" max="150" th:field="*{restingHr}" th:errorclass="is-invalid" inputmode="numeric"><span class="unit">bpm</span></div></div>
+                    <div class="field span-all"><label for="notes">Notes</label><textarea class="input" id="notes" th:field="*{notes}" placeholder="Anything affecting recovery: travel, illness, late night, great day"></textarea></div>
+                </div>
+            </div>
+            <div class="form-actions"><button class="btn btn-primary" type="submit"><svg><use href="#i-check"/></svg>Save check-in</button></div>
+        </form>
+
+        <aside class="stack">
+            <section class="card">
+                <div class="card-head"><div><span class="eyebrow">Hydration</span><h2>Quick water</h2></div></div>
+                <div class="card-body row">
+                    <form class="inline-form" method="post" th:action="@{/recover/water}" th:each="oz : ${ {8, 16, 24, 32} }">
+                        <input type="hidden" name="ounces" th:value="${oz}"><input type="hidden" name="returnTo" th:value="${currentPath}">
+                        <button class="btn btn-sm" type="submit" th:text="|+${oz} oz|">+8 oz</button>
+                    </form>
+                    <form class="inline-form" method="post" th:action="@{/recover/water}">
+                        <input type="hidden" name="ounces" value="-8"><input type="hidden" name="returnTo" th:value="${currentPath}">
+                        <button class="btn btn-ghost btn-sm" type="submit" title="Undo 8 oz">−8</button>
+                    </form>
+                </div>
+            </section>
+            <section class="card">
+                <div class="card-head"><div><span class="eyebrow">Last 30 days</span><h2>Readiness</h2></div></div>
+                <div class="card-body"><th:block th:replace="~{fragments/ui :: chart('chart-readiness', ${readinessChart})}"></th:block></div>
+            </section>
+        </aside>
+    </div>
+
+    <div class="grid cols-3 section">
+        <section class="card"><div class="card-head"><div><span class="eyebrow">Sleep</span><h2>Hours per night</h2></div></div>
+            <div class="card-body"><th:block th:replace="~{fragments/ui :: chart('chart-sleep', ${sleepChart})}"></th:block></div></section>
+        <section class="card"><div class="card-head"><div><span class="eyebrow">Energy</span><h2>Daily rating</h2></div></div>
+            <div class="card-body"><th:block th:replace="~{fragments/ui :: chart('chart-energy', ${energyChart})}"></th:block></div></section>
+        <section class="card"><div class="card-head"><div><span class="eyebrow">Hydration</span><h2>Water per day</h2></div></div>
+            <div class="card-body"><th:block th:replace="~{fragments/ui :: chart('chart-water', ${waterChart})}"></th:block></div></section>
+    </div>
+
+    <section class="card ledger section" th:unless="${history.isEmpty()}">
+        <div class="card-head"><div><span class="eyebrow">History</span><h2>Recent check-ins</h2></div><a class="btn btn-sm" href="/export/checkins.csv"><svg><use href="#i-download"/></svg>CSV</a></div>
+        <div class="table-wrap">
+            <table class="table">
+                <thead><tr><th data-sort="text">Date</th><th data-sort="num" class="num">Readiness</th><th data-sort="num" class="num">Sleep</th><th class="num">Quality</th><th class="num">Energy</th><th class="num">Mood</th><th class="num">Stress</th><th class="num">Soreness</th><th class="num">Water</th><th class="num">Steps</th></tr></thead>
+                <tbody>
+                <tr th:each="c : ${history}">
+                    <td th:attr="data-value=${c.checkInDate}"><a class="row-link" th:href="@{/recover(date=${c.checkInDate})}" th:text="${@fmt.shortDate(c.checkInDate)}">date</a></td>
+                    <td class="num strong" th:text="${c.readinessScore() ?: '—'}">—</td>
+                    <td class="num" th:text="${c.sleepHours != null ? @fmt.dec(c.sleepHours) + ' h' : '—'}">—</td>
+                    <td class="num" th:text="${c.sleepQuality ?: '—'}">—</td>
+                    <td class="num" th:text="${c.energy ?: '—'}">—</td>
+                    <td class="num" th:text="${c.mood ?: '—'}">—</td>
+                    <td class="num" th:text="${c.stress ?: '—'}">—</td>
+                    <td class="num" th:text="${c.soreness ?: '—'}">—</td>
+                    <td class="num" th:text="${c.waterOz != null ? @fmt.num(c.waterOz) + ' oz' : '—'}">—</td>
+                    <td class="num" th:text="${c.steps != null ? @fmt.num(c.steps) : '—'}">—</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</th:block>
+</body>
+</html>

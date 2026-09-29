@@ -56,13 +56,13 @@ class SecurityAndOwnershipTests {
 
     @Test
     void postsWithoutCsrfTokenAreRejected() throws Exception {
-        mvc.perform(post("/Post/Custom/Meal").with(as(alice)).param("itemName", "x"))
+        mvc.perform(post("/fuel").with(as(alice)).param("itemName", "x"))
                 .andExpect(status().isForbidden());
     }
 
     @Test
     void submittedIdCannotOverwriteAnotherMembersMeal() throws Exception {
-        mvc.perform(post("/Post/Custom/Meal").with(as(alice)).with(csrf())
+        mvc.perform(post("/fuel").with(as(alice)).with(csrf())
                         .param("id", bobsMeal.getId().toString())
                         .param("itemName", "Hijacked").param("calories", "1"))
                 .andExpect(status().is3xxRedirection());
@@ -75,7 +75,7 @@ class SecurityAndOwnershipTests {
 
     @Test
     void bulkEditIgnoresRowsOwnedBySomeoneElse() throws Exception {
-        mvc.perform(post("/edit/nutrition/information").with(as(alice)).with(csrf())
+        mvc.perform(post("/fuel/ledger").with(as(alice)).with(csrf())
                         .param("calorieInformationList[0].id", bobsMeal.getId().toString())
                         .param("calorieInformationList[0].itemName", "Hijacked"))
                 .andExpect(status().is3xxRedirection());
@@ -84,7 +84,7 @@ class SecurityAndOwnershipTests {
 
     @Test
     void cannotDeleteAnotherMembersMeal() throws Exception {
-        mvc.perform(post("/nutrition/{id}/delete", bobsMeal.getId()).with(as(alice)).with(csrf()))
+        mvc.perform(post("/fuel/{id}/delete", bobsMeal.getId()).with(as(alice)).with(csrf()))
                 .andExpect(status().isNotFound());
         assertThat(entries.existsById(bobsMeal.getId())).isTrue();
     }
@@ -117,7 +117,7 @@ class SecurityAndOwnershipTests {
         meal.setDate(LocalDate.of(2026, 1, 6));
         nutrition.logMeal(alice.getId(), meal);
 
-        String csv = mvc.perform(get("/download/nutrition").with(as(alice)))
+        String csv = mvc.perform(get("/export/nutrition.csv").with(as(alice)))
                 .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
         assertThat(csv).contains("\"'=HYPERLINK(\"\"x\"\"), salmon\"").doesNotContain("Bob's oats");
     }

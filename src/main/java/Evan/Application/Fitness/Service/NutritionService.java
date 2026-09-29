@@ -9,9 +9,8 @@ import Evan.Application.Fitness.Web.NotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.time.LocalDate;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -68,6 +67,68 @@ public class NutritionService {
         return updated;
     }
 
+    public CalorieInformation entry(Long userId, Long entryId) {
+        return entries.findByIdAndUserId(entryId, userId).orElseThrow(() -> new NotFoundException("Meal"));
+    }
+
+    @Transactional
+    public void updateEntry(Long userId, Long entryId, CalorieInformation values) {
+        copyEditableFields(values, entry(userId, entryId));
+    }
+
+    /** Copy a past entry onto today (the most common way people log repeat meals). */
+    @Transactional
+    public CalorieInformation relog(Long userId, Long entryId, LocalDate date) {
+        CalorieInformation copy = new CalorieInformation();
+        copyEditableFields(entry(userId, entryId), copy);
+        copy.setDate(date == null ? todayService.today(userId) : date);
+        copy.setUser(users.getReferenceById(userId));
+        return entries.save(copy);
+    }
+
+    public List<CalorieInformation> entriesOn(Long userId, LocalDate day) {
+        return entries.findAllByUserIdAndDateOrderByIdAsc(userId, day);
+    }
+
+    public List<CalorieInformation> between(Long userId, LocalDate from, LocalDate to) {
+        return entries.findAllByUserIdAndDateBetweenOrderByDateAscIdAsc(userId, from, to);
+    }
+
+    /** Most recently logged distinct foods, newest first: one-click re-log candidates. */
+    public List<CalorieInformation> recentFoods(Long userId, int limit) {
+        Map<String, CalorieInformation> distinct = new LinkedHashMap<>();
+        for (CalorieInformation c : entries.findAllByUserIdOrderByDateDescIdDesc(userId)) {
+            if (c.getItemName() != null) {
+                distinct.putIfAbsent(c.getItemName().trim().toLowerCase(Locale.ROOT), c);
+            }
+            if (distinct.size() >= limit) {
+                break;
+            }
+        }
+        return new ArrayList<>(distinct.values());
+    }
+
+    public DayTotals totals(List<CalorieInformation> dayEntries) {
+        return new DayTotals(
+                dayEntries.stream().mapToDouble(CalorieInformation::getCalories).sum(),
+                dayEntries.stream().mapToDouble(CalorieInformation::getProteins).sum(),
+                dayEntries.stream().mapToDouble(CalorieInformation::getCarbohydrates).sum(),
+                dayEntries.stream().mapToDouble(CalorieInformation::getFats).sum(),
+                dayEntries.stream().mapToDouble(CalorieInformation::getFiber).sum(),
+                dayEntries.stream().mapToDouble(CalorieInformation::getSodium).sum(),
+                dayEntries.stream().mapToDouble(CalorieInformation::getSugars).sum(),
+                dayEntries.size());
+    }
+
+    public record DayTotals(double calories, double protein, double carbs, double fat, double fiber, double sodium,
+                            double sugars, int entries) {
+        /** Share of energy from each macro (protein, carbs, fat), 0-100. */
+        public double[] macroSplit() {
+            double p = protein * 4, c = carbs * 4, f = fat * 9, total = p + c + f;
+            return total == 0 ? new double[]{0, 0, 0} : new double[]{p / total * 100, c / total * 100, f / total * 100};
+        }
+    }
+
     @Transactional
     public void deleteEntry(Long userId, Long entryId) {
         entries.delete(entries.findByIdAndUserId(entryId, userId)
@@ -91,6 +152,8 @@ public class NutritionService {
         current.setDailyProtein(values.getDailyProtein());
         current.setDailyFat(values.getDailyFat());
         current.setDailyCarbohydrates(values.getDailyCarbohydrates());
+        current.setDailyFiber(values.getDailyFiber());
+        current.setDailyWaterOz(values.getDailyWaterOz());
         targets.save(current);
     }
 

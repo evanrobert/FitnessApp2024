@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: page(title='Nutrition targets', active='fuel', content=~{::content})}">
+<body>
+<th:block th:fragment="content">
+    <header class="page-head">
+        <div>
+            <nav class="breadcrumb"><a href="/fuel">Nutrition</a><span>/</span><span>Targets</span></nav>
+            <h1 class="display">Daily targets</h1>
+            <p class="lede">The numbers your nutrition, hydration and adherence scores are measured against.</p>
+        </div>
+    </header>
+
+    <div class="grid split">
+        <form class="card ledger" method="post" th:action="@{/fuel/targets}" th:object="${userMacroInformation}" id="targets-form" novalidate>
+            <div class="form-section">
+                <h3>Energy &amp; macros</h3>
+                <div class="form-grid">
+                    <div class="field"><label for="dailyCalories">Calories</label><div class="unit-wrap"><input class="input" id="dailyCalories" type="number" min="0" step="10" th:field="*{dailyCalories}" th:errorclass="is-invalid"><span class="unit">kcal</span></div></div>
+                    <div class="field"><label for="dailyProtein">Protein</label><div class="unit-wrap"><input class="input" id="dailyProtein" type="number" min="0" step="1" th:field="*{dailyProtein}" th:errorclass="is-invalid"><span class="unit">g</span></div></div>
+                    <div class="field"><label for="dailyCarbohydrates">Carbs</label><div class="unit-wrap"><input class="input" id="dailyCarbohydrates" type="number" min="0" step="1" th:field="*{dailyCarbohydrates}" th:errorclass="is-invalid"><span class="unit">g</span></div></div>
+                    <div class="field"><label for="dailyFat">Fat</label><div class="unit-wrap"><input class="input" id="dailyFat" type="number" min="0" step="1" th:field="*{dailyFat}" th:errorclass="is-invalid"><span class="unit">g</span></div></div>
+                </div>
+                <p class="field-error mt-1" th:if="${#fields.hasErrors('*')}">Targets must be between zero and a realistic maximum.</p>
+            </div>
+            <div class="form-section">
+                <h3>Fiber &amp; hydration</h3>
+                <div class="form-grid">
+                    <div class="field"><label for="dailyFiber">Fiber</label><div class="unit-wrap"><input class="input" id="dailyFiber" type="number" min="0" step="1" th:field="*{dailyFiber}" placeholder="30"><span class="unit">g</span></div></div>
+                    <div class="field"><label for="dailyWaterOz">Water</label><div class="unit-wrap"><input class="input" id="dailyWaterOz" type="number" min="0" step="4" th:field="*{dailyWaterOz}" placeholder="96"><span class="unit">oz</span></div></div>
+                </div>
+            </div>
+            <div class="form-actions"><a class="btn btn-ghost spacer" href="/fuel">Cancel</a><button class="btn btn-primary" type="submit">Save targets</button></div>
+        </form>
+
+        <aside class="card">
+            <div class="card-head"><div><span class="eyebrow">Suggested from your profile</span><h2>Starting point</h2></div></div>
+            <div class="card-body" th:unless="${estimate.available()}">
+                <p>To suggest targets we need <strong th:text="${estimate.missingText().orElse('')}">details</strong>.</p>
+                <a class="btn btn-dark mt-2" href="/profile">Complete profile</a>
+            </div>
+            <th:block th:if="${estimate.available()}">
+                <div class="card-body">
+                    <dl class="kv">
+                        <dt>Resting burn (BMR)</dt><dd th:text="|${@fmt.num(estimate.bmr())} kcal|">0</dd>
+                        <dt>Maintenance</dt><dd th:text="|${@fmt.num(estimate.maintenance())} kcal|">0</dd>
+                        <dt>Goal</dt><dd th:text="${estimate.goalLabel()}">goal</dd>
+                    </dl>
+                    <div class="scoreboard mt-2" style="grid-template-columns: repeat(2, 1fr); padding: 16px 18px 20px">
+                        <div class="score"><div class="score-label">Calories</div><div class="score-value" style="font-size:28px" th:text="${@fmt.num(estimate.calories())}">0</div></div>
+                        <div class="score"><div class="score-label">Protein</div><div class="score-value" style="font-size:28px"><th:block th:text="${estimate.protein()}">0</th:block><small>g</small></div></div>
+                        <div class="score"><div class="score-label">Carbs</div><div class="score-value" style="font-size:28px"><th:block th:text="${estimate.carbs()}">0</th:block><small>g</small></div></div>
+                        <div class="score"><div class="score-label">Fat</div><div class="score-value" style="font-size:28px"><th:block th:text="${estimate.fat()}">0</th:block><small>g</small></div></div>
+                    </div>
+                    <p class="small muted mt-2">Mifflin–St Jeor estimate × activity level, adjusted for your goal. It's a starting point: adjust after two weeks of real weigh-ins.</p>
+                </div>
+                <form class="form-actions" method="post" th:action="@{/fuel/targets}">
+                    <input type="hidden" name="dailyCalories" th:value="${estimate.calories()}">
+                    <input type="hidden" name="dailyProtein" th:value="${estimate.protein()}">
+                    <input type="hidden" name="dailyCarbohydrates" th:value="${estimate.carbs()}">
+                    <input type="hidden" name="dailyFat" th:value="${estimate.fat()}">
+                    <input type="hidden" name="dailyFiber" th:value="${userMacroInformation.dailyFiber != null ? userMacroInformation.dailyFiber : estimate.fiber()}">
+                    <input type="hidden" name="dailyWaterOz" th:value="${userMacroInformation.dailyWaterOz != null ? userMacroInformation.dailyWaterOz : 96}">
+                    <button class="btn btn-primary" type="submit">Use these targets</button>
+                </form>
+            </th:block>
+        </aside>
+    </div>
+</th:block>
+</body>
+</html>

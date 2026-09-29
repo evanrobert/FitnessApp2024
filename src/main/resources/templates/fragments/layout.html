@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<!--/* App shell. Pages use:
+     <html th:replace="~{fragments/layout :: page(title='Train', active='train', content=~{::content})}">
+     and put their body in <th:block th:fragment="content">. */-->
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:fragment="page(title, active, content)" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0b0b0b">
+    <title th:text="|${title} · ${brandName}|">Evan Fitness</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="preload" href="/fonts/archivo-variable.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="/css/app.css">
+    <script src="/js/charts.js" defer></script>
+    <script src="/js/app.js" defer></script>
+</head>
+<body class="app">
+<svg th:replace="~{fragments/icons :: sprite}"></svg>
+<a class="sr-only" href="#main">Skip to content</a>
+
+<header class="topbar">
+    <button class="icon-btn" type="button" data-nav-toggle aria-label="Open navigation"><svg><use href="#i-menu"/></svg></button>
+    <a class="brand" href="/home">
+        <span class="brand-mark" aria-hidden="true" th:text="${brandInitials}">EF</span>
+        <span class="brand-name" th:text="${brandName}">Evan Fitness</span>
+    </a>
+    <th:block th:replace="~{fragments/quicklog :: quickLog('icon')}"></th:block>
+</header>
+
+<aside class="rail" id="rail" aria-label="Main navigation">
+    <a class="brand" href="/home">
+        <span class="brand-mark" aria-hidden="true" th:text="${brandInitials}">EF</span>
+        <span class="brand-name"><th:block th:text="${brandName}">Evan Fitness</th:block><small>Training ledger</small></span>
+    </a>
+
+    <th:block th:replace="~{fragments/quicklog :: quickLog('full')}"></th:block>
+
+    <nav>
+        <div class="nav-group">
+            <a class="nav-link" th:classappend="${active == 'today'} ? 'is-active'" href="/home" th:attr="aria-current=${active == 'today'} ? 'page'"><svg><use href="#i-today"/></svg>Today</a>
+            <a class="nav-link" th:classappend="${active == 'insights'} ? 'is-active'" href="/insights"><svg><use href="#i-insights"/></svg>Insights</a>
+            <a class="nav-link" th:classappend="${active == 'timeline'} ? 'is-active'" href="/timeline"><svg><use href="#i-timeline"/></svg>Timeline</a>
+        </div>
+        <div class="nav-group">
+            <div class="nav-label">Log</div>
+            <a class="nav-link" th:classappend="${active == 'train'} ? 'is-active'" href="/train"><svg><use href="#i-train"/></svg>Training</a>
+            <a class="nav-link" th:classappend="${active == 'fuel'} ? 'is-active'" href="/fuel"><svg><use href="#i-fuel"/></svg>Nutrition</a>
+            <a class="nav-link" th:classappend="${active == 'recover'} ? 'is-active'" href="/recover"><svg><use href="#i-recover"/></svg>Recovery</a>
+            <a class="nav-link" th:classappend="${active == 'body'} ? 'is-active'" href="/body"><svg><use href="#i-scale"/></svg>Body</a>
+            <a class="nav-link" th:classappend="${active == 'metrics'} ? 'is-active'" href="/metrics"><svg><use href="#i-metrics"/></svg>Custom metrics</a>
+        </div>
+        <div class="nav-group">
+            <div class="nav-label">Progress</div>
+            <a class="nav-link" th:classappend="${active == 'goals'} ? 'is-active'" href="/goals"><svg><use href="#i-goals"/></svg>Goals</a>
+            <a class="nav-link" th:classappend="${active == 'records'} ? 'is-active'" href="/records"><svg><use href="#i-trophy"/></svg>Records</a>
+            <a class="nav-link" th:classappend="${active == 'exercises'} ? 'is-active'" href="/exercises"><svg><use href="#i-train"/></svg>Exercises</a>
+        </div>
+    </nav>
+
+    <div class="rail-footer">
+        <a class="nav-link" th:classappend="${active == 'profile'} ? 'is-active'" href="/profile"><svg><use href="#i-user"/></svg>Profile &amp; membership</a>
+        <a class="nav-link" th:classappend="${active == 'export'} ? 'is-active'" href="/export"><svg><use href="#i-download"/></svg>Export data</a>
+        <form th:action="@{/logout}" method="post">
+            <button class="nav-link" type="submit"><svg><use href="#i-logout"/></svg>Log out</button>
+        </form>
+        <div class="rail-user" sec:authorize="isAuthenticated()">
+            <span class="avatar" th:text="${#strings.substring(#authentication.name, 0, 1)}">A</span>
+            <span th:text="${#authentication.name}">member</span>
+        </div>
+    </div>
+</aside>
+
+<main class="content" id="main">
+    <div class="content-inner">
+        <div class="flash flash-success" th:if="${flashSuccess}" role="status">
+            <svg><use href="#i-check"/></svg><span th:text="${flashSuccess}"></span>
+            <button class="flash-close" type="button" data-dismiss aria-label="Dismiss">&times;</button>
+        </div>
+        <div class="flash flash-error" th:if="${flashError}" role="alert">
+            <svg><use href="#i-alert"/></svg><span th:text="${flashError}"></span>
+            <button class="flash-close" type="button" data-dismiss aria-label="Dismiss">&times;</button>
+        </div>
+        <th:block th:replace="${content}"></th:block>
+    </div>
+</main>
+
+<nav class="tabbar" aria-label="Primary">
+    <a href="/home" th:classappend="${active == 'today'} ? 'is-active'"><svg><use href="#i-today"/></svg>Today</a>
+    <a href="/train" th:classappend="${active == 'train'} ? 'is-active'"><svg><use href="#i-train"/></svg>Train</a>
+    <a href="/fuel" th:classappend="${active == 'fuel'} ? 'is-active'"><svg><use href="#i-fuel"/></svg>Fuel</a>
+    <a href="/recover" th:classappend="${active == 'recover'} ? 'is-active'"><svg><use href="#i-recover"/></svg>Recover</a>
+    <button type="button" data-nav-toggle><svg><use href="#i-more"/></svg>More</button>
+</nav>
+</body>
+</html>

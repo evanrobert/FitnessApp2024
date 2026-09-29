@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: page(title='Profile', active='profile', content=~{::content})}">
+<body>
+<th:block th:fragment="content">
+    <header class="page-head">
+        <div>
+            <span class="eyebrow">Member</span>
+            <h1 class="display" th:text="${profile.name ?: 'Your profile'}">Profile</h1>
+            <p class="lede">These details personalize your calorie estimate, weekly training target, "today" and your gym value.</p>
+        </div>
+    </header>
+
+    <div class="grid split">
+        <form class="card ledger" method="post" th:action="@{/profile}" th:object="${profile}" novalidate>
+            <div class="flash flash-error" th:if="${#fields.hasErrors('*')}" style="margin:16px 20px 0"><svg><use href="#i-alert"/></svg><span>Check the highlighted fields.</span></div>
+            <div class="form-section">
+                <h3>About you</h3>
+                <div class="form-grid">
+                    <div class="field"><label for="name">Name</label><input class="input" id="name" th:field="*{name}" th:errorclass="is-invalid"><p class="field-error" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></p></div>
+                    <div class="field"><label for="birthYear">Birth year</label><input class="input" id="birthYear" type="number" min="1900" max="2100" th:field="*{birthYear}" th:errorclass="is-invalid" placeholder="1990">
+                        <p class="hint" th:if="${age}" th:text="|Age ${age}|"></p><p class="field-error" th:if="${#fields.hasErrors('birthYear')}" th:errors="*{birthYear}"></p></div>
+                    <div class="field"><label for="heightIn">Height</label><div class="unit-wrap"><input class="input" id="heightIn" type="number" step="0.5" th:field="*{heightIn}" th:errorclass="is-invalid" placeholder="70"><span class="unit">in</span></div>
+                        <p class="field-error" th:if="${#fields.hasErrors('heightIn')}" th:errors="*{heightIn}"></p></div>
+                    <div class="field"><label for="sex">Sex <span class="muted">(for energy estimates)</span></label>
+                        <select class="input" id="sex" th:field="*{sex}"><option value="">—</option><option th:each="s : ${sexes}" th:value="${s}" th:text="${s.label}"></option></select></div>
+                    <div class="field span-all"><label for="bio">About</label><textarea class="input" id="bio" th:field="*{bio}" placeholder="Sport, history, what you're working toward"></textarea></div>
+                </div>
+            </div>
+            <div class="form-section">
+                <h3>Training</h3>
+                <div class="form-grid">
+                    <div class="field"><label for="primaryGoal">Primary goal</label>
+                        <select class="input" id="primaryGoal" th:field="*{primaryGoal}"><option value="">—</option><option th:each="g : ${goals}" th:value="${g}" th:text="${g.label}"></option></select></div>
+                    <div class="field"><label for="experienceLevel">Experience</label>
+                        <select class="input" id="experienceLevel" th:field="*{experienceLevel}"><option value="">—</option><option th:each="e : ${experienceLevels}" th:value="${e}" th:text="${e.label}"></option></select></div>
+                    <div class="field"><label for="activityLevel">Activity outside training</label>
+                        <select class="input" id="activityLevel" th:field="*{activityLevel}"><option value="">—</option><option th:each="a : ${activityLevels}" th:value="${a}" th:text="${a.label}"></option></select></div>
+                    <div class="field"><label for="weeklyWorkoutTarget">Sessions per week target</label><input class="input" id="weeklyWorkoutTarget" type="number" min="0" max="14" th:field="*{weeklyWorkoutTarget}" placeholder="3"></div>
+                    <div class="field span-all"><label for="timeZone">Time zone</label>
+                        <select class="input" id="timeZone" th:field="*{timeZone}"><option value="">App default</option><option th:each="z : ${zones}" th:value="${z}" th:text="${z}"></option></select>
+                        <p class="hint">Decides which day a late-night meal or check-in belongs to.</p></div>
+                </div>
+            </div>
+            <div class="form-section">
+                <h3>Gym membership</h3>
+                <div class="form-grid">
+                    <div class="field"><label for="gymName">Gym</label><input class="input" id="gymName" th:field="*{gymName}" placeholder="Where you train"></div>
+                    <div class="field"><label for="membershipPlan">Plan</label><input class="input" id="membershipPlan" th:field="*{membershipPlan}" placeholder="e.g. Monthly, Annual, Class pack"></div>
+                    <div class="field"><label for="membershipStartedOn">Member since</label><input class="input" id="membershipStartedOn" type="date" th:field="*{membershipStartedOn}"></div>
+                    <div class="field"><label for="membershipRenewsOn">Renews on</label><input class="input" id="membershipRenewsOn" type="date" th:field="*{membershipRenewsOn}"></div>
+                    <div class="field"><label for="membershipMonthlyCost">Monthly cost</label><div class="unit-wrap"><input class="input" id="membershipMonthlyCost" type="number" step="0.01" min="0" th:field="*{membershipMonthlyCost}" th:errorclass="is-invalid"><span class="unit">$/mo</span></div>
+                        <p class="hint">Sessions logged at "Gym" count as visits, so you can see cost per visit.</p></div>
+                </div>
+            </div>
+            <div class="form-actions"><button class="btn btn-primary" type="submit">Save profile</button></div>
+        </form>
+
+        <aside class="stack">
+            <section class="scoreboard" style="grid-template-columns: 1fr 1fr">
+                <div class="score"><div class="score-label">Gym visits · 30 days</div><div class="score-value" th:text="${gymVisits30}">0</div></div>
+                <div class="score"><div class="score-label">Cost per visit</div><div class="score-value" th:text="${costPerVisit != null ? '$' + costPerVisit : '—'}">—</div>
+                    <div class="score-sub" th:if="${costPerVisit == null}">add a monthly cost</div></div>
+                <div class="score" th:if="${profile.membershipRenewsOn}" style="grid-column: span 2"><div class="score-label">Renewal</div>
+                    <div class="score-value" style="font-size:24px" th:text="${@fmt.fullDate(profile.membershipRenewsOn)}">date</div>
+                    <div class="score-sub" th:text="${@fmt.relative(profile.membershipRenewsOn, today)}">in</div></div>
+            </section>
+
+            <section class="card" id="limitations">
+                <div class="card-head"><div><span class="eyebrow">Train around it</span><h2>Injuries &amp; limitations</h2></div></div>
+                <div class="card-body small muted" th:if="${limitations.isEmpty()}">None recorded. Add one and it's shown while you log workouts.</div>
+                <ul class="list">
+                    <li th:each="l : ${limitations}">
+                        <div>
+                            <div class="title"><th:block th:text="${l.bodyArea}"></th:block> — <th:block th:text="${l.title}"></th:block></div>
+                            <div class="meta">
+                                <span class="badge" th:classappend="${l.status.name() == 'ACTIVE'} ? 'badge-warn' : (${l.status.name() == 'RESOLVED'} ? 'badge-good' : '')" th:text="${l.status.label}">Active</span>
+                                <th:block th:if="${l.severity}" th:text="| severity ${l.severity}/5|"></th:block>
+                                <th:block th:text="| · since ${@fmt.shortDate(l.startedOn)}|"></th:block>
+                                <th:block th:if="${l.resolvedOn}" th:text="| · resolved ${@fmt.shortDate(l.resolvedOn)}|"></th:block>
+                            </div>
+                            <div class="meta" th:if="${l.notes}" th:text="${l.notes}"></div>
+                        </div>
+                        <div class="row" style="gap:4px;flex-wrap:nowrap">
+                            <form class="inline-form" method="post" th:action="@{/profile/limitations/{id}/status(id=${l.id})}" th:unless="${l.status.name() == 'RESOLVED'}">
+                                <input type="hidden" name="status" value="RESOLVED"><button class="btn btn-xs" type="submit">Resolved</button></form>
+                            <form class="inline-form" method="post" th:action="@{/profile/limitations/{id}/delete(id=${l.id})}">
+                                <button class="icon-btn" type="submit" aria-label="Remove" data-confirm="Remove this record?"><svg><use href="#i-trash"/></svg></button></form>
+                        </div>
+                    </li>
+                </ul>
+                <details class="card-foot" th:open="${openLimitation}">
+                    <summary class="strong" style="cursor:pointer">Add a limitation</summary>
+                    <form class="stack mt-2" style="gap:12px" method="post" th:action="@{/profile/limitations}" th:object="${limitation}" novalidate>
+                        <div class="form-grid" style="gap:10px">
+                            <div class="field"><label for="bodyArea">Area</label><input class="input" id="bodyArea" th:field="*{bodyArea}" th:errorclass="is-invalid" placeholder="Left knee"></div>
+                            <div class="field"><label for="ltitle">What</label><input class="input" id="ltitle" th:field="*{title}" th:errorclass="is-invalid" placeholder="Pain on deep flexion"></div>
+                            <div class="field"><label for="severity">Severity 1–5</label><input class="input" id="severity" type="number" min="1" max="5" th:field="*{severity}"></div>
+                            <div class="field"><label for="startedOn">Since</label><input class="input" id="startedOn" type="date" th:field="*{startedOn}"></div>
+                            <div class="field span-all"><label for="lnotes">Avoid / modify</label><input class="input" id="lnotes" th:field="*{notes}" placeholder="e.g. box squat to parallel instead"></div>
+                        </div>
+                        <p class="hint">Keep it practical — what to avoid in training. Medical details don't belong here.</p>
+                        <button class="btn btn-dark" type="submit">Add limitation</button>
+                    </form>
+                </details>
+            </section>
+
+            <section class="card" id="account">
+                <div class="card-head"><div><span class="eyebrow">Your data</span><h2>Account</h2></div></div>
+                <div class="card-body stack" style="gap:12px">
+                    <a class="btn" href="/export"><svg><use href="#i-download"/></svg>Export all data</a>
+                    <details>
+                        <summary class="strong text-bad" style="cursor:pointer">Delete account</summary>
+                        <form class="stack mt-2" style="gap:10px" method="post" th:action="@{/profile/delete-account}">
+                            <p class="small">Permanently deletes your account and everything you've logged. Export first if you want a copy.</p>
+                            <div class="field"><label for="confirm">Type DELETE</label><input class="input" id="confirm" name="confirm" autocomplete="off"></div>
+                            <div class="field"><label for="password">Current password</label><input class="input" id="password" name="password" type="password" autocomplete="current-password"></div>
+                            <button class="btn btn-danger" type="submit" data-confirm="This permanently deletes your account and all data. Continue?">Delete my account</button>
+                        </form>
+                    </details>
+                </div>
+            </section>
+        </aside>
+    </div>
+</th:block>
+</body>
+</html>

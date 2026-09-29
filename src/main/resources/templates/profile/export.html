@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: page(title='Export', active='export', content=~{::content})}">
+<body>
+<th:block th:fragment="content">
+    <header class="page-head">
+        <div>
+            <span class="eyebrow">Your data</span>
+            <h1 class="display">Export</h1>
+            <p class="lede">Everything you log is yours. Each dataset downloads as a spreadsheet-safe CSV, ready for Excel, Sheets or your own analysis.</p>
+        </div>
+    </header>
+    <section class="card ledger">
+        <ul class="list">
+            <li th:each="d : ${counts}">
+                <div><div class="title" th:text="${datasets[d.key]}">Dataset</div><div class="meta" th:text="|${d.value} rows · ${d.key}.csv|">rows</div></div>
+                <a class="btn btn-sm" th:classappend="${d.value == 0} ? 'btn-ghost'" th:href="@{/export/{k}.csv(k=${d.key})}"><svg><use href="#i-download"/></svg>Download</a>
+            </li>
+        </ul>
+    </section>
+</th:block>
+</body>
+</html>

@@ -91,6 +91,12 @@ public class WorkoutSession {
         return cardio.stream().mapToDouble(CardioEntry::getDurationMin).sum();
     }
 
+    /** Distinct exercise names in the order performed. */
+    public String exerciseSummary() {
+        return sets.stream().sorted(java.util.Comparator.comparingInt(ExerciseSet::getSortOrder))
+                .map(s -> s.getExercise().getName()).distinct().collect(java.util.stream.Collectors.joining(" · "));
+    }
+
     public String displayTitle() {
         if (title != null && !title.isBlank()) {
             return title;
