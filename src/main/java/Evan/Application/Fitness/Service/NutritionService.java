@@ -38,6 +38,9 @@ public class NutritionService {
     public CalorieInformation logMeal(Long userId, CalorieInformation values) {
         CalorieInformation entry = new CalorieInformation();
         copyEditableFields(values, entry);
+        if (entry.getCalories() == 0 && entry.macroCalories() > 0) {
+            entry.setCalories((double) Math.round(entry.macroCalories())); // macros given, calories left blank
+        }
         if (entry.getDate() == null) {
             entry.setDate(todayService.today(userId));
         }
@@ -162,17 +165,21 @@ public class NutritionService {
         return entries.sumCaloriesForDay(userId, todayService.today(userId));
     }
 
+    private static double nz(Double v) {
+        return v == null ? 0 : v;
+    }
+
     private static void copyEditableFields(CalorieInformation from, CalorieInformation to) {
         to.setItemName(from.getItemName() == null ? null : from.getItemName().trim());
         to.setDate(from.getDate() != null ? from.getDate() : to.getDate());
         to.setMealType(from.getMealType());
-        to.setCalories(from.getCalories());
-        to.setProteins(from.getProteins());
-        to.setFats(from.getFats());
-        to.setCarbohydrates(from.getCarbohydrates());
-        to.setFiber(from.getFiber());
-        to.setSugars(from.getSugars());
-        to.setSodium(from.getSodium());
-        to.setCholesterol(from.getCholesterol());
+        to.setCalories(nz(from.getCalories()));
+        to.setProteins(nz(from.getProteins()));
+        to.setFats(nz(from.getFats()));
+        to.setCarbohydrates(nz(from.getCarbohydrates()));
+        to.setFiber(nz(from.getFiber()));
+        to.setSugars(nz(from.getSugars()));
+        to.setSodium(nz(from.getSodium()));
+        to.setCholesterol(nz(from.getCholesterol()));
     }
 }

@@ -11,7 +11,7 @@
         <div class="page-actions"><a class="btn btn-primary" href="/goals/new"><svg><use href="#i-plus"/></svg>New goal</a></div>
     </header>
 
-    <div th:if="${progress.isEmpty()}" th:replace="~{fragments/ui :: empty('goals', 'No goals yet', 'Set a target weight, a lift you want to hit, a weekly training habit or a custom metric. Progress and pace update automatically.', '/goals/new', 'Set your first goal')}"></div>
+    <th:block th:if="${progress.isEmpty()}"><div th:replace="~{fragments/ui :: empty('goals', 'No goals yet', 'Set a target weight, a lift you want to hit, a weekly training habit or a custom metric. Progress and pace update automatically.', '/goals/new', 'Set your first goal')}"></div></th:block>
 
     <div class="grid cols-2">
         <article class="card" th:each="p : ${progress}" th:classappend="${p.goal().status.name() == 'ACTIVE'} ? 'ledger'" th:style="${p.goal().status.name() == 'ARCHIVED'} ? 'opacity:.7'">

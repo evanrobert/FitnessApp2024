@@ -79,8 +79,8 @@
         </form>
 
         <div th:if="${sessions.isEmpty()}" class="card-body">
-            <div th:if="${filter.active}" th:replace="~{fragments/ui :: empty('train', 'No sessions match', 'Try a wider date range or clear the filters.', '/train', 'Clear filters')}"></div>
-            <div th:unless="${filter.active}" th:replace="~{fragments/ui :: empty('train', 'Your training ledger is empty', 'Log a session with sets, reps and load. Records, volume and trends build from there.', '/train/new', 'Log your first workout')}"></div>
+            <th:block th:if="${filter.active}"><div th:replace="~{fragments/ui :: empty('train', 'No sessions match', 'Try a wider date range or clear the filters.', '/train', 'Clear filters')}"></div></th:block>
+            <th:block th:unless="${filter.active}"><div th:replace="~{fragments/ui :: empty('train', 'Your training ledger is empty', 'Log a session with sets, reps and load. Records, volume and trends build from there.', '/train/new', 'Log your first workout')}"></div></th:block>
         </div>
 
         <a class="session-card" th:each="s : ${sessions}" th:href="@{/train/{id}(id=${s.id})}">

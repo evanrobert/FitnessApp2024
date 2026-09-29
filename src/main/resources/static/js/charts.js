@@ -49,6 +49,16 @@
         return MONTHS[d.getMonth()] + " " + d.getDate();
     }
 
+    /** Every Nth label plus the last one; drops the regular label that would collide with it. */
+    function labelIndexes(n, every) {
+        const shown = new Set();
+        for (let i = 0; i < n; i += every) shown.add(i);
+        const last = n - 1, prev = Math.floor(last / every) * every;
+        if (last !== prev && last - prev < every / 2 && prev !== 0) shown.delete(prev);
+        shown.add(last);
+        return shown;
+    }
+
     /** Round axis maximum/minimum to clean numbers (0 / 50 / 100...). */
     function niceScale(min, max, ticks) {
         if (min === max) { min = min - 1; max = max + 1; }
@@ -178,11 +188,12 @@
         const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": spec.title || "Trend chart" });
         for (let v = scale.min; v <= scale.max + 1e-9; v += scale.step) {
             el("line", { class: "grid-line", x1: pad.l, x2: W - pad.r, y1: y(v), y2: y(v) }, svg);
-            el("text", { class: "tick", x: pad.l - 8, y: y(v) + 4, "text-anchor": "end" }, svg).textContent = fmt(v, 0);
+            el("text", { class: "tick", x: pad.l - 8, y: y(v) + 4, "text-anchor": "end" }, svg).textContent = fmt(v, scale.step < 1 ? 1 : 0);
         }
         const every = Math.max(1, Math.ceil(labels.length / Math.max(2, Math.floor((W - pad.l - pad.r) / 70))));
+        const shown = labelIndexes(labels.length, every);
         labels.forEach((l, i) => {
-            if (i % every === 0 || i === labels.length - 1) {
+            if (shown.has(i)) {
                 el("text", { class: "tick", x: x(i), y: H - 6, "text-anchor": i === 0 ? "start" : i === labels.length - 1 ? "end" : "middle" }, svg).textContent = shortDate(l);
             }
         });
@@ -282,9 +293,10 @@
         const every = Math.max(1, Math.ceil(values.length / Math.max(2, Math.floor((W - pad.l - pad.r) / 48))));
         const tip = tooltip(container);
         const unit = spec.unit ? " " + spec.unit : "";
+        const shownBars = labelIndexes(values.length, every);
         values.forEach((v, i) => {
             const cx = pad.l + band * i + band / 2;
-            if (i % every === 0 || i === values.length - 1) {
+            if (shownBars.has(i)) {
                 el("text", { class: "tick", x: cx, y: H - 6, "text-anchor": "middle" }, svg).textContent = shortDate(labels[i]);
             }
             const top = y(v || 0), base = y(0), h = Math.max(0, base - top);

@@ -16,7 +16,7 @@
         </div>
     </header>
 
-    <div th:if="${record == null}" th:replace="~{fragments/ui :: empty('trophy', 'No sets logged yet', 'Log this exercise in a workout and its records and trends appear here.', '/train/new', 'Log a workout')}"></div>
+    <th:block th:if="${record == null}"><div th:replace="~{fragments/ui :: empty('trophy', 'No sets logged yet', 'Log this exercise in a workout and its records and trends appear here.', '/train/new', 'Log a workout')}"></div></th:block>
 
     <th:block th:if="${record != null}">
         <section class="scoreboard">

@@ -41,7 +41,7 @@
 
     <section class="section">
         <div class="section-title"><h2>Exercises</h2></div>
-        <div th:if="${blocks.isEmpty() and s.cardio.isEmpty()}" th:replace="~{fragments/ui :: empty('train', 'No sets or cardio recorded', 'Edit the session to add what you did.', @{/train/{id}/edit(id=${s.id})}, 'Add sets')}"></div>
+        <th:block th:if="${blocks.isEmpty() and s.cardio.isEmpty()}"><div th:replace="~{fragments/ui :: empty('train', 'No sets or cardio recorded', 'Edit the session to add what you did.', @{/train/{id}/edit(id=${s.id})}, 'Add sets')}"></div></th:block>
         <div class="grid cols-2">
             <article class="card" th:each="b : ${blocks}">
                 <div class="card-head">

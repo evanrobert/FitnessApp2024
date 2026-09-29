@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: page(title='Timeline', active='timeline', content=~{::content})}">
+<body>
+<th:block th:fragment="content">
+    <header class="page-head">
+        <div>
+            <span class="eyebrow">Activity history</span>
+            <h1 class="display">Timeline</h1>
+            <p class="lede">Everything you've logged, day by day: sessions, PRs, meals, check-ins, weigh-ins, metrics and milestones.</p>
+        </div>
+        <nav class="segmented" aria-label="Range">
+            <a th:each="r : ${ {7, 30, 90, 365} }" th:href="@{/timeline(days=${r},type=${type})}" th:classappend="${days == r} ? 'is-active'" th:text="${r == 365 ? '1 year' : r + ' days'}">7 days</a>
+        </nav>
+    </header>
+
+    <div class="chips" style="margin-bottom:20px" aria-label="Filter by type">
+        <a class="chip" th:classappend="${type == null} ? 'is-active'" th:href="@{/timeline(days=${days})}">Everything</a>
+        <a class="chip" th:each="t : ${types}" th:classappend="${type == t} ? 'is-active'" th:href="@{/timeline(days=${days},type=${t})}"><svg style="width:15px;height:15px"><use th:href="${'#i-' + t.icon}"/></svg><th:block th:text="${t.label}">Type</th:block></a>
+    </div>
+
+    <th:block th:if="${timeline.isEmpty()}"><div th:replace="~{fragments/ui :: empty('timeline', 'Nothing in this range', 'Log a workout, meal or check-in and it shows up here. Try a longer range or a different filter.', '/train/new', 'Log a workout')}"></div></th:block>
+
+    <ol class="timeline" style="max-width: 880px">
+        <li class="timeline-day" th:each="day : ${timeline}">
+            <div class="timeline-date" th:text="${@fmt.fullDate(day.date())}">date</div>
+            <a class="timeline-item" th:each="e : ${day.events()}" th:href="${e.href()}">
+                <span class="timeline-icon" th:classappend="${e.iconClass()}"><svg><use th:href="${'#i-' + e.type().icon}"/></svg></span>
+                <span style="min-width:0"><span class="title" th:text="${e.title()}">Title</span><br><span class="meta" th:text="${e.meta()}">meta</span></span>
+                <span class="strong num nowrap" th:text="${e.value()}"></span>
+            </a>
+        </li>
+    </ol>
+</th:block>
+</body>
+</html>

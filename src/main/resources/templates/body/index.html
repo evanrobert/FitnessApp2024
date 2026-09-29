@@ -85,8 +85,10 @@
             <div class="card-body"><th:block th:replace="~{fragments/ui :: chart('chart-bodyfat', ${bodyFatChart})}"></th:block></div></section>
     </div>
 
-    <section class="card ledger section">
-        <div class="card-head"><div><span class="eyebrow">History</span><h2>All measurements</h2></div><a class="btn btn-sm" href="/export/body.csv"><svg><use href="#i-download"/></svg>CSV</a></div>
+    <section class="card ledger section" id="history">
+        <div class="card-head"><div><span class="eyebrow">History</span><h2>All measurements</h2></div>
+            <div class="row"><a class="btn btn-ghost btn-sm" th:if="${historyTotal > #lists.size(history)}" href="/body?all=true#history" th:text="|Show all ${historyTotal}|">Show all</a>
+            <a class="btn btn-sm" href="/export/body.csv"><svg><use href="#i-download"/></svg>CSV</a></div></div>
         <div class="card-body" th:if="${history.isEmpty()}"><div th:replace="~{fragments/ui :: empty('scale', 'No measurements yet', 'Weigh in above. Two or more weigh-ins draw your trend and rate of change.', null, null)}"></div></div>
         <div class="table-wrap" th:unless="${history.isEmpty()}">
             <table class="table">

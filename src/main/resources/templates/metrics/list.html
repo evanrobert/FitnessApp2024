@@ -12,7 +12,7 @@
 
     <div class="grid split">
         <div class="stack">
-            <div th:if="${summaries.isEmpty()}" th:replace="~{fragments/ui :: empty('metrics', 'Nothing custom yet', 'Start from a template on the right or define your own — mile time, max push-ups, meditation minutes.', null, null)}"></div>
+            <th:block th:if="${summaries.isEmpty()}"><div th:replace="~{fragments/ui :: empty('metrics', 'Nothing custom yet', 'Start from a template on the right or define your own — mile time, max push-ups, meditation minutes.', null, null)}"></div></th:block>
             <div class="grid cols-2" th:unless="${summaries.isEmpty()}">
                 <a class="card card-link" th:each="s : ${summaries}" th:href="@{/metrics/{id}(id=${s.metric().id})}" th:style="${s.metric().archived} ? 'opacity:.6'">
                     <div class="stat">

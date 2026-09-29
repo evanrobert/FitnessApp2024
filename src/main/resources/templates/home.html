@@ -1,144 +1,150 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fitness Dashboard</title>
-    <link rel="stylesheet" href="/css/app.css">
-</head>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: page(title='Today', active='today', content=~{::content})}">
 <body>
-<main class="app-shell">
-    <nav class="topbar" aria-label="Main navigation">
-        <a class="brand-mark" href="/home">
-            <span class="brand-icon" aria-hidden="true">EF</span>
-            Evan Fitness
-        </a>
-        <div class="nav-actions">
-            <a class="btn btn-ghost" href="/total">Summary</a>
-            <a class="btn btn-ghost" href="/view/Nutrition">Nutrition Log</a>
-            <a class="btn btn-ghost" href="/workouts">Workouts</a>
-            <a class="btn btn-primary" href="/add/custom/meal">Log Meal</a>
-            <form th:action="@{/logout}" method="post" class="inline-form"><button class="btn btn-ghost" type="submit">Log out</button></form>
-        </div>
-    </nav>
-    <p class="flash flash-success" th:if="${flashSuccess}" th:text="${flashSuccess}" role="status"></p>
-    <p class="flash flash-error" th:if="${flashError}" th:text="${flashError}" role="alert"></p>
-
-    <section class="hero home-hero">
+<th:block th:fragment="content" th:with="data=${d.data()}">
+    <header class="page-head">
         <div>
-            <p class="eyebrow">Built for the iron routine</p>
-            <h1>Track the food that fuels heavy training.</h1>
-            <p>Keep calories, macros, meal history, and training volume in one focused command center.</p>
-            <div class="action-row" style="margin-top: 22px">
-                <a class="btn btn-primary" href="/add/custom/meal">Log a meal</a>
-                <a class="btn btn-secondary" href="/workouts">Log workout</a>
-            </div>
+            <span class="eyebrow" th:text="${@fmt.dayTitle(data.today())}">Today</span>
+            <h1 class="display" th:text="${data.profile().name != null ? 'Hey, ' + #strings.arraySplit(data.profile().name, ' ')[0] : 'Today'}">Today</h1>
+            <p class="lede">
+                <th:block th:text="|${d.tasksDone()} of ${#lists.size(d.tasks())} daily basics done|">0 of 4</th:block>
+                <th:block th:if="${d.streak().current() > 1}" th:text="| · ${d.streak().current()}-day logging streak|"></th:block>
+            </p>
+        </div>
+        <div class="page-actions">
+            <a class="btn" href="/recover">Check in</a>
+            <a class="btn" href="/fuel/new">Log meal</a>
+            <a class="btn btn-primary" href="/train/new"><svg><use href="#i-plus"/></svg>Log workout</a>
+        </div>
+    </header>
+
+    <div class="flash flash-info" th:unless="${onboarded}">
+        <svg><use href="#i-info"/></svg>
+        <span>Finish setting up so targets and insights are personal to you. <a href="/onboarding">Take one minute</a>.</span>
+    </div>
+
+    <section class="scoreboard" aria-label="Today at a glance">
+        <div class="score">
+            <div class="score-label">Readiness</div>
+            <th:block th:if="${d.todayCheckIn() != null and d.todayCheckIn().readinessScore() != null}">
+                <div class="score-value"><th:block th:text="${d.todayCheckIn().readinessScore()}">0</th:block><small>/ 100</small></div>
+                <div class="meter"><span th:style="${@fmt.width(d.todayCheckIn().readinessScore())}"></span></div>
+            </th:block>
+            <th:block th:unless="${d.todayCheckIn() != null and d.todayCheckIn().readinessScore() != null}">
+                <div class="score-value">—</div><div class="score-sub"><a href="/recover" style="color:var(--blue)">Check in</a> to score it</div>
+            </th:block>
+        </div>
+        <div class="score" th:with="goal=${data.targets() != null ? data.targets().dailyCalories : 0}">
+            <div class="score-label">Calories</div>
+            <div class="score-value"><th:block th:text="${@fmt.num(d.todayTotals().calories())}">0</th:block><small th:if="${goal > 0}" th:text="|/ ${@fmt.compact(goal)}|">/ 0</small></div>
+            <div class="meter" th:if="${goal > 0}" th:classappend="${d.todayTotals().calories() > goal * 1.05} ? 'is-over'"><span th:style="${@fmt.width(d.todayTotals().calories() * 100 / goal)}"></span></div>
+            <div class="score-sub" th:if="${goal == 0}"><a href="/fuel/targets" style="color:var(--blue)">Set targets</a></div>
+        </div>
+        <div class="score" th:with="goal=${data.targets() != null ? data.targets().dailyProtein : 0}">
+            <div class="score-label">Protein</div>
+            <div class="score-value"><th:block th:text="${@fmt.num(d.todayTotals().protein())}">0</th:block><small th:text="${goal > 0 ? '/ ' + @fmt.num(goal) + ' g' : 'g'}">g</small></div>
+            <div class="meter" th:if="${goal > 0}"><span th:style="${@fmt.width(d.todayTotals().protein() * 100 / goal)}"></span></div>
+        </div>
+        <div class="score">
+            <div class="score-label">Training · week</div>
+            <div class="score-value"><th:block th:text="${d.weekSessions()}">0</th:block><small th:text="|/ ${data.profile().weeklyTargetOrDefault()}|">/ 3</small></div>
+            <div class="meter" th:classappend="${d.weekSessions() >= data.profile().weeklyTargetOrDefault()} ? 'is-done'"><span th:style="${@fmt.width(d.weekSessions() * 100.0 / data.profile().weeklyTargetOrDefault())}"></span></div>
+            <div class="score-sub" th:text="|${@fmt.compact(d.weekVolume())} lb volume|">volume</div>
+        </div>
+        <div class="score">
+            <div class="score-label">Body weight</div>
+            <div class="score-value"><th:block th:text="${d.latestWeight() != null ? @fmt.dec(d.latestWeight().weightLb) : '—'}">—</th:block><small th:if="${d.latestWeight()}">lb</small></div>
+            <div class="score-sub" th:if="${d.weightChange7() != null}" th:text="|${@fmt.signed(d.weightChange7())} lb vs a week ago|">change</div>
+            <th:block th:if="${weightSpark}">
+                <div class="chart" data-chart="spark-weight" style="height:32px"></div>
+                <script type="application/json" id="spark-weight" th:utext="${weightSpark}"></script>
+            </th:block>
+        </div>
+        <div class="score">
+            <div class="score-label">Streak</div>
+            <div class="score-value"><th:block th:text="${d.streak().current()}">0</th:block><small>days</small></div>
+            <div class="score-sub" th:text="|best ${d.streak().longest()} days|">best</div>
         </div>
     </section>
 
-    <section class="section dashboard-overview">
-        <div class="iron-panel">
-            <div class="calorie-gauge" th:style="|--progress:${calorieProgress}%|">
-                <div class="plate-gauge" aria-hidden="true"></div>
-                <div>
-                    <p class="eyebrow">Today’s Fuel</p>
-                    <div class="lift-number"><span th:text="${caloriesConsumed}">0</span></div>
-                    <p>kcal logged against a <strong th:text="${dailyGoal}">0</strong> kcal target.</p>
-                    <div class="meter" style="margin-top: 16px">
-                        <span class="meter-fill" th:style="|--progress:${calorieProgress}%|"></span>
+    <div class="grid split section">
+        <div class="stack">
+            <section class="card ledger">
+                <div class="card-head"><div><span class="eyebrow">Daily basics</span><h2>Today's checklist</h2></div>
+                    <span class="badge" th:classappend="${d.tasksDone() == #lists.size(d.tasks())} ? 'badge-good' : 'badge-blue'" th:text="|${d.tasksDone()}/${#lists.size(d.tasks())}|">0/4</span></div>
+                <ul class="list">
+                    <li th:each="t : ${d.tasks()}">
+                        <a th:href="${t.href()}" class="row" style="text-decoration:none;color:inherit;flex:1;flex-wrap:nowrap">
+                            <span class="timeline-icon" th:classappend="${t.done()} ? 'is-goal'" style="flex:none">
+                                <svg th:if="${t.done()}"><use href="#i-check"/></svg>
+                                <svg th:unless="${t.done()}"><use th:href="${'#i-' + t.icon()}"/></svg>
+                            </span>
+                            <span><span class="title" th:text="${t.label()}">Task</span><br><span class="meta" th:text="${t.detail()}">detail</span></span>
+                        </a>
+                        <a class="btn btn-sm" th:classappend="${t.done()} ? 'btn-ghost' : ''" th:href="${t.href()}" th:text="${t.done() ? 'View' : 'Do it'}">Do it</a>
+                    </li>
+                </ul>
+            </section>
+
+            <section class="card">
+                <div class="card-head"><div><span class="eyebrow">Last 26 weeks</span><h2>Training calendar</h2></div><a class="btn btn-ghost btn-sm" href="/train">Log</a></div>
+                <div class="card-body"><th:block th:replace="~{fragments/ui :: chart('chart-calendar', ${calendarChart})}"></th:block></div>
+            </section>
+
+            <section class="card" th:unless="${d.recent().isEmpty()}">
+                <div class="card-head"><div><span class="eyebrow">Recent activity</span><h2>Last few days</h2></div><a class="btn btn-ghost btn-sm" href="/timeline">Full timeline</a></div>
+                <div class="card-body">
+                    <div class="timeline-day" th:each="day : ${d.recent()}">
+                        <div class="timeline-date" style="background:var(--surface)" th:text="${@fmt.relative(day.date(), data.today()) == 'today' ? 'Today' : @fmt.dayTitle(day.date())}">Day</div>
+                        <a class="timeline-item" th:each="e : ${day.events()}" th:href="${e.href()}">
+                            <span class="timeline-icon" th:classappend="${e.iconClass()}"><svg><use th:href="${'#i-' + e.type().icon}"/></svg></span>
+                            <span style="min-width:0"><span class="title" th:text="${e.title()}">Title</span><br><span class="meta" th:text="${e.meta()}">meta</span></span>
+                            <span class="strong num nowrap" th:text="${e.value()}"></span>
+                        </a>
                     </div>
                 </div>
-            </div>
-
-            <div class="stat-strip">
-                <div class="stat-tile">
-                    <p>Remaining</p>
-                    <strong th:text="${remainingCalories}">0</strong>
-                </div>
-                <div class="stat-tile">
-                    <p>Total Entries</p>
-                    <strong th:text="${mealCount}">0</strong>
-                </div>
-                <div class="stat-tile">
-                    <p>Workouts</p>
-                    <strong th:text="${workoutCount}">0</strong>
-                </div>
-                <div class="stat-tile">
-                    <p>Volume</p>
-                    <strong th:text="${trainingVolume}">0</strong>
-                </div>
-            </div>
+            </section>
         </div>
 
-        <div class="iron-panel">
-            <p class="eyebrow">Macro Targets</p>
-            <h2 style="margin-top: 6px">Daily Split</h2>
-            <div class="macro-stack" style="margin-top: 18px" th:if="${macroInfo != null}">
-                <div class="macro-row">
-                    <header><span>Protein</span><span th:text="${macroInfo.dailyProtein} + 'g'">0g</span></header>
-                    <div class="macro-bar"><span th:style="|--progress:${macroInfo.dailyProtein / 300 * 100}%|"></span></div>
+        <aside class="stack">
+            <section class="card">
+                <div class="card-head"><div><span class="eyebrow">What your data says</span><h2>Insights</h2></div><a class="btn btn-ghost btn-sm" href="/insights">All</a></div>
+                <div class="card-body muted small" th:if="${d.insights().isEmpty()}">Log a few days of training, meals and check-ins and personalized insights appear here.</div>
+                <div class="insight" th:each="i : ${d.insights()}" th:classappend="${i.css()}">
+                    <div><div class="title"><a th:href="${i.href()}" style="color:inherit;text-decoration:none" th:text="${i.title()}">Insight</a></div><div class="body" th:text="${i.body()}">body</div></div>
                 </div>
-                <div class="macro-row">
-                    <header><span>Carbs</span><span th:text="${macroInfo.dailyCarbohydrates} + 'g'">0g</span></header>
-                    <div class="macro-bar"><span th:style="|--progress:${macroInfo.dailyCarbohydrates / 500 * 100}%|"></span></div>
+            </section>
+
+            <section class="card">
+                <div class="card-head"><div><span class="eyebrow">Progress</span><h2>Goals</h2></div><a class="btn btn-ghost btn-sm" href="/goals">Manage</a></div>
+                <div class="card-body" th:if="${#lists.isEmpty(data.goals().?[goal.status.name() == 'ACTIVE'])}">
+                    <p class="muted small">No active goals.</p><a class="btn btn-sm mt-1" href="/goals/new">Set a goal</a>
                 </div>
-                <div class="macro-row">
-                    <header><span>Fat</span><span th:text="${macroInfo.dailyFat} + 'g'">0g</span></header>
-                    <div class="macro-bar"><span th:style="|--progress:${macroInfo.dailyFat / 200 * 100}%|"></span></div>
-                </div>
+                <ul class="list">
+                    <li th:each="p : ${data.goals().?[goal.status.name() == 'ACTIVE']}" th:if="${pStat.index < 4}" style="display:block">
+                        <div class="row-between"><span class="title" th:text="${p.goal().title}">Goal</span><span class="small strong" th:text="${@fmt.pct(p.pct())}">0%</span></div>
+                        <div class="meter mt-1" th:classappend="${p.reached()} ? 'is-done'"><span th:style="${@fmt.width(p.pct())}"></span></div>
+                        <div class="meta mt-1" th:text="|${p.current() != null ? @fmt.dec(p.current()) : '—'} → ${@fmt.dec(p.goal().targetValue)} ${p.unit()} · ${p.pace().label}|">meta</div>
+                    </li>
+                </ul>
+            </section>
+
+            <section class="card" th:unless="${d.recentPrs().isEmpty()}">
+                <div class="card-head"><div><span class="eyebrow">Personal records</span><h2>Recent PRs</h2></div><a class="btn btn-ghost btn-sm" href="/records">Board</a></div>
+                <ul class="list">
+                    <li th:each="p : ${d.recentPrs()}">
+                        <div><div class="title" th:text="${p.exercise().name}">Lift</div><div class="meta" th:text="|${p.kind().label} · ${@fmt.relative(p.date(), data.today())}|">meta</div></div>
+                        <div class="strong num nowrap"><th:block th:text="${@fmt.dec(p.value())}"></th:block> <span class="badge badge-good" th:text="${@fmt.signed(p.gain())}">+5</span></div>
+                    </li>
+                </ul>
+            </section>
+
+            <div class="limitation-note" th:unless="${data.limitations().isEmpty()}">
+                <svg><use href="#i-bandage"/></svg>
+                <div><strong>Training around</strong> <th:block th:each="l, st : ${data.limitations()}" th:text="${l.bodyArea + (st.last ? '' : ', ')}"></th:block>. <a href="/profile#limitations">Manage</a></div>
             </div>
-            <div th:if="${macroInfo == null}" style="margin-top: 18px">
-                <p>No macro goals are set yet.</p>
-                <a class="btn btn-secondary" href="/user/macro/information" style="margin-top: 14px">Create goals</a>
-            </div>
-        </div>
-    </section>
-
-    <section class="section">
-        <div class="section-heading">
-            <div>
-                <h2>Training Desk</h2>
-                <p>Fast paths for the daily work.</p>
-            </div>
-        </div>
-
-        <div class="grid dashboard-grid">
-            <a class="card" href="/add/custom/meal">
-                <p class="card-kicker">Nutrition</p>
-                <h2>Log Meal</h2>
-                <p>Add food with calories, macros, and optional micronutrients.</p>
-                <span class="card-cta">Open form</span>
-            </a>
-
-            <a class="card" href="/view/Nutrition">
-                <p class="card-kicker">Tracking</p>
-                <h2>Nutrition Log</h2>
-                <p>Edit saved meals, scan totals, filter by meal type, and export your data.</p>
-                <span class="card-cta">Review entries</span>
-            </a>
-
-            <a class="card" href="/user/macro/information">
-                <p class="card-kicker">Goals</p>
-                <h2>Daily Macro Goals</h2>
-                <p>Set or update calorie, protein, fat, and carbohydrate targets.</p>
-                <span class="card-cta">Manage goals</span>
-            </a>
-
-            <a class="card" href="/workouts">
-                <p class="card-kicker">Training</p>
-                <h2>Workout Log</h2>
-                <p>Record lifts, sets, reps, load, and training notes.</p>
-                <span class="card-cta">Log workout</span>
-            </a>
-
-            <a class="card" href="/total">
-                <p class="card-kicker">Progress</p>
-                <h2>Calorie Summary</h2>
-                <p>See how today’s intake compares to your daily calorie goal.</p>
-                <span class="card-cta">View summary</span>
-            </a>
-        </div>
-    </section>
-</main>
+        </aside>
+    </div>
+</th:block>
 </body>
 </html>

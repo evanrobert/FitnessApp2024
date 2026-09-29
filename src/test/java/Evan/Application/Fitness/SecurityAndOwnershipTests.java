@@ -43,7 +43,7 @@ class SecurityAndOwnershipTests {
         bob = TestUsers.create(accounts);
         CalorieInformation meal = new CalorieInformation();
         meal.setItemName("Bob's oats");
-        meal.setCalories(400);
+        meal.setCalories(400.0);
         meal.setDate(LocalDate.of(2026, 1, 5));
         bobsMeal = nutrition.logMeal(bob.getId(), meal);
     }

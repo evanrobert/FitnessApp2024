@@ -90,8 +90,8 @@
                 </div>
                 <div class="card-foot" th:if="${totals.calories() > 0}" th:with="split=${totals.macroSplit()}">
                     <div class="small muted" style="margin-bottom:6px">Energy from macros</div>
-                    <div style="display:flex;height:10px;border-radius:99px;overflow:hidden;gap:2px;background:var(--surface)" role="img"
-                         th:attr="aria-label=|Protein ${@fmt.pct(split[0])}, carbs ${@fmt.pct(split[1])}, fat ${@fmt.pct(split[2])}|">
+                    <span class="sr-only" th:text="|Protein ${@fmt.pct(split[0])}, carbs ${@fmt.pct(split[1])}, fat ${@fmt.pct(split[2])}|"></span>
+                    <div style="display:flex;height:10px;border-radius:99px;overflow:hidden;gap:2px;background:var(--surface)" aria-hidden="true">
                         <span th:style="|width:${split[0]}%;background:var(--s1)|"></span>
                         <span th:style="|width:${split[1]}%;background:var(--s2)|"></span>
                         <span th:style="|width:${split[2]}%;background:var(--s3)|"></span>

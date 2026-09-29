@@ -26,20 +26,38 @@ public class CalorieInformation {
     @Size(max = 255)
     private String itemName;
 
-    @PositiveOrZero private double calories;
-    @PositiveOrZero private double proteins;
-    @PositiveOrZero private double fats;
-    @PositiveOrZero private double carbohydrates;
-    @PositiveOrZero private double fiber;
-    @PositiveOrZero private double sugars;
-    @PositiveOrZero private double sodium;
-    @PositiveOrZero private double cholesterol;
+    @PositiveOrZero private Double calories;
+    @PositiveOrZero private Double proteins;
+    @PositiveOrZero private Double fats;
+    @PositiveOrZero private Double carbohydrates;
+    @PositiveOrZero private Double fiber;
+    @PositiveOrZero private Double sugars;
+    @PositiveOrZero private Double sodium;
+    @PositiveOrZero private Double cholesterol;
 
     private String mealType;
 
     /** Protein 4, carbs 4, fat 9 kcal per gram. */
     public double macroCalories() {
-        return proteins * 4 + carbohydrates * 4 + fats * 9;
+        return nz(proteins) * 4 + nz(carbohydrates) * 4 + nz(fats) * 9;
+    }
+
+    /** Stored columns are NOT NULL; blank form fields mean zero. */
+    @PrePersist
+    @PreUpdate
+    void blanksToZero() {
+        calories = nz(calories);
+        proteins = nz(proteins);
+        fats = nz(fats);
+        carbohydrates = nz(carbohydrates);
+        fiber = nz(fiber);
+        sugars = nz(sugars);
+        sodium = nz(sodium);
+        cholesterol = nz(cholesterol);
+    }
+
+    private static double nz(Double v) {
+        return v == null ? 0 : v;
     }
 
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)

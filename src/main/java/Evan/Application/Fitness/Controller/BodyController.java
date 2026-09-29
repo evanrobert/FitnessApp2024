@@ -3,6 +3,7 @@ package Evan.Application.Fitness.Controller;
 import Evan.Application.Fitness.Model.BodyMeasurement;
 import Evan.Application.Fitness.Model.GoalMetric;
 import Evan.Application.Fitness.Security.AppUserPrincipal;
+import Evan.Application.Fitness.Service.AnalyticsService;
 import Evan.Application.Fitness.Service.BodyService;
 import Evan.Application.Fitness.Service.GoalService;
 import Evan.Application.Fitness.Service.TodayService;
@@ -17,7 +18,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.function.Function;
 
@@ -37,7 +37,8 @@ public class BodyController {
     }
 
     @GetMapping
-    public String page(@AuthenticationPrincipal AppUserPrincipal me, Model model) {
+    public String page(@AuthenticationPrincipal AppUserPrincipal me, @RequestParam(defaultValue = "false") boolean all, Model model) {
+        model.addAttribute("showAll", all);
         if (!model.containsAttribute("measurement")) {
             BodyMeasurement fresh = new BodyMeasurement();
             fresh.setMeasuredOn(todayService.today(me.getId()));
@@ -111,12 +112,15 @@ public class BodyController {
 
         BodyMeasurement latest = weights.isEmpty() ? null : weights.get(weights.size() - 1);
         model.addAttribute("latest", latest);
-        model.addAttribute("change7", change(weights, today, 7));
-        model.addAttribute("change30", change(weights, today, 30));
-        model.addAttribute("weeklyRate", weeklyRate(weights, today));
+        model.addAttribute("change7", AnalyticsService.weightChange(weights, 7));
+        model.addAttribute("change30", AnalyticsService.weightChange(weights, 30));
+        model.addAttribute("weeklyRate", AnalyticsService.weeklyRate(weights, today));
         model.addAttribute("latestWaist", latestOf(all, BodyMeasurement::getWaistIn));
         model.addAttribute("latestBodyFat", latestOf(all, BodyMeasurement::getBodyFatPct));
-        model.addAttribute("history", body.history(userId));
+        List<BodyMeasurement> history = body.history(userId);
+        boolean showAll = Boolean.TRUE.equals(model.getAttribute("showAll"));
+        model.addAttribute("history", showAll ? history : history.stream().limit(30).toList());
+        model.addAttribute("historyTotal", history.size());
         model.addAttribute("weightGoal", weightGoal.orElse(null));
         model.addAttribute("today", today);
         return "body/index";
@@ -137,44 +141,5 @@ public class BodyController {
             }
         }
         return null;
-    }
-
-    /** Change between the latest weigh-in and the closest one at least {@code days} earlier. */
-    static Double change(List<BodyMeasurement> weights, LocalDate today, int days) {
-        if (weights.size() < 2) {
-            return null;
-        }
-        BodyMeasurement latest = weights.get(weights.size() - 1);
-        LocalDate cutoff = latest.getMeasuredOn().minusDays(days);
-        BodyMeasurement base = null;
-        for (BodyMeasurement m : weights) {
-            if (!m.getMeasuredOn().isAfter(cutoff)) {
-                base = m;
-            }
-        }
-        if (base == null) {
-            return null;
-        }
-        return Math.round((latest.getWeightLb() - base.getWeightLb()) * 10) / 10.0;
-    }
-
-    /** Least-squares slope over the last 28 days, in lb per week. */
-    static Double weeklyRate(List<BodyMeasurement> weights, LocalDate today) {
-        List<BodyMeasurement> recent = weights.stream().filter(m -> !m.getMeasuredOn().isBefore(today.minusDays(28))).toList();
-        if (recent.size() < 3) {
-            return null;
-        }
-        LocalDate origin = recent.get(0).getMeasuredOn();
-        double n = recent.size(), sx = 0, sy = 0, sxx = 0, sxy = 0;
-        for (BodyMeasurement m : recent) {
-            double x = ChronoUnit.DAYS.between(origin, m.getMeasuredOn());
-            double y = m.getWeightLb();
-            sx += x; sy += y; sxx += x * x; sxy += x * y;
-        }
-        double denom = n * sxx - sx * sx;
-        if (denom == 0) {
-            return null;
-        }
-        return Math.round((n * sxy - sx * sy) / denom * 7 * 100) / 100.0;
     }
 }

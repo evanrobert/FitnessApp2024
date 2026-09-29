@@ -16,7 +16,7 @@
         <div class="score"><div class="score-label">Lifts tracked</div><div class="score-value" th:text="${#lists.size(records)}">0</div></div>
     </section>
 
-    <div th:if="${records.isEmpty()}" class="section" th:replace="~{fragments/ui :: empty('trophy', 'No records yet', 'Records appear as soon as you log weighted sets. Beat a previous session and it shows up as a PR.', '/train/new', 'Log a workout')}"></div>
+    <th:block th:if="${records.isEmpty()}"><div class="section" th:replace="~{fragments/ui :: empty('trophy', 'No records yet', 'Records appear as soon as you log weighted sets. Beat a previous session and it shows up as a PR.', '/train/new', 'Log a workout')}"></div></th:block>
 
     <div class="grid split section" th:unless="${records.isEmpty()}">
         <section class="card ledger">

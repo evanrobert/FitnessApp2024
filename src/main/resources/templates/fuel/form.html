@@ -40,7 +40,7 @@
             </div>
             <p class="field-error mt-1" th:if="${#fields.hasErrors('calories') or #fields.hasErrors('proteins') or #fields.hasErrors('fats') or #fields.hasErrors('carbohydrates')}">Nutrient values can't be negative.</p>
         </div>
-        <details class="form-section" th:open="${calorieInformation.fiber > 0 or calorieInformation.sodium > 0 or calorieInformation.sugars > 0 or calorieInformation.cholesterol > 0}">
+        <details class="form-section" th:open="${(calorieInformation.fiber ?: 0) > 0 or (calorieInformation.sodium ?: 0) > 0 or (calorieInformation.sugars ?: 0) > 0 or (calorieInformation.cholesterol ?: 0) > 0}">
             <summary class="strong" style="cursor:pointer">Micronutrients <span class="muted small">(optional)</span></summary>
             <div class="form-grid form-grid-4 mt-2">
                 <div class="field"><label for="fiber">Fiber</label><div class="unit-wrap"><input class="input" id="fiber" type="number" min="0" step="0.1" th:field="*{fiber}"><span class="unit">g</span></div></div>
