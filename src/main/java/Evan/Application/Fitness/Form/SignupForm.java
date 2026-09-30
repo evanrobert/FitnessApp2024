@@ -1,5 +1,6 @@
 package Evan.Application.Fitness.Form;
 
+import Evan.Application.Fitness.Service.PasswordPolicy;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
@@ -10,8 +11,14 @@ public class SignupForm {
     @Pattern(regexp = "[A-Za-z0-9._-]+", message = "Use letters, numbers, dots, dashes or underscores")
     private String username;
 
+    @NotBlank(message = "Add your email so you can reset your password")
+    @Email(message = "Check your email address")
+    @Size(max = 254)
+    private String email;
+
     @NotBlank(message = "Choose a password")
-    @Size(min = 8, max = 100, message = "Passwords need at least 8 characters")
+    @Size(min = PasswordPolicy.MIN_LENGTH, max = PasswordPolicy.MAX_LENGTH,
+            message = "Passwords need at least " + PasswordPolicy.MIN_LENGTH + " characters")
     private String password;
 
     @NotBlank(message = "Tell us your name")

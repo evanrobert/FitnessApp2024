@@ -42,6 +42,7 @@ public class AccountService {
         UserLoginDetails account = new UserLoginDetails();
         account.setUsername(form.getUsername().trim());
         account.setPassword(passwordEncoder.encode(form.getPassword()));
+        account.setEmail(AccountSecurityService.normalizeEmail(form.getEmail()));
         account.getRoles().add(roles.findByName(Roles.USER)
                 .orElseThrow(() -> new IllegalStateException("ROLE_USER is missing; check migrations")));
 

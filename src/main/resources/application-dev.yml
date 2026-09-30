@@ -13,3 +13,6 @@ spring:
 
 app:
   demo-data: true
+  mail:
+    # No SMTP in dev: emails (reset and confirmation links included) are printed to the console.
+    log-contents: true

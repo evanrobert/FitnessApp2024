@@ -18,6 +18,12 @@
         </div>
     </header>
 
+    <div class="flash flash-info" th:if="${onboarded and !account.emailVerified}">
+        <svg><use href="#i-lock"/></svg>
+        <span th:if="${account.email == null}">Add an email so you can reset your password if you forget it. <a href="/account#email">Add email</a>.</span>
+        <span th:unless="${account.email == null}">Confirm your email to enable password reset. <a href="/account#email">Resend the link</a>.</span>
+    </div>
+
     <div class="flash flash-info" th:unless="${onboarded}">
         <svg><use href="#i-info"/></svg>
         <span>Finish setting up so targets and insights are personal to you. <a href="/onboarding">Take one minute</a>.</span>

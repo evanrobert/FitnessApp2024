@@ -17,3 +17,18 @@ spring:
     url: jdbc:mysql://localhost:3306/fitness?allowPublicKeyRetrieval=true&useSSL=false
     username: fitness_app
     password: CHANGE_ME
+
+  # Optional: real email (password reset, confirmation links, weekly summary).
+  # Leave this commented out and emails are printed in the PowerShell/terminal
+  # window instead, which is fine for local testing. To send real mail, uncomment
+  # and use an SMTP service (e.g. your email provider's SMTP settings, or a
+  # transactional service such as SendGrid, Postmark, Mailgun or Amazon SES).
+  # mail:
+  #   host: smtp.example.com
+  #   port: 587
+  #   username: CHANGE_ME
+  #   password: CHANGE_ME
+
+# app:
+#   mail:
+#     from: "Evan Fitness <no-reply@yourdomain.com>"

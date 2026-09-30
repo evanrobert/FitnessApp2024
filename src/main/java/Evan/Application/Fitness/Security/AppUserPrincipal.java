@@ -11,7 +11,12 @@ public class AppUserPrincipal extends User {
 
     public AppUserPrincipal(Long id, String username, String password,
                             Collection<? extends GrantedAuthority> authorities) {
-        super(username, password, authorities);
+        this(id, username, password, true, authorities);
+    }
+
+    public AppUserPrincipal(Long id, String username, String password, boolean accountNonLocked,
+                            Collection<? extends GrantedAuthority> authorities) {
+        super(username, password, true, true, true, accountNonLocked, authorities);
         this.id = id;
     }
 

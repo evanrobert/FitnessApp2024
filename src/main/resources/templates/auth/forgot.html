@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/auth :: page(title='Reset password', content=~{::content})}">
+<body>
+<th:block th:fragment="content">
+    <span class="eyebrow">Account help</span>
+    <h2 class="display">Reset your password</h2>
+    <th:block th:if="${sent}">
+        <div class="flash flash-success mt-2" role="status"><svg><use href="#i-check"/></svg>
+            <span>If that matches an account with a confirmed email, a reset link is on its way. It works for 30 minutes.</span></div>
+        <p class="muted small mt-2">Nothing after a few minutes? Check spam. Accounts without a confirmed email can't be reset by email.
+            Sign in and add one under Settings → Account &amp; security.</p>
+    </th:block>
+    <p class="muted mt-1" th:unless="${sent}">Enter your username or email. We'll send a link to the confirmed email on the account.</p>
+    <form th:action="@{/forgot-password}" method="post">
+        <div class="field">
+            <label for="login">Username or email</label>
+            <input class="input" type="text" id="login" name="login" required maxlength="254" autocomplete="username" autocapitalize="none" autofocus>
+        </div>
+        <button class="btn btn-primary btn-block" type="submit" th:text="${sent} ? 'Send another link' : 'Send reset link'">Send reset link</button>
+    </form>
+    <p class="switch">Remembered it? <a href="/login">Log in</a></p>
+</th:block>
+</body>
+</html>

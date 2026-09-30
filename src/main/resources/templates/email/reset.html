@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{email/base :: email(~{::content})}">
+<body>
+<th:block th:fragment="content">
+    <p style="margin:0 0 14px;">Hi <span th:text="${name}">there</span>,</p>
+    <p style="margin:0 0 20px;">Someone (hopefully you) asked to reset your password. The link below works once, for <span th:text="${minutes}">30</span> minutes.</p>
+    <p style="margin:0 0 24px;"><a th:href="${link}" href="#" style="display:inline-block;background:#1e90ff;color:#ffffff;text-decoration:none;font-weight:bold;padding:12px 22px;">Reset password</a></p>
+    <p style="margin:0 0 8px;font-size:13px;color:#6d675e;">If you didn't ask, ignore this email. Your password hasn't changed.</p>
+    <p style="margin:0 0 16px;font-size:12px;color:#6d675e;word-break:break-all;">Button not working? Paste this into your browser: <span th:text="${link}">link</span></p>
+</th:block>
+</body>
+</html>

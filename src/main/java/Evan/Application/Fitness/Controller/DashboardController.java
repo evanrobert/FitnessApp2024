@@ -1,5 +1,6 @@
 package Evan.Application.Fitness.Controller;
 
+import Evan.Application.Fitness.Repositorys.UserLoginDetailsRepository;
 import Evan.Application.Fitness.Security.AppUserPrincipal;
 import Evan.Application.Fitness.Service.AnalyticsService;
 import Evan.Application.Fitness.Service.ProfileService;
@@ -17,8 +18,11 @@ public class DashboardController {
     private final AnalyticsService analytics;
     private final ProfileService profiles;
     private final ChartJson charts;
+    private final UserLoginDetailsRepository users;
 
-    public DashboardController(AnalyticsService analytics, ProfileService profiles, ChartJson charts) {
+    public DashboardController(AnalyticsService analytics, ProfileService profiles, ChartJson charts,
+                               UserLoginDetailsRepository users) {
+        this.users = users;
         this.analytics = analytics;
         this.profiles = profiles;
         this.charts = charts;
@@ -29,6 +33,7 @@ public class DashboardController {
         AnalyticsService.Dashboard dash = analytics.dashboard(me.getId());
         model.addAttribute("d", dash);
         model.addAttribute("onboarded", profiles.onboarded(me.getId()));
+        model.addAttribute("account", users.findById(me.getId()).orElseThrow());
         model.addAttribute("calendarChart", charts.write(dash.calendar()));
         model.addAttribute("weightSpark", dash.weightSpark() == null ? null : charts.write(dash.weightSpark()));
         return "home";

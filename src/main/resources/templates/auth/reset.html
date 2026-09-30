@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/auth :: page(title='Choose a new password', content=~{::content})}">
+<body>
+<th:block th:fragment="content">
+    <span class="eyebrow">Account help</span>
+    <h2 class="display">Choose a new password</h2>
+    <th:block th:unless="${valid}">
+        <div class="flash flash-error mt-2" role="alert"><svg><use href="#i-alert"/></svg><span>This reset link is invalid, already used or expired.</span></div>
+        <a class="btn btn-primary btn-block mt-2" href="/forgot-password">Send a new link</a>
+    </th:block>
+    <form th:if="${valid}" th:action="@{/reset-password}" th:object="${passwordForm}" method="post" novalidate>
+        <input type="hidden" th:field="*{token}">
+        <th:block th:replace="~{fragments/ui :: newPasswordFields}"></th:block>
+        <button class="btn btn-primary btn-block" type="submit">Save new password</button>
+        <p class="hint mt-1">You'll be signed out on every device and can log in with the new password.</p>
+    </form>
+</th:block>
+</body>
+</html>

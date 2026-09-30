@@ -117,6 +117,7 @@ class SecurityAndOwnershipTests {
         mvc.perform(post("/signup").with(csrf())
                         .param("username", bob.getUsername().toUpperCase())
                         .param("password", "another-password").param("name", "Copycat")
+                        .param("email", "copycat@example.com")
                         .param("weight", "170"))
                 .andExpect(status().isOk())
                 .andExpect(model().attributeHasFieldErrorCode("signupForm", "username", "taken"));
@@ -126,6 +127,7 @@ class SecurityAndOwnershipTests {
     void signupCannotGrantExtraRoles() throws Exception {
         mvc.perform(post("/signup").with(csrf())
                         .param("username", "roleseeker").param("password", "long-enough-pw")
+                        .param("email", "roleseeker@example.com")
                         .param("name", "Role Seeker").param("weight", "170")
                         .param("roles[0].name", "ROLE_ADMIN"))
                 .andExpect(status().is3xxRedirection());

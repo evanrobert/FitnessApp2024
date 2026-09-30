@@ -5,3 +5,7 @@ spring:
     password:
 app:
   demo-data: false
+  mail:
+    log-contents: true
+  weekly-email:
+    enabled: false

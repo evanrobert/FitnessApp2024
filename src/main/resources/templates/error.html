@@ -6,11 +6,13 @@
     <h2 class="display" th:switch="${status}">
         <span th:case="404">We couldn't find that</span>
         <span th:case="403">That action isn't allowed</span>
+        <span th:case="429">Too many attempts</span>
         <span th:case="*">Something went wrong</span>
     </h2>
     <p class="muted mt-2" th:switch="${status}">
         <span th:case="404">The page or record doesn't exist, or it belongs to someone else.</span>
         <span th:case="403">Your session may have expired. Go back, reload the page and try again.</span>
+        <span th:case="429">For your security we've paused this for a few minutes. Wait a bit, then try again.</span>
         <span th:case="*">We couldn't complete that request, and nothing was changed. Try again in a moment.</span>
     </p>
     <div class="stack mt-3" style="gap:10px">
