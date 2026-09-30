@@ -38,6 +38,11 @@ public class Fmt {
         return value == null ? "—" : trim(value.doubleValue(), 1);
     }
 
+    /** Value for a number input: "100" not "100.0", empty when unset. */
+    public String input(Number value) {
+        return value == null ? "" : java.math.BigDecimal.valueOf(value.doubleValue()).stripTrailingZeros().toPlainString();
+    }
+
     public String signed(Number value) {
         if (value == null) {
             return "—";

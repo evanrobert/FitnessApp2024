@@ -100,7 +100,7 @@ public class TrainingController {
     public String create(@AuthenticationPrincipal AppUserPrincipal me, @Valid @ModelAttribute("form") SessionForm form,
                          BindingResult result, Model model, RedirectAttributes redirect) {
         if (result.hasErrors()) {
-            return builder(me.getId(), form, null, model);
+            return builder(me.getId(), form, null, model, result);
         }
         WorkoutSession saved = training.create(me.getId(), form);
         long prs = records.prsIn(records.summary(me.getId()), saved.getId()).size();
@@ -133,7 +133,7 @@ public class TrainingController {
                          @Valid @ModelAttribute("form") SessionForm form, BindingResult result, Model model,
                          RedirectAttributes redirect) {
         if (result.hasErrors()) {
-            return builder(me.getId(), form, id, model);
+            return builder(me.getId(), form, id, model, result);
         }
         training.update(me.getId(), id, form);
         Flash.success(redirect, "Session updated");
@@ -148,6 +148,11 @@ public class TrainingController {
     }
 
     private String builder(Long userId, SessionForm form, Long sessionId, Model model) {
+        return builder(userId, form, sessionId, model, null);
+    }
+
+    /** With validation errors, each set row gets its own messages so the page can point at the exact field. */
+    private String builder(Long userId, SessionForm form, Long sessionId, Model model, BindingResult result) {
         List<Exercise> exercises = training.visibleExercises(userId);
         Map<MuscleGroup, List<Exercise>> grouped = new EnumMap<>(MuscleGroup.class);
         exercises.forEach(e -> grouped.computeIfAbsent(e.getMuscleGroup(), g -> new ArrayList<>()).add(e));
@@ -157,7 +162,19 @@ public class TrainingController {
         exercises.forEach(e -> byId.put(e.getId(), e));
         List<BlockView> blocks = new ArrayList<>();
         Map<String, BlockView> byKey = new LinkedHashMap<>();
-        for (SessionForm.SetRow row : form.getSets()) {
+        Map<SessionForm.SetRow, Map<String, String>> rowErrors = new java.util.IdentityHashMap<>();
+        List<String> problems = new ArrayList<>();
+        for (int idx = 0; idx < form.getSets().size(); idx++) {
+            SessionForm.SetRow row = form.getSets().get(idx);
+            if (result != null && row != null) {
+                for (org.springframework.validation.FieldError error : result.getFieldErrors()) {
+                    String prefix = "sets[" + idx + "].";
+                    if (error.getField().startsWith(prefix)) {
+                        rowErrors.computeIfAbsent(row, r -> new LinkedHashMap<>())
+                                .putIfAbsent(error.getField().substring(prefix.length()), error.getDefaultMessage());
+                    }
+                }
+            }
             if (row == null || (row.getExerciseId() == null && (row.getExerciseName() == null || row.getExerciseName().isBlank())
                     && row.getReps() == null && row.getWeightLb() == null)) {
                 continue;
@@ -171,6 +188,26 @@ public class TrainingController {
                 return b;
             }).rows().add(row);
         }
+        for (BlockView b : blocks) {
+            for (int n = 0; n < b.rows().size(); n++) {
+                Map<String, String> errors = rowErrors.get(b.rows().get(n));
+                if (errors != null) {
+                    String label = (b.exerciseName().isBlank() ? "Exercise" : b.exerciseName()) + ", set " + (n + 1);
+                    errors.values().stream().distinct().forEach(m -> problems.add(label + ": " + m));
+                }
+            }
+        }
+        if (result != null) {
+            for (org.springframework.validation.FieldError error : result.getFieldErrors()) {
+                if (error.getField().startsWith("cardio[")) {
+                    int n = Integer.parseInt(error.getField().substring(7, error.getField().indexOf(']'))) + 1;
+                    problems.add("Cardio " + n + ": " + error.getDefaultMessage());
+                } else if (!error.getField().startsWith("sets[")) {
+                    problems.add(error.getDefaultMessage());
+                }
+            }
+            result.getGlobalErrors().forEach(e -> problems.add(e.getDefaultMessage()));
+        }
         if (blocks.isEmpty()) {
             List<SessionForm.SetRow> spare = new ArrayList<>();
             for (int i = 0; i < 3; i++) {
@@ -181,6 +218,8 @@ public class TrainingController {
         form.getCardio().removeIf(java.util.Objects::isNull);
         model.addAttribute("form", form);
         model.addAttribute("blocks", blocks);
+        model.addAttribute("rowErrors", rowErrors);
+        model.addAttribute("problems", problems.stream().distinct().toList());
         model.addAttribute("sessionId", sessionId);
         model.addAttribute("grouped", grouped);
         model.addAttribute("muscles", MuscleGroup.values());

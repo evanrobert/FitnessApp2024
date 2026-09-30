@@ -85,6 +85,24 @@ class TrackingFeatureTests {
     }
 
     @Test
+    void outOfRangeSetValuesArePointedOutByExerciseAndSet() throws Exception {
+        String html = mvc.perform(post("/train").with(as(alice)).with(csrf())
+                        .param("sessionDate", "2026-01-12")
+                        .param("sets[0].exerciseName", "Bench Press").param("sets[0].block", "0")
+                        .param("sets[0].weightLb", "100.0").param("sets[0].reps", "8").param("sets[0].rpe", "8")
+                        .param("sets[1].exerciseName", "Bench Press").param("sets[1].block", "0")
+                        .param("sets[1].weightLb", "100.0").param("sets[1].reps", "8").param("sets[1].rpe", "75"))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        assertThat(html).contains("Bench Press, set 2: RPE is 1–10")
+                .contains("Set 2: RPE is 1–10")
+                .contains("value=\"100\"")   // loads show as 100, not 100.0
+                .doesNotContain("value=\"100.0\"");
+        assertThat(sessions.findAll().stream().noneMatch(s -> s.getUser().getId().equals(alice.getId())
+                && s.getSessionDate().equals(java.time.LocalDate.of(2026, 1, 12)))).isTrue();
+    }
+
+    @Test
     void membersCannotReadEditOrDeleteOthersSessions() throws Exception {
         WorkoutSession bobs = training.create(bob.getId(), session(LocalDate.of(2026, 9, 2), new Object[]{squat, 225.0, 5}));
         mvc.perform(get("/train/{id}", bobs.getId()).with(as(alice))).andExpect(status().isNotFound());

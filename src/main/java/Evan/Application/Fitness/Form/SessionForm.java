@@ -54,14 +54,14 @@ public class SessionForm {
         private MuscleGroup muscleGroup;
         /** Exercise block this set belongs to (keeps order when an exercise repeats). */
         private Integer block;
-        @Min(value = 0, message = "Reps can't be negative") @Max(value = 1000)
+        @Min(value = 0, message = "Reps can't be negative") @Max(value = 1000, message = "Reps are 0–1000")
         private Integer reps;
-        @DecimalMin(value = "0", message = "Load can't be negative") @DecimalMax("3000")
+        @DecimalMin(value = "0", message = "Load can't be negative") @DecimalMax(value = "3000", message = "Load is up to 3000 lb")
         private Double weightLb;
-        @DecimalMin("1") @DecimalMax("10")
+        @DecimalMin(value = "1", message = "RPE is 1–10 (10 = nothing left)") @DecimalMax(value = "10", message = "RPE is 1–10 (10 = nothing left)")
         private Double rpe;
         private boolean warmup;
-        @Size(max = 500)
+        @Size(max = 500, message = "Set notes are up to 500 characters")
         private String notes;
 
         public boolean isBlank() {
@@ -75,11 +75,11 @@ public class SessionForm {
         private CardioActivity activity;
         @DecimalMin(value = "0.1", message = "Add a duration") @DecimalMax("1440")
         private Double durationMin;
-        @DecimalMin("0") @DecimalMax("500")
+        @DecimalMin(value = "0", message = "Distance can't be negative") @DecimalMax(value = "500", message = "Distance is up to 500 mi")
         private Double distanceMi;
-        @Min(30) @Max(230)
+        @Min(value = 30, message = "Heart rate is 30–230") @Max(value = 230, message = "Heart rate is 30–230")
         private Integer avgHr;
-        @Min(0) @Max(10000)
+        @Min(value = 0, message = "Calories can't be negative") @Max(value = 10000, message = "Calories are up to 10,000")
         private Integer calories;
         @Size(max = 500)
         private String notes;
