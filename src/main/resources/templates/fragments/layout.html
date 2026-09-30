@@ -15,7 +15,9 @@
     <script src="/js/charts.js" defer></script>
     <script src="/js/app.js" defer></script>
 </head>
-<body class="app">
+<body class="app" th:with="section=${active == 'exercises' or active == 'records' ? 'train'
+        : (active == 'insights' or active == 'goals' or active == 'body' or active == 'metrics' or active == 'timeline' ? 'progress'
+        : (active == 'profile' or active == 'account' or active == 'export' ? 'settings' : active))}">
 <svg th:replace="~{fragments/icons :: sprite}"></svg>
 <a class="sr-only" href="#main">Skip to content</a>
 
@@ -26,6 +28,7 @@
         <span class="brand-name" th:text="${brandName}">Evan Fitness</span>
     </a>
     <th:block th:replace="~{fragments/quicklog :: quickLog('icon')}"></th:block>
+    <a class="icon-btn" href="/profile" aria-label="Settings"><svg><use href="#i-settings"/></svg></a>
 </header>
 
 <aside class="rail" id="rail" aria-label="Main navigation">
@@ -38,29 +41,16 @@
 
     <nav>
         <div class="nav-group">
-            <a class="nav-link" th:classappend="${active == 'today'} ? 'is-active'" href="/home" th:attr="aria-current=${active == 'today'} ? 'page'"><svg><use href="#i-today"/></svg>Today</a>
-            <a class="nav-link" th:classappend="${active == 'insights'} ? 'is-active'" href="/insights"><svg><use href="#i-insights"/></svg>Insights</a>
-            <a class="nav-link" th:classappend="${active == 'timeline'} ? 'is-active'" href="/timeline"><svg><use href="#i-timeline"/></svg>Timeline</a>
-        </div>
-        <div class="nav-group">
-            <div class="nav-label">Log</div>
-            <a class="nav-link" th:classappend="${active == 'train'} ? 'is-active'" href="/train"><svg><use href="#i-train"/></svg>Training</a>
-            <a class="nav-link" th:classappend="${active == 'fuel'} ? 'is-active'" href="/fuel"><svg><use href="#i-fuel"/></svg>Nutrition</a>
-            <a class="nav-link" th:classappend="${active == 'recover'} ? 'is-active'" href="/recover"><svg><use href="#i-recover"/></svg>Recovery</a>
-            <a class="nav-link" th:classappend="${active == 'body'} ? 'is-active'" href="/body"><svg><use href="#i-scale"/></svg>Body</a>
-            <a class="nav-link" th:classappend="${active == 'metrics'} ? 'is-active'" href="/metrics"><svg><use href="#i-metrics"/></svg>Custom metrics</a>
-        </div>
-        <div class="nav-group">
-            <div class="nav-label">Progress</div>
-            <a class="nav-link" th:classappend="${active == 'goals'} ? 'is-active'" href="/goals"><svg><use href="#i-goals"/></svg>Goals</a>
-            <a class="nav-link" th:classappend="${active == 'records'} ? 'is-active'" href="/records"><svg><use href="#i-trophy"/></svg>Records</a>
-            <a class="nav-link" th:classappend="${active == 'exercises'} ? 'is-active'" href="/exercises"><svg><use href="#i-train"/></svg>Exercises</a>
+            <a class="nav-link" th:classappend="${section == 'today'} ? 'is-active'" href="/home" th:attr="aria-current=${section == 'today'} ? 'page'"><svg><use href="#i-today"/></svg>Today</a>
+            <a class="nav-link" th:classappend="${section == 'train'} ? 'is-active'" href="/train" th:attr="aria-current=${section == 'train'} ? 'page'"><svg><use href="#i-train"/></svg>Training</a>
+            <a class="nav-link" th:classappend="${section == 'fuel'} ? 'is-active'" href="/fuel" th:attr="aria-current=${section == 'fuel'} ? 'page'"><svg><use href="#i-fuel"/></svg>Nutrition</a>
+            <a class="nav-link" th:classappend="${section == 'recover'} ? 'is-active'" href="/recover" th:attr="aria-current=${section == 'recover'} ? 'page'"><svg><use href="#i-recover"/></svg>Recovery</a>
+            <a class="nav-link" th:classappend="${section == 'progress'} ? 'is-active'" href="/insights" th:attr="aria-current=${section == 'progress'} ? 'page'"><svg><use href="#i-insights"/></svg>Progress</a>
         </div>
     </nav>
 
     <div class="rail-footer">
-        <a class="nav-link" th:classappend="${active == 'profile'} ? 'is-active'" href="/profile"><svg><use href="#i-user"/></svg>Profile &amp; membership</a>
-        <a class="nav-link" th:classappend="${active == 'export'} ? 'is-active'" href="/export"><svg><use href="#i-download"/></svg>Export data</a>
+        <a class="nav-link" th:classappend="${section == 'settings'} ? 'is-active'" href="/profile"><svg><use href="#i-settings"/></svg>Settings</a>
         <form th:action="@{/logout}" method="post">
             <button class="nav-link" type="submit"><svg><use href="#i-logout"/></svg>Log out</button>
         </form>
@@ -81,16 +71,38 @@
             <svg><use href="#i-alert"/></svg><span th:text="${flashError}"></span>
             <button class="flash-close" type="button" data-dismiss aria-label="Dismiss">&times;</button>
         </div>
+        <th:block th:replace="~{fragments/layout :: subnav(${section}, ${active})}"></th:block>
         <th:block th:replace="${content}"></th:block>
     </div>
 </main>
 
 <nav class="tabbar" aria-label="Primary">
-    <a href="/home" th:classappend="${active == 'today'} ? 'is-active'"><svg><use href="#i-today"/></svg>Today</a>
-    <a href="/train" th:classappend="${active == 'train'} ? 'is-active'"><svg><use href="#i-train"/></svg>Train</a>
-    <a href="/fuel" th:classappend="${active == 'fuel'} ? 'is-active'"><svg><use href="#i-fuel"/></svg>Fuel</a>
-    <a href="/recover" th:classappend="${active == 'recover'} ? 'is-active'"><svg><use href="#i-recover"/></svg>Recover</a>
-    <button type="button" data-nav-toggle><svg><use href="#i-more"/></svg>More</button>
+    <a href="/home" th:classappend="${section == 'today'} ? 'is-active'"><svg><use href="#i-today"/></svg>Today</a>
+    <a href="/train" th:classappend="${section == 'train'} ? 'is-active'"><svg><use href="#i-train"/></svg>Train</a>
+    <a href="/fuel" th:classappend="${section == 'fuel'} ? 'is-active'"><svg><use href="#i-fuel"/></svg>Fuel</a>
+    <a href="/recover" th:classappend="${section == 'recover'} ? 'is-active'"><svg><use href="#i-recover"/></svg>Recover</a>
+    <a href="/insights" th:classappend="${section == 'progress'} ? 'is-active'"><svg><use href="#i-insights"/></svg>Progress</a>
 </nav>
 </body>
+<!--/* Second-level tabs for sections with several pages. */-->
+<nav th:fragment="subnav(section, active)" class="subnav" th:if="${section == 'train' or section == 'progress' or section == 'settings'}"
+     th:attr="aria-label=${section == 'settings'} ? 'Settings' : (${section == 'train'} ? 'Training' : 'Progress')">
+    <th:block th:if="${section == 'train'}">
+        <a href="/train" th:classappend="${active == 'train'} ? 'is-active'">Sessions</a>
+        <a href="/exercises" th:classappend="${active == 'exercises'} ? 'is-active'">Exercises</a>
+        <a href="/records" th:classappend="${active == 'records'} ? 'is-active'">Records</a>
+    </th:block>
+    <th:block th:if="${section == 'progress'}">
+        <a href="/insights" th:classappend="${active == 'insights'} ? 'is-active'">Insights</a>
+        <a href="/goals" th:classappend="${active == 'goals'} ? 'is-active'">Goals</a>
+        <a href="/body" th:classappend="${active == 'body'} ? 'is-active'">Body</a>
+        <a href="/metrics" th:classappend="${active == 'metrics'} ? 'is-active'">Metrics</a>
+        <a href="/timeline" th:classappend="${active == 'timeline'} ? 'is-active'">Timeline</a>
+    </th:block>
+    <th:block th:if="${section == 'settings'}">
+        <a href="/profile" th:classappend="${active == 'profile'} ? 'is-active'">Profile</a>
+        <a href="/account" th:classappend="${active == 'account'} ? 'is-active'">Account &amp; security</a>
+        <a href="/export" th:classappend="${active == 'export'} ? 'is-active'">Export data</a>
+    </th:block>
+</nav>
 </html>

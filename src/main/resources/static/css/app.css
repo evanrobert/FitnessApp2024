@@ -495,6 +495,26 @@ legend { padding: 0; }
 .toolbar { display: flex; gap: 12px; align-items: end; flex-wrap: wrap; padding: 14px 20px; border-bottom: 1px solid var(--line); background: var(--surface-2); }
 .toolbar .field { min-width: 150px; }
 .toolbar .grow { flex: 1 1 220px; }
+/* Section tabs (Training, Progress, Settings): one row, scrolls sideways on small screens */
+.subnav {
+    display: flex; gap: 4px; margin: 0 0 22px; padding-bottom: 0;
+    border-bottom: 1px solid var(--line-strong); overflow-x: auto; scrollbar-width: none;
+}
+.subnav::-webkit-scrollbar { display: none; }
+.subnav a {
+    flex: none; padding: 10px 14px 11px; margin-bottom: -1px;
+    font-size: 14px; font-weight: 700; color: var(--muted); text-decoration: none;
+    border-bottom: 3px solid transparent; white-space: nowrap;
+}
+.subnav a:hover { color: var(--ink); }
+.subnav a.is-active { color: var(--ink); border-bottom-color: var(--blue); }
+.subnav a:focus-visible { outline: 2px solid var(--blue); outline-offset: -2px; }
+
+/* Settings: status line for email and security cards */
+.status-line { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.switch-row { display: flex; align-items: flex-start; gap: 12px; }
+.switch-row input[type=checkbox] { width: 20px; height: 20px; margin-top: 2px; accent-color: var(--blue); flex: none; }
+
 .segmented { display: inline-flex; border: 1px solid var(--line-strong); border-radius: var(--radius-sm); overflow: hidden; background: var(--surface); }
 .segmented a, .segmented button { padding: 7px 12px; font-size: 13px; font-weight: 700; color: var(--ink-2); text-decoration: none; border: 0; border-left: 1px solid var(--line); background: none; cursor: pointer; font-family: inherit; }
 .segmented a:first-child, .segmented button:first-child { border-left: 0; }
@@ -739,6 +759,7 @@ a.timeline-item:hover { border-color: var(--ink); color: inherit; }
     .tabbar .is-active { color: #fff; }
     .tabbar .is-active svg { stroke: var(--blue); }
     .page-head { margin-bottom: 18px; }
+    .subnav { margin: -4px -16px 16px; padding: 0 12px; }
     .cols-3 { grid-template-columns: minmax(0, 1fr); }
     .auth { grid-template-columns: minmax(0, 1fr); }
     .auth-art { min-height: 300px; padding: 28px 20px; }
@@ -778,3 +799,4 @@ a.timeline-item:hover { border-color: var(--ink); color: inherit; }
     .content { margin: 0; padding: 0; }
     body { background: #fff; }
 }
+.card-icon { color: var(--tan-ink); flex: none; }

@@ -18,9 +18,15 @@
             <p class="field-error" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></p>
         </div>
         <div class="field">
+            <label for="email">Email</label>
+            <input class="input" type="email" id="email" th:field="*{email}" th:errorclass="is-invalid" required autocomplete="email" autocapitalize="none">
+            <p class="hint">For password resets and, only if you opt in, a weekly summary. Never shared.</p>
+            <p class="field-error" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></p>
+        </div>
+        <div class="field">
             <label for="password">Password</label>
-            <input class="input" type="password" id="password" th:field="*{password}" th:errorclass="is-invalid" required autocomplete="new-password" minlength="8">
-            <p class="hint">At least 8 characters.</p>
+            <input class="input" type="password" id="password" th:field="*{password}" th:errorclass="is-invalid" required autocomplete="new-password" minlength="10">
+            <p class="hint">At least 10 characters. A short phrase works well.</p>
             <p class="field-error" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></p>
         </div>
         <div class="field">

@@ -19,7 +19,9 @@ public final class TestUsers {
 
     public static UserLoginDetails create(AccountService accounts) {
         SignupForm form = new SignupForm();
-        form.setUsername("member-" + UUID.randomUUID().toString().substring(0, 8));
+        String id = UUID.randomUUID().toString().substring(0, 8);
+        form.setUsername("member-" + id);
+        form.setEmail("member-" + id + "@example.com");
         form.setPassword("correct-horse-battery");
         form.setName("Test Member");
         form.setWeight(180.0);

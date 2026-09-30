@@ -77,8 +77,12 @@ public class DemoDataSeeder implements ApplicationRunner {
         SignupForm form = new SignupForm();
         form.setUsername("demo");
         form.setPassword("demo-password");
+        form.setEmail("demo@example.com");
         form.setName("Demo Member");
         UserLoginDetails demo = accounts.register(form);
+        // Synthetic address on a reserved domain, pre-confirmed so reset and weekly-summary previews work in dev.
+        demo.setEmailVerifiedAt(java.time.LocalDateTime.now());
+        users.save(demo);
         LocalDate today = todayService.today(demo.getId());
         LocalDate start = today.minusWeeks(WEEKS).with(DayOfWeek.MONDAY);
 

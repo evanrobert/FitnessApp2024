@@ -286,7 +286,7 @@ class TrackingFeatureTests {
         weighIn(bob, LocalDate.of(2026, 9, 6), 181.0);
 
         mvc.perform(post("/profile/delete-account").with(as(bob)).with(csrf()).param("confirm", "DELETE").param("password", "wrong"))
-                .andExpect(redirectedUrl("/profile#account"));
+                .andExpect(redirectedUrl("/account#delete"));
         assertThat(users.existsById(bob.getId())).isTrue();
 
         mvc.perform(post("/profile/delete-account").with(as(bob)).with(csrf()).param("confirm", "DELETE").param("password", "correct-horse-battery"))

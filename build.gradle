@@ -33,6 +33,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	implementation 'org.springframework.boot:spring-boot-starter-mail'
 	implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
 	implementation 'org.flywaydb:flyway-core'
 	implementation 'org.flywaydb:flyway-mysql'
@@ -54,6 +55,8 @@ tasks.named('test') {
 }
 
 tasks.named('bootRun') {
-	// Zero-setup local run against in-memory H2 unless a profile is supplied.
-	systemProperty 'spring.profiles.active', System.getProperty('spring.profiles.active', 'dev')
+	// Zero-setup run against in-memory H2 by default. Pick another profile with
+	// -Pprofile=local (your MySQL, see config/application-local.example.yml).
+	systemProperty 'spring.profiles.active',
+			project.findProperty('profile') ?: System.getProperty('spring.profiles.active', 'dev')
 }

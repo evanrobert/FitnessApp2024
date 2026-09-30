@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/auth :: page(title='Email preferences', content=~{::content})}">
+<body>
+<th:block th:fragment="content">
+    <span class="eyebrow">Email preferences</span>
+    <h2 class="display">Weekly summary</h2>
+    <th:block th:if="${done}">
+        <div class="flash flash-success mt-2" role="status"><svg><use href="#i-check"/></svg><span>You're unsubscribed. No more weekly summaries.</span></div>
+        <p class="muted small mt-2">Changed your mind? Turn it back on any time under Settings → Account &amp; security.</p>
+    </th:block>
+    <div class="flash flash-error mt-2" th:if="${!valid or done == false}" role="alert"><svg><use href="#i-alert"/></svg><span>This unsubscribe link isn't valid. Sign in and change it under Settings.</span></div>
+    <form th:if="${valid and done == null}" th:action="@{/email/unsubscribe}" method="post">
+        <input type="hidden" name="token" th:value="${token}">
+        <p class="muted mt-1">Stop the Monday summary email? Your data and account aren't affected.</p>
+        <button class="btn btn-primary btn-block" type="submit">Unsubscribe</button>
+    </form>
+    <p class="switch"><a href="/login">Log in</a></p>
+</th:block>
+</body>
+</html>

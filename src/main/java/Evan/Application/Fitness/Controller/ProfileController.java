@@ -101,7 +101,7 @@ public class ProfileController {
                                 HttpServletResponse response, RedirectAttributes redirect) {
         if (!"DELETE".equals(confirm) || !accounts.passwordMatches(me.getId(), password)) {
             Flash.error(redirect, "Type DELETE and your current password to confirm.");
-            return "redirect:/profile#account";
+            return "redirect:/account#delete";
         }
         accounts.deleteAccount(me.getId());
         new SecurityContextLogoutHandler().logout(request, response, null);

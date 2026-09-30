@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: page(title='Account & security', active='account', content=~{::content})}">
+<body>
+<th:block th:fragment="content">
+    <header class="page-head">
+        <div>
+            <span class="eyebrow">Settings</span>
+            <h1 class="display">Account &amp; security</h1>
+            <p class="lede">Your sign-in details, password and email preferences.</p>
+        </div>
+    </header>
+
+    <div class="flash flash-error" th:if="${account.email == null}" role="alert"><svg><use href="#i-alert"/></svg>
+        <span>Add an email address below. Without one, a forgotten password can't be reset.</span></div>
+    <div class="flash" th:if="${!mailConfigured}" role="note"><svg><use href="#i-info"/></svg>
+        <span>Email sending isn't set up on this server yet<th:block th:if="${mailLogMode}">. For local testing, each email (including confirmation and reset links) is printed in the window where the app is running</th:block>.</span></div>
+
+    <div class="grid cols-2">
+        <section class="card" id="email">
+            <div class="card-head"><div><span class="eyebrow">Sign-in &amp; recovery</span><h2>Email</h2></div><svg class="card-icon" width="22" height="22"><use href="#i-mail"/></svg></div>
+            <div class="card-body stack" style="gap:14px">
+                <div class="status-line" th:if="${account.email}">
+                    <strong th:text="${account.email}">you@example.com</strong>
+                    <span class="badge badge-good" th:if="${account.emailVerified}"><svg><use href="#i-check"/></svg>Confirmed</span>
+                    <span class="badge badge-warn" th:unless="${account.emailVerified}">Not confirmed</span>
+                </div>
+                <form th:if="${account.email != null and !account.emailVerified}" method="post" th:action="@{/account/email/resend}" class="stack" style="gap:6px">
+                    <p class="small muted">Click the link we sent to confirm it. Password reset and weekly summaries need a confirmed address.</p>
+                    <button class="btn btn-sm" type="submit" style="justify-self:start">Resend confirmation email</button>
+                </form>
+                <details th:open="${account.email == null}">
+                    <summary class="strong" style="cursor:pointer" th:text="${account.email == null} ? 'Add an email' : 'Change email'">Change email</summary>
+                    <form class="stack mt-2" style="gap:10px" method="post" th:action="@{/account/email}">
+                        <div class="field"><label for="email-input">Email address</label>
+                            <input class="input" id="email-input" name="email" type="email" required maxlength="254" autocomplete="email" autocapitalize="none"></div>
+                        <div class="field"><label for="email-password">Current password</label>
+                            <input class="input" id="email-password" name="currentPassword" type="password" required autocomplete="current-password"></div>
+                        <button class="btn btn-dark" type="submit">Save and send confirmation</button>
+                    </form>
+                </details>
+                <p class="hint">You can sign in with your username (<strong th:text="${account.username}">name</strong>) or this email.</p>
+            </div>
+        </section>
+
+        <section class="card" id="password">
+            <div class="card-head"><div><span class="eyebrow">Security</span><h2>Password</h2></div><svg class="card-icon" width="22" height="22"><use href="#i-lock"/></svg></div>
+            <div class="card-body stack" style="gap:12px">
+                <p class="small muted" th:text="${account.passwordChangedAt != null} ? 'Last changed ' + ${#temporals.format(account.passwordChangedAt, 'MMM d, yyyy')} + '.' : 'Set when you created your account.'">Last changed</p>
+                <details th:open="${openPassword}">
+                    <summary class="strong" style="cursor:pointer">Change password</summary>
+                    <form class="stack mt-2" style="gap:10px" method="post" th:action="@{/account/password}" th:object="${passwordForm}" novalidate>
+                        <div class="field"><label for="currentPassword">Current password</label>
+                            <input class="input" type="password" id="currentPassword" th:field="*{currentPassword}" th:errorclass="is-invalid" required autocomplete="current-password">
+                            <p class="field-error" th:if="${#fields.hasErrors('currentPassword')}" th:errors="*{currentPassword}"></p></div>
+                        <th:block th:replace="~{fragments/ui :: newPasswordFields}"></th:block>
+                        <button class="btn btn-dark" type="submit">Change password</button>
+                        <p class="hint">Other devices are signed out; this one stays signed in.</p>
+                    </form>
+                </details>
+                <ul class="small muted" style="margin:0;padding-left:18px">
+                    <li>After 5 wrong passwords in a row, sign-in pauses for 15 minutes.</li>
+                    <li>You're signed out automatically after 30 minutes of inactivity.</li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="card" id="notifications">
+            <div class="card-head"><div><span class="eyebrow">Email preferences</span><h2>Weekly summary</h2></div></div>
+            <div class="card-body stack" style="gap:12px">
+                <form method="post" th:action="@{/account/notifications}" class="stack" style="gap:12px">
+                    <label class="switch-row" for="weeklyEmail">
+                        <input type="checkbox" id="weeklyEmail" name="weeklyEmail" value="true" th:checked="${account.weeklyEmail}" th:disabled="${!account.emailVerified}">
+                        <span><strong>Monday summary and reminder</strong><br>
+                            <span class="small muted">Last week's workouts, sets, cardio, new records and logging streaks, plus one suggestion for the week ahead.</span></span>
+                    </label>
+                    <p class="hint" th:unless="${account.emailVerified}">Confirm your email address to turn this on.</p>
+                    <button class="btn btn-sm" type="submit" style="justify-self:start" th:disabled="${!account.emailVerified}">Save preference</button>
+                </form>
+                <p class="hint">To protect your privacy, emails include activity counts only. Weight, sleep, mood and injury details stay in the app. Every email has a one-click unsubscribe link.</p>
+                <form method="post" th:action="@{/account/notifications/preview}" th:if="${account.emailVerified}">
+                    <button class="btn btn-sm" type="submit"><svg><use href="#i-mail"/></svg>Send me a preview</button>
+                </form>
+            </div>
+        </section>
+
+        <section class="card" id="delete">
+            <div class="card-head"><div><span class="eyebrow">Your data</span><h2>Export or delete</h2></div></div>
+            <div class="card-body stack" style="gap:12px">
+                <a class="btn" href="/export"><svg><use href="#i-download"/></svg>Export all data</a>
+                <details>
+                    <summary class="strong text-bad" style="cursor:pointer">Delete account</summary>
+                    <form class="stack mt-2" style="gap:10px" method="post" th:action="@{/profile/delete-account}">
+                        <p class="small">Permanently deletes your account and everything you've logged. Export first if you want a copy.</p>
+                        <div class="field"><label for="confirm">Type DELETE</label><input class="input" id="confirm" name="confirm" autocomplete="off"></div>
+                        <div class="field"><label for="delete-password">Current password</label><input class="input" id="delete-password" name="password" type="password" autocomplete="current-password"></div>
+                        <button class="btn btn-danger" type="submit" data-confirm="This permanently deletes your account and all data. Continue?">Delete my account</button>
+                    </form>
+                </details>
+            </div>
+        </section>
+    </div>
+</th:block>
+</body>
+</html>
