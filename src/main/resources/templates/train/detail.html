@@ -30,11 +30,27 @@
     </section>
 
     <section class="card section" th:unless="${prs.isEmpty()}" style="border-color: var(--blue)">
-        <div class="card-head"><div><span class="eyebrow">New personal records</span><h2 th:text="|${#lists.size(prs)} new personal best${#lists.size(prs) == 1 ? '' : 's'}|">Personal bests</h2></div><svg style="width:28px;height:28px;stroke:var(--blue)"><use href="#i-trophy"/></svg></div>
+        <div class="card-head"><div><span class="eyebrow">New personal bests</span><h2 th:text="|${#lists.size(prs)} new personal best${#lists.size(prs) == 1 ? '' : 's'}|">Personal bests</h2></div><svg style="width:28px;height:28px;stroke:var(--blue)"><use href="#i-trophy"/></svg></div>
         <ul class="list">
             <li th:each="p : ${prs}">
                 <div><div class="title" th:text="${p.exercise().name}">Exercise</div><div class="meta" th:text="${p.kind().label}">kind</div></div>
                 <div class="num strong"><th:block th:text="|${@fmt.dec(p.value())} lb|">0</th:block> <span class="badge badge-good" th:text="|${@fmt.signed(p.gain())} lb|">+5</span></div>
+            </li>
+        </ul>
+    </section>
+
+    <section class="card section" th:unless="${sessionGoals.isEmpty()}">
+        <div class="card-head"><div><span class="eyebrow">Your goals</span><h2>How this workout moved them</h2></div><svg class="card-icon" width="24" height="24"><use href="#i-goals"/></svg></div>
+        <ul class="list">
+            <li th:each="p : ${sessionGoals}" style="display:block">
+                <div class="row-between">
+                    <span class="title" th:text="${p.goal().title}">Bench 185</span>
+                    <span class="badge badge-good" th:if="${p.goal().status.name() == 'ACHIEVED' and p.goal().achievedOn == s.sessionDate}"><svg><use href="#i-trophy"/></svg>Reached in this workout!</span>
+                    <span class="badge badge-good" th:if="${p.goal().status.name() == 'ACHIEVED' and p.goal().achievedOn != s.sessionDate}"><svg><use href="#i-check"/></svg>Already reached</span>
+                    <span class="small strong" th:if="${p.goal().status.name() == 'ACTIVE'}" th:text="${@fmt.pct(p.pct())}">80%</span>
+                </div>
+                <div class="meter mt-1" th:classappend="${p.reached()} ? 'is-done'"><span th:style="${@fmt.width(p.pct())}"></span></div>
+                <div class="meta mt-1" th:text="|Best so far ${p.current() != null ? @fmt.dec(p.current()) : '—'} lb · goal ${@fmt.dec(p.goal().targetValue)} lb|">meta</div>
             </li>
         </ul>
     </section>
@@ -49,7 +65,10 @@
                         <span class="eyebrow" th:text="${b.exercise().muscleGroup.label}">Muscle</span>
                         <h3><a class="row-link" style="color:inherit;text-decoration:none" th:href="@{/exercises/{id}(id=${b.exercise().id})}" th:text="${b.exercise().name}">Exercise</a></h3>
                     </div>
-                    <span class="badge badge-blue" th:if="${prExercises.contains(b.exercise().id)}"><svg><use href="#i-trophy"/></svg>Personal best</span>
+                    <div class="row" style="gap:6px;justify-content:flex-end">
+                        <th:block th:with="lv=${levels.get(b.exercise().id)}"><span class="badge level-badge" th:if="${lv != null}" th:classappend="${lv.css()}" th:text="${lv.label()}">Novice</span></th:block>
+                        <span class="badge badge-blue" th:if="${prExercises.contains(b.exercise().id)}"><svg><use href="#i-trophy"/></svg>Personal best</span>
+                    </div>
                 </div>
                 <table class="table table-compact">
                     <thead><tr><th>Set</th><th class="num">Weight</th><th class="num">Times</th><th class="num">Rate of perceived exertion</th><th class="num">Estimated max</th></tr></thead>

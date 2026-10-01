@@ -18,15 +18,19 @@
 
     <th:block th:if="${records.isEmpty()}"><div class="section" th:replace="~{fragments/ui :: empty('trophy', 'No personal bests yet', 'Add a workout with weights. When you lift more than before, it shows up here.', '/train/new', 'Add a workout')}"></div></th:block>
 
+    <div class="flash flash-info" th:if="${levelSetupHint != null and !records.isEmpty()}"><svg><use href="#i-info"/></svg>
+        <span><th:block th:text="${levelSetupHint}">hint</th:block> <a href="/profile">Profile</a> · <a href="/body#weigh-in">Weigh yourself</a></span></div>
+
     <div class="grid split section" th:unless="${records.isEmpty()}">
         <section class="card ledger">
             <div class="card-head"><div><span class="eyebrow">All-time bests</span><h2>By lift</h2></div></div>
             <div class="table-wrap">
                 <table class="table">
-                    <thead><tr><th data-sort="text">Lift</th><th data-sort="num" class="num">Best estimated max</th><th data-sort="num" class="num">Heaviest</th><th data-sort="num" class="num">Workouts</th><th data-sort="text">Set on</th></tr></thead>
+                    <thead><tr><th data-sort="text">Lift</th><th>Your level</th><th data-sort="num" class="num">Best estimated max</th><th data-sort="num" class="num">Heaviest</th><th data-sort="num" class="num">Workouts</th><th data-sort="text">Set on</th></tr></thead>
                     <tbody>
                     <tr th:each="r : ${records}">
                         <td><a class="row-link" th:href="@{/exercises/{id}(id=${r.exercise().id})}" th:text="${r.exercise().name}">Lift</a><div class="small muted" th:text="${r.exercise().muscleGroup.label}">muscle</div></td>
+                        <td th:with="lv=${levels.get(r.exercise().id)}"><span th:if="${lv != null}" class="badge level-badge" th:classappend="${lv.css()}" th:text="${lv.label()}">Novice</span><span th:if="${lv == null}" class="muted small">—</span></td>
                         <td class="num strong" th:attr="data-value=${r.bestE1rm()}" th:text="|${@fmt.dec(r.bestE1rm())} lb|">0</td>
                         <td class="num" th:attr="data-value=${r.bestWeight()}" th:text="|${@fmt.dec(r.bestWeight())} × ${r.bestWeightReps()}|">0</td>
                         <td class="num" th:text="${r.sessions()}">0</td>

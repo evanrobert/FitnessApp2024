@@ -133,12 +133,12 @@ public class AnalyticsService {
         tasks.add(new TodayTask("Say how you feel", checkIn != null && checkIn.readinessScore() != null
                 ? "Ready-to-train score " + checkIn.readinessScore() : "3 quick questions, 30 seconds", checkIn != null, "/recover", "recover"));
         tasks.add(new TodayTask("Add what you eat", todayMeals.isEmpty() ? "Nothing added yet today"
-                : todayMeals.size() + (todayMeals.size() == 1 ? " thing · " : " things · ") + fmt.num(totals.calories()) + " calories", !todayMeals.isEmpty(), "/fuel", "fuel"));
+                : todayMeals.size() + (todayMeals.size() == 1 ? " thing · " : " things · ") + fmt.num(totals.calories()) + " calories", !todayMeals.isEmpty(), "/fuel", EntryIcons.foods(todayMeals.stream().map(CalorieInformation::getItemName).filter(Objects::nonNull).toList())));
         boolean weekDone = week.size() >= d.weeklyTarget();
         tasks.add(new TodayTask(todaySessions.isEmpty() ? (weekDone ? "Weekly goal done" : "Work out") : "Worked out today",
                 todaySessions.isEmpty() ? week.size() + " of " + d.weeklyTarget() + " workouts this week"
                         : todaySessions.get(0).displayTitle() + " · " + fmt.compact(todaySessions.stream().mapToDouble(WorkoutSession::volume).sum()) + " lb lifted",
-                !todaySessions.isEmpty() || weekDone, todaySessions.isEmpty() ? "/train/new" : "/train/" + todaySessions.get(0).getId(), "train"));
+                !todaySessions.isEmpty() || weekDone, todaySessions.isEmpty() ? "/train/new" : "/train/" + todaySessions.get(0).getId(), "bicep"));
         Double waterTarget = d.targets() == null ? null : d.targets().getDailyWaterOz();
         double water = checkIn == null || checkIn.getWaterOz() == null ? 0 : checkIn.getWaterOz();
         tasks.add(new TodayTask("Drink water", fmt.num(water) + (waterTarget != null ? " of " + fmt.num(waterTarget) : "") + " oz",
@@ -595,8 +595,8 @@ public class AnalyticsService {
     // =====================================================================
 
     public enum EventType {
-        TRAINING("Training", "train"), NUTRITION("Nutrition", "fuel"), RECOVERY("Recovery", "recover"),
-        BODY("Body", "scale"), METRIC("Metrics", "metrics"), MILESTONE("Milestones", "trophy");
+        TRAINING("Workouts", "bicep"), NUTRITION("Food", "bowl"), RECOVERY("Sleep & mood", "recover"),
+        BODY("Weight", "scale"), METRIC("Other tracking", "metrics"), MILESTONE("Wins", "trophy");
 
         private final String label;
         private final String icon;
@@ -615,7 +615,11 @@ public class AnalyticsService {
         }
     }
 
-    public record TimelineEvent(LocalDate date, EventType type, String title, String meta, String value, String href, String iconClass) {
+    public record TimelineEvent(LocalDate date, EventType type, String title, String meta, String value, String href, String iconClass,
+                                String icon) {
+        TimelineEvent(LocalDate date, EventType type, String title, String meta, String value, String href, String iconClass) {
+            this(date, type, title, meta, value, href, iconClass, type.getIcon());
+        }
     }
 
     public record TimelineDay(LocalDate date, List<TimelineEvent> events) {
@@ -631,11 +635,11 @@ public class AnalyticsService {
         List<TimelineEvent> events = new ArrayList<>();
         for (WorkoutSession s : d.sessions()) {
             if (s.getSessionDate().isBefore(from)) continue;
-            String parts = s.workingSetCount() + " sets" + (s.getCardio().isEmpty() ? "" : " · " + fmt.minutes(s.cardioMinutes()) + " cardio")
+            String parts = s.workingSetCount() + (s.workingSetCount() == 1 ? " set" : " sets") + (s.getCardio().isEmpty() ? "" : " · " + fmt.minutes(s.cardioMinutes()) + " cardio")
                     + (s.getDurationMin() != null ? " · " + fmt.minutes(s.getDurationMin()) : "");
             events.add(new TimelineEvent(s.getSessionDate(), EventType.TRAINING, s.displayTitle(),
                     (s.exerciseSummary().isBlank() ? "" : s.exerciseSummary() + " — ") + parts,
-                    s.volume() > 0 ? fmt.compact(s.volume()) + " lb" : null, "/train/" + s.getId(), "is-train"));
+                    s.volume() > 0 ? fmt.compact(s.volume()) + " lb" : null, "/train/" + s.getId(), "is-train", EntryIcons.workout(s)));
         }
         // One milestone per session, however many records it set.
         d.records().events().stream().filter(p -> !p.date().isBefore(from))
@@ -644,17 +648,18 @@ public class AnalyticsService {
                     List<String> lifts = prs.stream().map(p -> p.exercise().getName()).distinct().toList();
                     RecordsService.PrEvent biggest = prs.stream().max(Comparator.comparingDouble(RecordsService.PrEvent::gain)).orElseThrow();
                     events.add(new TimelineEvent(biggest.date(), EventType.MILESTONE,
-                            lifts.size() == 1 ? "PR · " + lifts.get(0) : lifts.size() + " lifts hit PRs",
+                            lifts.size() == 1 ? "Personal best · " + lifts.get(0) : lifts.size() + " lifts hit personal bests",
                             String.join(", ", lifts) + " — biggest: " + biggest.exercise().getName() + " +" + fmt.dec(biggest.gain()) + " lb",
-                            prs.size() + (prs.size() == 1 ? " record" : " records"), "/train/" + sessionId, "is-pr"));
+                            prs.size() + (prs.size() == 1 ? " personal best" : " personal bests"), "/train/" + sessionId, "is-pr", "trophy"));
                 });
         d.mealsByDay().forEach((day, meals) -> {
             if (day.isBefore(from)) return;
             double kcal = meals.stream().mapToDouble(CalorieInformation::getCalories).sum();
             double protein = meals.stream().mapToDouble(CalorieInformation::getProteins).sum();
-            events.add(new TimelineEvent(day, EventType.NUTRITION, meals.size() + (meals.size() == 1 ? " food entry" : " food entries"),
+            events.add(new TimelineEvent(day, EventType.NUTRITION, meals.size() + (meals.size() == 1 ? " thing eaten" : " things eaten"),
                     fmt.num(protein) + " g protein · " + meals.stream().map(CalorieInformation::getItemName).filter(Objects::nonNull).limit(3).collect(Collectors.joining(", ")),
-                    fmt.num(kcal) + " kcal", "/fuel?date=" + day, ""));
+                    fmt.num(kcal) + " calories", "/fuel?date=" + day, "is-food",
+                    EntryIcons.foods(meals.stream().map(CalorieInformation::getItemName).filter(Objects::nonNull).toList())));
         });
         for (DailyCheckIn c : d.checkIns()) {
             if (c.getCheckInDate().isBefore(from)) continue;
@@ -663,8 +668,8 @@ public class AnalyticsService {
             if (c.getEnergy() != null) bits.add("energy " + c.getEnergy() + "/5");
             if (c.getWaterOz() != null) bits.add(fmt.num(c.getWaterOz()) + " oz water");
             if (c.getSteps() != null) bits.add(fmt.num(c.getSteps()) + " steps");
-            events.add(new TimelineEvent(c.getCheckInDate(), EventType.RECOVERY, "Check-in", String.join(" · ", bits),
-                    c.readinessScore() == null ? null : "Ready-to-train score " + c.readinessScore(), "/recover?date=" + c.getCheckInDate(), ""));
+            events.add(new TimelineEvent(c.getCheckInDate(), EventType.RECOVERY, "How you felt", String.join(" · ", bits),
+                    c.readinessScore() == null ? null : "Ready-to-train score " + c.readinessScore(), "/recover?date=" + c.getCheckInDate(), "is-feel"));
         }
         for (BodyMeasurement m : d.measurements()) {
             if (m.getMeasuredOn().isBefore(from)) continue;
@@ -682,7 +687,7 @@ public class AnalyticsService {
         }
         for (GoalService.Progress p : d.goals()) {
             if (p.goal().getAchievedOn() != null && !p.goal().getAchievedOn().isBefore(from)) {
-                events.add(new TimelineEvent(p.goal().getAchievedOn(), EventType.MILESTONE, "Goal achieved", p.goal().getTitle(), null, "/goals", "is-goal"));
+                events.add(new TimelineEvent(p.goal().getAchievedOn(), EventType.MILESTONE, "Goal reached", p.goal().getTitle(), null, "/goals", "is-goal", "goals"));
             }
         }
         return events.stream()

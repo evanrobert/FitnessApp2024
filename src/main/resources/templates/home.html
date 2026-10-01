@@ -16,8 +16,8 @@
     <!--/* The four things people do every day, as big buttons. */-->
     <section class="action-tiles" aria-label="What do you want to do?">
         <h2 class="action-title">What do you want to do?</h2>
-        <a class="action-tile" href="/train/new"><svg><use href="#i-train"/></svg><strong>I worked out</strong><span>Add your exercises</span></a>
-        <a class="action-tile" href="/fuel/new"><svg><use href="#i-fuel"/></svg><strong>I ate something</strong><span>Add a meal or snack</span></a>
+        <a class="action-tile" href="/train/new"><svg><use href="#i-bicep"/></svg><strong>I worked out</strong><span>Add your exercises</span></a>
+        <a class="action-tile" href="/fuel/new"><svg><use href="#i-drumstick"/></svg><strong>I ate something</strong><span>Add a meal or snack</span></a>
         <a class="action-tile" href="/recover"><svg><use href="#i-recover"/></svg><strong>How I feel</strong><span>Sleep and mood, 30 seconds</span></a>
         <a class="action-tile" href="/body#weigh-in"><svg><use href="#i-scale"/></svg><strong>Weigh myself</strong><span>Add today's weight</span></a>
     </section>
@@ -107,7 +107,7 @@
                     <div class="timeline-day" th:each="day : ${d.recent()}">
                         <div class="timeline-date" style="background:var(--surface)" th:text="${@fmt.relative(day.date(), data.today()) == 'today' ? 'Today' : @fmt.dayTitle(day.date())}">Day</div>
                         <a class="timeline-item" th:each="e : ${day.events()}" th:href="${e.href()}">
-                            <span class="timeline-icon" th:classappend="${e.iconClass()}"><svg><use th:href="${'#i-' + e.type().icon}"/></svg></span>
+                            <span class="timeline-icon" th:classappend="${e.iconClass()}"><svg><use th:href="${'#i-' + e.icon()}"/></svg></span>
                             <span style="min-width:0"><span class="title" th:text="${e.title()}">Title</span><br><span class="meta" th:text="${e.meta()}">meta</span></span>
                             <span class="strong num nowrap" th:text="${e.value()}"></span>
                         </a>

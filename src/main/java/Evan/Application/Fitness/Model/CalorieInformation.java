@@ -71,4 +71,9 @@ public class CalorieInformation {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userid")
     private UserLoginDetails user;
+
+    /** Icon for this food (a shake, chicken, apple...). Not stored. */
+    public String foodIcon() {
+        return Evan.Application.Fitness.Service.EntryIcons.food(itemName);
+    }
 }

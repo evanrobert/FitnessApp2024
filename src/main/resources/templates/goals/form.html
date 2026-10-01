@@ -27,7 +27,7 @@
                     </select>
                 </div>
                 <div class="field">
-                    <label for="exerciseId">Exercise <span class="muted">(for 1RM goals)</span></label>
+                    <label for="exerciseId">Exercise <span class="muted">(for lift goals)</span></label>
                     <select class="input" id="exerciseId" name="exerciseId">
                         <option value="">—</option>
                         <option th:each="e : ${exercises}" th:value="${e.id}" th:text="${e.name}" th:selected="${e.id == exerciseId}"></option>

@@ -30,9 +30,14 @@ public class TrainingController {
     private final TodayService todayService;
     private final ChartJson charts;
     private final Fmt fmt;
+    private final GoalService goals;
+    private final StrengthLevelService strength;
 
     public TrainingController(TrainingService training, RecordsService records, LimitationService limitations,
-                              ProfileService profiles, TodayService todayService, ChartJson charts, Fmt fmt) {
+                              ProfileService profiles, TodayService todayService, ChartJson charts, Fmt fmt,
+                              GoalService goals, StrengthLevelService strength) {
+        this.goals = goals;
+        this.strength = strength;
         this.training = training;
         this.records = records;
         this.limitations = limitations;
@@ -102,10 +107,37 @@ public class TrainingController {
         if (result.hasErrors()) {
             return builder(me.getId(), form, null, model, result);
         }
+        Map<Long, StrengthStandards.Level> levelsBefore = strength.levels(me.getId());
         WorkoutSession saved = training.create(me.getId(), form);
-        long prs = records.prsIn(records.summary(me.getId()), saved.getId()).size();
-        Flash.success(redirect, prs > 0 ? "Great workout! You set " + prs + (prs == 1 ? " new personal best!" : " new personal bests!") : "Saved! Nice work.");
+        Flash.success(redirect, celebrate(me.getId(), saved, levelsBefore, "Saved! Nice work."));
         return "redirect:/train/" + saved.getId();
+    }
+
+    /**
+     * The message after saving: goals this workout reached (now marked achieved),
+     * new strength levels and new personal bests.
+     */
+    private String celebrate(Long userId, WorkoutSession saved, Map<Long, StrengthStandards.Level> levelsBefore, String plain) {
+        Set<Long> exerciseIds = new HashSet<>();
+        saved.getSets().forEach(s -> exerciseIds.add(s.getExercise().getId()));
+        List<String> wins = new ArrayList<>();
+        for (Goal goal : goals.markReachedLiftGoals(userId, exerciseIds, saved.getSessionDate())) {
+            wins.add("Goal reached: " + goal.getTitle() + "!");
+        }
+        Map<Long, StrengthStandards.Level> levelsAfter = strength.levels(userId);
+        levelsAfter.forEach((exerciseId, level) -> {
+            StrengthStandards.Level before = levelsBefore.get(exerciseId);
+            if (exerciseIds.contains(exerciseId) && level.name() != null && (before == null || level.rank() > before.rank())) {
+                String lift = saved.getSets().stream().filter(s -> s.getExercise().getId().equals(exerciseId))
+                        .findFirst().map(s -> s.getExercise().getName()).orElse("this lift");
+                wins.add("New level: " + level.name() + " at " + lift + "!");
+            }
+        });
+        long prs = records.prsIn(records.summary(userId), saved.getId()).size();
+        if (prs > 0) {
+            wins.add("You set " + prs + (prs == 1 ? " new personal best." : " new personal bests."));
+        }
+        return wins.isEmpty() ? plain : "Great workout! " + String.join(" ", wins);
     }
 
     @GetMapping("/{id}")
@@ -120,6 +152,15 @@ public class TrainingController {
         model.addAttribute("prs", prs);
         model.addAttribute("prExercises", prExercises);
         model.addAttribute("today", todayService.today(me.getId()));
+        StrengthLevelService.Setup setup = strength.setup(me.getId());
+        model.addAttribute("levels", strength.levels(setup, summary));
+        // Lift goals this workout counts toward, so a 185 bench shows up against "Bench 185".
+        Set<Long> exerciseIds = new HashSet<>();
+        session.getSets().forEach(s -> exerciseIds.add(s.getExercise().getId()));
+        model.addAttribute("sessionGoals", goals.progressFor(me.getId()).stream()
+                .filter(p -> p.goal().getStatus() != GoalStatus.ARCHIVED && p.goal().getMetric().usesExercise()
+                        && p.goal().getExercise() != null && exerciseIds.contains(p.goal().getExercise().getId()))
+                .toList());
         return "train/detail";
     }
 
@@ -135,8 +176,9 @@ public class TrainingController {
         if (result.hasErrors()) {
             return builder(me.getId(), form, id, model, result);
         }
-        training.update(me.getId(), id, form);
-        Flash.success(redirect, "Changes saved");
+        Map<Long, StrengthStandards.Level> levelsBefore = strength.levels(me.getId());
+        WorkoutSession saved = training.update(me.getId(), id, form);
+        Flash.success(redirect, celebrate(me.getId(), saved, levelsBefore, "Changes saved."));
         return "redirect:/train/" + id;
     }
 

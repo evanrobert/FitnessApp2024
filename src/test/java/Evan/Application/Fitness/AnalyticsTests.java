@@ -73,7 +73,7 @@ class AnalyticsTests {
         training.create(member.getId(), session(today.minusDays(1), 295, 305)); // beats both heaviest and e1RM
         List<AnalyticsService.TimelineDay> days = analytics.timeline(member.getId(), 30, AnalyticsService.EventType.MILESTONE);
         assertThat(days).singleElement().satisfies(day -> assertThat(day.events()).singleElement()
-                .satisfies(e -> assertThat(e.value()).isEqualTo("2 records")));
+                .satisfies(e -> assertThat(e.value()).isEqualTo("2 personal bests")));
     }
 
     @Test
