@@ -1,0 +1,9 @@
+# Keep the image small and never copy local secrets into it.
+.git
+.gradle
+build
+branding
+config/application-local.yml
+*.log
+.idea
+.vscode

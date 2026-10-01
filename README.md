@@ -120,6 +120,9 @@ unsubscribe link (and `List-Unsubscribe` headers).
 
 ### Servers and deployments
 
+**Free hosting walkthrough:** see [DEPLOY.md](DEPLOY.md) (Render + Aiven MySQL + Brevo email). The repo includes
+a `Dockerfile` (tested at 512 MB: ~270 MB in use) and a Render Blueprint (`render.yaml`).
+
 Use the **`prod` profile** (`SPRING_PROFILES_ACTIVE=prod`) on a host such as Render. It trusts the
 host's HTTPS proxy (so per-IP sign-in limits apply per visitor, redirects stay on https and HSTS
 is sent), forces secure cookies, never prints emails to the log, and refuses to start without
@@ -137,6 +140,8 @@ Instead of the file, supply credentials as environment variables:
 | `APP_SUPPORT_URL` | `https://buymeacoffee.com/EvanLindsay` | "Support the developer" page (https only; empty hides it) |
 | `APP_BASE_URL` | `http://localhost:8080` | Public URL used in email links |
 | `SPRING_MAIL_HOST` / `_PORT` / `_USERNAME` / `_PASSWORD` | — | SMTP server (unset = no email sent) |
+| `BREVO_API_KEY` | — | Send email through Brevo over HTTPS instead of SMTP (for hosts that block SMTP) |
+| `PORT` | `8080` | Port to listen on (set by hosts such as Render) |
 | `MAIL_FROM` | `Evan Fitness <no-reply@localhost>` | Sender address |
 | `SESSION_TIMEOUT` | `30m` | Idle sign-out |
 
@@ -207,7 +212,7 @@ every chart has hover/focus tooltips and a "View as table" equivalent.
 ./gradlew test
 ```
 
-75 tests cover migrations (legacy replay), security and member isolation, password
+78 tests cover migrations (legacy replay), security and member isolation, password
 reset and lockout, email confirmation and the weekly summary, every
 tracking area end to end, analytics rules, and rendering every page against months of
 synthetic data. All test data is synthetic.

@@ -22,8 +22,9 @@ import java.util.concurrent.Executor;
 /**
  * Sends account and summary emails.
  *
- * With SMTP configured (spring.mail.host) messages go out in the background, so
- * how long a send takes never reveals whether an account exists. Without SMTP,
+ * With Brevo (BREVO_API_KEY, over HTTPS) or SMTP (spring.mail.host) configured,
+ * messages go out in the background, so how long a send takes never reveals
+ * whether an account exists. Without SMTP,
  * dev/local/test profiles print each message (links included) to the log and keep
  * the last few in memory; production only logs that nothing was sent.
  */
@@ -40,12 +41,14 @@ public class MailService {
     private final String baseUrl;
     private final boolean logContents;
     private final Deque<Email> outbox = new ArrayDeque<>();
+    private final BrevoSender brevo;
 
-    public MailService(ObjectProvider<JavaMailSender> senders, TemplateEngine templates,
+    public MailService(ObjectProvider<JavaMailSender> senders, BrevoSender brevo, TemplateEngine templates,
                        @Qualifier("applicationTaskExecutor") Executor executor,
                        @Value("${app.mail.from}") String from, @Value("${app.brand-name}") String brandName,
                        @Value("${app.base-url}") String baseUrl, @Value("${app.mail.log-contents:false}") boolean logContents) {
         this.senders = senders;
+        this.brevo = brevo;
         this.templates = templates;
         this.executor = executor;
         this.from = from;
@@ -63,7 +66,7 @@ public class MailService {
     }
 
     public boolean isConfigured() {
-        return senders.getIfAvailable() != null;
+        return brevo.enabled() || senders.getIfAvailable() != null;
     }
 
     /** No SMTP, and messages are printed to the log (dev/local/test). */
@@ -87,6 +90,20 @@ public class MailService {
     }
 
     private void deliver(Email email) {
+        if (brevo.enabled()) {
+            executor.execute(() -> {
+                try {
+                    brevo.send(email, from);
+                    log.info("Email '{}' sent", email.subject());
+                } catch (Exception e) {
+                    if (e instanceof InterruptedException) {
+                        Thread.currentThread().interrupt();
+                    }
+                    log.warn("Email '{}' could not be sent: {}", email.subject(), e.getMessage());
+                }
+            });
+            return;
+        }
         JavaMailSender sender = senders.getIfAvailable();
         if (sender == null) {
             if (logContents) {
