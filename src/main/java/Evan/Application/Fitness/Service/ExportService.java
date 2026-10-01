@@ -50,7 +50,7 @@ public class ExportService {
                     c -> List.of(str(c.getDate()), str(c.getMealType()), str(c.getItemName()), c.getCalories(), c.getProteins(),
                             c.getCarbohydrates(), c.getFats(), c.getFiber(), c.getSugars(), c.getSodium(), c.getCholesterol()));
             case "sessions" -> table(training.history(userId),
-                    List.of("date", "title", "focus", "location", "duration_min", "session_rpe", "working_sets", "volume_lb", "cardio_min", "notes"),
+                    List.of("date", "title", "focus", "location", "duration_min", "session_rate_of_perceived_exertion", "working_sets", "volume_lb", "cardio_min", "notes"),
                     s -> List.of(str(s.getSessionDate()), str(s.getTitle()), str(s.getFocus()), str(s.getLocationType()),
                             str(s.getDurationMin()), str(s.getSessionRpe()), s.workingSetCount(), s.volume(), s.cardioMinutes(), str(s.getNotes())));
             case "sets" -> {
@@ -62,7 +62,7 @@ public class ExportService {
                                 Math.round(st.estimatedOneRepMax() * 10) / 10.0, str(st.getNotes())));
                     }
                 }
-                yield new Table(List.of("date", "exercise", "muscle_group", "set", "reps", "weight_lb", "rpe", "warmup", "est_1rm_lb", "notes"), rows);
+                yield new Table(List.of("date", "exercise", "muscle_group", "set", "reps", "weight_lb", "rate_of_perceived_exertion", "warmup", "est_1rm_lb", "notes"), rows);
             }
             case "cardio" -> {
                 List<List<Object>> rows = new ArrayList<>();

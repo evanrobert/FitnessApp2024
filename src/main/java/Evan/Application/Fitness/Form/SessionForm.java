@@ -58,7 +58,7 @@ public class SessionForm {
         private Integer reps;
         @DecimalMin(value = "0", message = "Load can't be negative") @DecimalMax(value = "3000", message = "Load is up to 3000 lb")
         private Double weightLb;
-        @DecimalMin(value = "1", message = "RPE is 1–10 (10 = nothing left)") @DecimalMax(value = "10", message = "RPE is 1–10 (10 = nothing left)")
+        @DecimalMin(value = "1", message = "Rate of perceived exertion is 1–10 (10 = nothing left)") @DecimalMax(value = "10", message = "Rate of perceived exertion is 1–10 (10 = nothing left)")
         private Double rpe;
         private boolean warmup;
         @Size(max = 500, message = "Set notes are up to 500 characters")

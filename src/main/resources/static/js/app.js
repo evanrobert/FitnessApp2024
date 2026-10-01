@@ -261,8 +261,8 @@
                 setTimeout(() => $$("button.is-loading", builder).forEach((b) => b.classList.remove("is-loading")), 0);
             }
         }, true);
-        // Out-of-range numbers (e.g. RPE 75) would come back as a server error: point at the field now.
-        const rangeHint = { rpe: "RPE is 1–10 (10 = nothing left)", avgHr: "Heart rate is 30–230" };
+        // Out-of-range numbers (e.g. 75 for rate of perceived exertion) would come back as a server error: point at the field now.
+        const rangeHint = { rpe: "Rate of perceived exertion is 1–10 (10 = nothing left)", avgHr: "Heart rate is 30–230" };
         builder.addEventListener("submit", (event) => {
             if (event.defaultPrevented) return;
             const bad = $$("input[data-field][type=number]", builder)

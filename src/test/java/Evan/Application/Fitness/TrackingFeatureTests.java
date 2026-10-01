@@ -94,8 +94,8 @@ class TrackingFeatureTests {
                         .param("sets[1].weightLb", "100.0").param("sets[1].reps", "8").param("sets[1].rpe", "75"))
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
-        assertThat(html).contains("Bench Press, set 2: RPE is 1–10")
-                .contains("Set 2: RPE is 1–10")
+        assertThat(html).contains("Bench Press, set 2: Rate of perceived exertion is 1–10")
+                .contains("Set 2: Rate of perceived exertion is 1–10")
                 .contains("value=\"100\"")   // loads show as 100, not 100.0
                 .doesNotContain("value=\"100.0\"");
         assertThat(sessions.findAll().stream().noneMatch(s -> s.getUser().getId().equals(alice.getId())

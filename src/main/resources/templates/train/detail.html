@@ -25,7 +25,7 @@
         <div class="score"><div class="score-label">Volume</div><div class="score-value"><th:block th:text="${@fmt.compact(s.volume())}">0</th:block><small>lb</small></div></div>
         <div class="score"><div class="score-label">Working sets</div><div class="score-value" th:text="${s.workingSetCount()}">0</div></div>
         <div class="score"><div class="score-label">Duration</div><div class="score-value" th:text="${@fmt.minutes(s.durationMin)}">—</div></div>
-        <div class="score"><div class="score-label">Session RPE</div><div class="score-value"><th:block th:text="${s.sessionRpe != null ? s.sessionRpe : '—'}">—</th:block><small th:if="${s.sessionRpe}">/ 10</small></div></div>
+        <div class="score"><div class="score-label">Session rate of perceived exertion</div><div class="score-value"><th:block th:text="${s.sessionRpe != null ? s.sessionRpe : '—'}">—</th:block><small th:if="${s.sessionRpe}">/ 10</small></div></div>
         <div class="score" th:if="${!s.cardio.isEmpty()}"><div class="score-label">Cardio</div><div class="score-value" th:text="${@fmt.minutes(s.cardioMinutes())}">0</div></div>
     </section>
 
@@ -52,7 +52,7 @@
                     <span class="badge badge-blue" th:if="${prExercises.contains(b.exercise().id)}"><svg><use href="#i-trophy"/></svg>PR</span>
                 </div>
                 <table class="table table-compact">
-                    <thead><tr><th>Set</th><th class="num">Load</th><th class="num">Reps</th><th class="num">RPE</th><th class="num">e1RM</th></tr></thead>
+                    <thead><tr><th>Set</th><th class="num">Load</th><th class="num">Reps</th><th class="num">Rate of perceived exertion</th><th class="num">e1RM</th></tr></thead>
                     <tbody>
                     <tr th:each="st : ${b.sets()}" th:classappend="${st.warmup} ? 'muted'">
                         <td><th:block th:text="${st.setNumber}">1</th:block> <span class="badge" th:if="${st.warmup}">warm-up</span></td>
