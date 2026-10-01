@@ -24,7 +24,7 @@
         <li class="timeline-day" th:each="day : ${timeline}">
             <div class="timeline-date" th:text="${@fmt.fullDate(day.date())}">date</div>
             <a class="timeline-item" th:each="e : ${day.events()}" th:href="${e.href()}">
-                <span class="timeline-icon" th:classappend="${e.iconClass()}"><svg><use th:href="${'#i-' + e.type().icon}"/></svg></span>
+                <span class="timeline-icon" th:classappend="${e.iconClass()}"><svg><use th:href="${'#i-' + e.icon()}"/></svg></span>
                 <span style="min-width:0"><span class="title" th:text="${e.title()}">Title</span><br><span class="meta" th:text="${e.meta()}">meta</span></span>
                 <span class="strong num nowrap" th:text="${e.value()}"></span>
             </a>

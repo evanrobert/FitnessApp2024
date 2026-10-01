@@ -831,3 +831,23 @@ a.timeline-item:hover { border-color: var(--ink); color: inherit; }
 .support-link svg { stroke: var(--tan); }
 
 img.brand-mark { background: none; border-radius: 9px; box-shadow: 0 0 0 1px #34322e; width: 38px; height: 38px; }
+
+/* Strength levels */
+.level-badge { white-space: nowrap; }
+.level-ladder { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
+.level-ladder li { display: grid; gap: 2px; padding: 10px 8px; border-radius: var(--radius-sm); background: var(--surface-2); border: 1px solid var(--line); text-align: center; }
+.level-ladder .rung-name { font-size: 12px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); }
+.level-ladder .rung-weight { font-size: 15px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.level-ladder li.is-reached { background: var(--ink); border-color: var(--ink); color: #fff; }
+.level-ladder li.is-reached .rung-name { color: var(--tan); }
+.level-ladder li.is-next { border: 2px dashed var(--blue); }
+@media (max-width: 640px) { .level-ladder { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 3px; } .level-ladder li { padding: 8px 2px; } .level-ladder .rung-name { font-size: 9px; } .level-ladder .rung-weight { font-size: 12px; } }
+
+/* Entry icons: food by what it is, workouts by kind */
+.timeline-icon.is-food { background: var(--tan); color: var(--ink); }
+.timeline-icon.is-feel { background: var(--blue-soft); color: var(--blue-ink); }
+.food-name { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.food-name > span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.food-icon { flex: none; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: var(--tan-soft); color: var(--tan-ink); }
+.food-icon svg { width: 17px; height: 17px; stroke: currentColor; }
+.action-tile svg { color: var(--blue-ink); }

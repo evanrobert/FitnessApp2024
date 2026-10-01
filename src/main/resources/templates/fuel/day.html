@@ -72,7 +72,7 @@
                 <div class="meal-group" th:each="group : ${byMeal}">
                     <h3><span th:text="${mealTypes[group.key] ?: group.key}">Meal</span><span th:text="|${@fmt.num(#aggregates.sum(group.value.![calories]))} kcal|">0</span></h3>
                     <div class="food-row" th:each="e : ${group.value}">
-                        <span class="name" th:text="${e.itemName}">Food</span>
+                        <span class="name food-name"><span class="food-icon" aria-hidden="true"><svg><use th:href="${'#i-' + e.foodIcon()}"/></svg></span><span th:text="${e.itemName}">Food</span></span>
                         <span class="v"><b th:text="${@fmt.num(e.calories)}">0</b></span>
                         <span class="v opt" th:text="${@fmt.num(e.proteins)}">0</span>
                         <span class="v opt" th:text="${@fmt.num(e.carbohydrates)}">0</span>
@@ -136,7 +136,8 @@
                 <div class="card-head"><div><span class="eyebrow">One click</span><h2>Recent foods</h2></div></div>
                 <ul class="list">
                     <li th:each="r : ${recent}">
-                        <div style="min-width:0">
+                        <span class="food-icon" aria-hidden="true"><svg><use th:href="${'#i-' + r.foodIcon()}"/></svg></span>
+                        <div style="min-width:0;flex:1">
                             <div class="title" th:text="${r.itemName}" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Food</div>
                             <div class="meta" th:text="|${@fmt.num(r.calories)} kcal · ${@fmt.num(r.proteins)} g protein|">kcal</div>
                         </div>

@@ -12,7 +12,7 @@
             <form class="inline-form" th:unless="${exercise.library or record != null}" method="post" th:action="@{/exercises/{id}/delete(id=${exercise.id})}">
                 <button class="btn btn-danger" type="submit" data-confirm="Remove this exercise from your library?">Remove</button>
             </form>
-            <a class="btn btn-primary" href="/train/new"><svg><use href="#i-plus"/></svg>Log workout</a>
+            <a class="btn btn-primary" href="/train/new"><svg><use href="#i-plus"/></svg>Add a workout</a>
         </div>
     </header>
 
@@ -26,9 +26,13 @@
             <div class="score"><div class="score-label">Total lifted, all time</div><div class="score-value"><th:block th:text="${@fmt.compact(record.totalVolume())}">0</th:block><small>lb</small></div><div class="score-sub" th:text="|last ${@fmt.relative(record.lastDone(), today)}|">last</div></div>
         </section>
 
+        <div class="flash flash-info section" th:if="${levelSetupHint != null}"><svg><use href="#i-info"/></svg>
+            <span><th:block th:text="${levelSetupHint}">hint</th:block> <a href="/profile">Profile</a> · <a href="/body#weigh-in">Weigh yourself</a></span></div>
+        <th:block th:if="${level != null}"><th:block th:replace="~{fragments/ui :: strengthLevel(${level}, ${exercise.name})}"></th:block></th:block>
+
         <div class="grid cols-2 section">
             <section class="card">
-                <div class="card-head"><div><span class="eyebrow">Strength</span><h2>Estimated 1RM &amp; top set</h2></div></div>
+                <div class="card-head"><div><span class="eyebrow">Strength</span><h2>Estimated max &amp; best set</h2></div></div>
                 <div class="card-body"><th:block th:replace="~{fragments/ui :: chart('chart-strength', ${strengthChart})}"></th:block></div>
             </section>
             <section class="card">

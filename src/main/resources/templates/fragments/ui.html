@@ -49,5 +49,24 @@
     </div>
 </th:block>
 
+<!--/* Strength level card: where a lift stands and what the next level takes. */-->
+<section th:fragment="strengthLevel(level, liftName)" class="card section level-card">
+    <div class="card-head">
+        <div><span class="eyebrow">Strength level</span><h2><th:block th:text="${level.label()}">Novice</th:block> <span class="muted" style="font-weight:600" th:text="|at ${liftName}|">at Bench</span></h2></div>
+        <svg class="card-icon" width="26" height="26"><use href="#i-trophy"/></svg>
+    </div>
+    <div class="card-body stack" style="gap:14px">
+        <p class="strong" th:if="${level.next() != null}" th:text="|${@fmt.dec(level.lbToNext())} lb more on your estimated max to reach ${level.next()}.|">20 lb to go</p>
+        <p class="strong" th:if="${level.next() == null}">Top level. That's elite strength. Amazing work!</p>
+        <ol class="level-ladder">
+            <li th:each="rung : ${level.ladder()}" th:classappend="${rung.reached()} ? 'is-reached' : (${rung.name() == level.next()} ? 'is-next')">
+                <span class="rung-name" th:text="${rung.name()}">Beginner</span>
+                <span class="rung-weight" th:text="|${@fmt.dec(rung.weightLb())} lb|">95 lb</span>
+            </li>
+        </ol>
+        <p class="hint">Compares your best estimated max with your body weight using widely published strength standards for adults. It's a rough, motivating guide, not an official ranking.</p>
+    </div>
+</section>
+
 </body>
 </html>

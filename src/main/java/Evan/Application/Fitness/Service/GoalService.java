@@ -65,7 +65,7 @@ public class GoalService {
 
     /** Returns an error message for an inconsistent goal, or null when it is valid. */
     public String problemWith(Long userId, Goal form, Long exerciseId, Long customMetricId) {
-        if (form.getMetric() == GoalMetric.EXERCISE_1RM
+        if (form.getMetric() != null && form.getMetric().usesExercise()
                 && (exerciseId == null || exercises.findVisible(exerciseId, userId).isEmpty())) {
             return "Pick the exercise this goal tracks";
         }
@@ -88,7 +88,7 @@ public class GoalService {
         }
         goal.setTitle(form.getTitle().trim());
         goal.setMetric(form.getMetric());
-        goal.setExercise(form.getMetric() == GoalMetric.EXERCISE_1RM ? exercises.findVisible(exerciseId, userId).orElse(null) : null);
+        goal.setExercise(form.getMetric().usesExercise() ? exercises.findVisible(exerciseId, userId).orElse(null) : null);
         goal.setCustomMetric(form.getMetric() == GoalMetric.CUSTOM_METRIC ? metrics.findByIdAndUserId(customMetricId, userId).orElse(null) : null);
         goal.setTargetValue(form.getTargetValue());
         goal.setStartDate(form.getStartDate() == null ? todayService.today(userId) : form.getStartDate());
@@ -104,6 +104,24 @@ public class GoalService {
         Goal goal = get(userId, id);
         goal.setStatus(status);
         goal.setAchievedOn(status == GoalStatus.ACHIEVED ? todayService.today(userId) : null);
+    }
+
+    /**
+     * Marks active lift goals for these exercises as achieved once the logged sets reach
+     * them (achieved on {@code on}). Returns the goals that were just reached.
+     */
+    @Transactional
+    public List<Goal> markReachedLiftGoals(Long userId, java.util.Collection<Long> exerciseIds, LocalDate on) {
+        List<Goal> reached = new java.util.ArrayList<>();
+        for (Goal goal : goals.findAllByUserIdAndStatus(userId, GoalStatus.ACTIVE)) {
+            if (goal.getMetric().usesExercise() && goal.getExercise() != null
+                    && exerciseIds.contains(goal.getExercise().getId()) && progress(userId, goal).reached()) {
+                goal.setStatus(GoalStatus.ACHIEVED);
+                goal.setAchievedOn(on);
+                reached.add(goal);
+            }
+        }
+        return reached;
     }
 
     @Transactional
@@ -163,6 +181,8 @@ public class GoalService {
                     .map(BodyMeasurement::getBodyFatPct).orElse(null);
             case WAIST -> measurements.findFirstByUserIdAndWaistInNotNullOrderByMeasuredOnDescIdDesc(userId)
                     .map(BodyMeasurement::getWaistIn).orElse(null);
+            case EXERCISE_WEIGHT -> goal.getExercise() == null ? null : records.series(userId, goal.getExercise().getId()).stream()
+                    .mapToDouble(RecordsService.SessionPoint::topWeight).max().stream().boxed().findFirst().orElse(null);
             case EXERCISE_1RM -> goal.getExercise() == null ? null : records.series(userId, goal.getExercise().getId()).stream()
                     .mapToDouble(RecordsService.SessionPoint::topE1rm).max().stream().boxed().findFirst().orElse(null);
             case WORKOUTS_PER_WEEK -> {

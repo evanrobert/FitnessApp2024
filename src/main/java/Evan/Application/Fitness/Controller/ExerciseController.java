@@ -5,6 +5,8 @@ import Evan.Application.Fitness.Model.Exercise;
 import Evan.Application.Fitness.Model.MuscleGroup;
 import Evan.Application.Fitness.Security.AppUserPrincipal;
 import Evan.Application.Fitness.Service.RecordsService;
+import Evan.Application.Fitness.Service.StrengthLevelService;
+import Evan.Application.Fitness.Service.StrengthStandards;
 import Evan.Application.Fitness.Service.TodayService;
 import Evan.Application.Fitness.Service.TrainingService;
 import Evan.Application.Fitness.Web.ChartJson;
@@ -26,8 +28,11 @@ public class ExerciseController {
     private final RecordsService records;
     private final TodayService todayService;
     private final ChartJson charts;
+    private final StrengthLevelService strength;
 
-    public ExerciseController(TrainingService training, RecordsService records, TodayService todayService, ChartJson charts) {
+    public ExerciseController(TrainingService training, RecordsService records, TodayService todayService, ChartJson charts,
+                              StrengthLevelService strength) {
+        this.strength = strength;
         this.training = training;
         this.records = records;
         this.todayService = todayService;
@@ -79,15 +84,18 @@ public class ExerciseController {
 
         model.addAttribute("exercise", exercise);
         model.addAttribute("record", summary.forExercise(id).orElse(null));
+        StrengthLevelService.Setup setup = strength.setup(me.getId());
+        model.addAttribute("level", strength.levels(setup, summary).get(id));
+        model.addAttribute("levelSetupHint", StrengthStandards.covers(exercise.getName()) ? setup.missing() : null);
         model.addAttribute("history", reversed(series));
         model.addAttribute("prs", summary.events().stream().filter(e -> e.exercise().getId().equals(id)).toList());
         model.addAttribute("today", todayService.today(me.getId()));
         model.addAttribute("strengthChart", charts.write(ChartJson.spec("line", "labels", labels,
-                "series", List.of(ChartJson.series("Estimated 1RM", e1rm, "s1", null), ChartJson.series("Top set", top, "s2", null)),
+                "series", List.of(ChartJson.series("Estimated max", e1rm, "s1", null), ChartJson.series("Best set", top, "s2", null)),
                 "unit", "lb", "title", exercise.getName() + " strength trend",
                 "empty", "Log this exercise in two sessions to see a strength trend.")));
         model.addAttribute("volumeChart", charts.write(ChartJson.spec("bar", "labels", labels, "values", volume, "unit", "lb",
-                "name", "Session volume", "title", exercise.getName() + " volume per session",
+                "name", "Total lifted", "title", exercise.getName() + " volume per session",
                 "empty", "No working sets logged yet.")));
         return "train/exercise";
     }
@@ -101,6 +109,9 @@ public class ExerciseController {
         model.addAttribute("events", summary.events().stream().limit(40).toList());
         model.addAttribute("prs30", summary.prsSince(today.minusDays(30)));
         model.addAttribute("prs365", summary.prsSince(today.minusDays(365)));
+        StrengthLevelService.Setup setup = strength.setup(me.getId());
+        model.addAttribute("levels", strength.levels(setup, summary));
+        model.addAttribute("levelSetupHint", setup.missing());
         model.addAttribute("today", today);
         return "train/records";
     }

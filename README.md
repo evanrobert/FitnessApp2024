@@ -13,6 +13,11 @@ from what they actually log.
 - **Recover** — 30-second daily check-in (sleep, energy, mood, stress, soreness, water,
   steps, resting HR) → readiness score; one-tap water from anywhere.
 - **Body** — weigh-ins and tape measurements with a rolling-average trend and weekly rate.
+- **Wins** — lift goals ("Bench 185") are marked reached the moment a workout hits them, and the
+  workout page shows how it moved each goal. Strength levels (Beginner → Elite) for bench, squat,
+  deadlift, overhead press, row, front squat and incline bench compare your best estimated max
+  with your body weight using widely published adult strength standards (a guide, not an
+  official ranking). Entries get matching icons: a shake, chicken, coffee, a flexed arm...
 - **Goals, custom metrics, limitations** — goals measure themselves against live data;
   track anything numeric (fitness tests, habits); injuries shown while logging workouts.
 - **Today, Insights, Timeline** — daily checklist and scoreboard, range-scoped analytics,
@@ -197,7 +202,7 @@ every chart has hover/focus tooltips and a "View as table" equivalent.
 ./gradlew test
 ```
 
-61 tests cover migrations (legacy replay), security and member isolation, password
+71 tests cover migrations (legacy replay), security and member isolation, password
 reset and lockout, email confirmation and the weekly summary, every
 tracking area end to end, analytics rules, and rendering every page against months of
 synthetic data. All test data is synthetic.

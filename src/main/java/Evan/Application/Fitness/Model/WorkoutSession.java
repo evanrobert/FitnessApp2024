@@ -101,6 +101,6 @@ public class WorkoutSession {
         if (title != null && !title.isBlank()) {
             return title;
         }
-        return focus != null ? focus.getLabel() + " session" : "Training session";
+        return focus != null ? focus.getLabel() + " workout" : "Workout";
     }
 }
