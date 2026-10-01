@@ -90,10 +90,11 @@ public class AccountController {
 
     @PostMapping("/account/email/resend")
     public String resend(@AuthenticationPrincipal AppUserPrincipal me, RedirectAttributes redirect) {
-        if (security.resendVerification(me.getId())) {
-            Flash.success(redirect, "Confirmation email sent.");
-        } else {
-            Flash.error(redirect, "Several confirmation emails were sent recently. Check your inbox (and spam) or try again in an hour.");
+        switch (security.resendVerification(me.getId())) {
+            case SENT -> Flash.success(redirect, "Confirmation email sent. Check your inbox (and spam folder).");
+            case ALREADY_CONFIRMED -> Flash.success(redirect, "Your email is already confirmed. To test sending, use \"Send me a preview\" below.");
+            case NO_EMAIL -> Flash.error(redirect, "Add an email address first.");
+            case TOO_MANY -> Flash.error(redirect, "Several confirmation emails were sent in the last hour. Check your inbox (and spam) or try again later.");
         }
         return "redirect:/account#email";
     }

@@ -172,18 +172,23 @@ public class AccountSecurityService {
         }
     }
 
-    /** Returns false when too many confirmation emails were sent recently. */
+    public enum ResendResult { SENT, ALREADY_CONFIRMED, NO_EMAIL, TOO_MANY }
+
+    /** Sends a fresh confirmation link, unless there's nothing to confirm or too many went out recently. */
     @Transactional
-    public boolean resendVerification(Long userId) {
+    public ResendResult resendVerification(Long userId) {
         UserLoginDetails user = users.findById(userId).orElseThrow();
-        if (user.getEmail() == null || user.isEmailVerified()) {
-            return true;
+        if (user.getEmail() == null) {
+            return ResendResult.NO_EMAIL;
+        }
+        if (user.isEmailVerified()) {
+            return ResendResult.ALREADY_CONFIRMED;
         }
         if (tokens.issuedWithin(userId, Purpose.VERIFY_EMAIL, Duration.ofHours(1)) >= MAX_EMAILS_PER_HOUR) {
-            return false;
+            return ResendResult.TOO_MANY;
         }
         sendVerificationTo(user);
-        return true;
+        return ResendResult.SENT;
     }
 
     /** Sends the first confirmation email after sign-up. */
