@@ -114,6 +114,7 @@ public class MailService {
                     message.setHeader(header.getKey(), header.getValue());
                 }
                 sender.send(message);
+                log.info("Email '{}' sent", email.subject());
             } catch (Exception e) {
                 // Never log the address or body: they identify the member.
                 log.warn("Email '{}' could not be sent: {}", email.subject(), e.getMessage());

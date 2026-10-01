@@ -284,6 +284,15 @@ class AccountSecurityTests {
     }
 
     @Test
+    void resendSaysSoWhenTheEmailIsAlreadyConfirmed() throws Exception {
+        verify(member);
+        int before = mail.recent().size();
+        mvc.perform(post("/account/email/resend").with(as(member)).with(csrf()))
+                .andExpect(flash().attribute("flashSuccess", org.hamcrest.Matchers.containsString("already confirmed")));
+        assertThat(mail.recent()).hasSize(before);
+    }
+
+    @Test
     void accountPageRendersForMembersWithAndWithoutEmail() throws Exception {
         mvc.perform(get("/account").with(as(member))).andExpect(status().isOk())
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("Not confirmed")));
