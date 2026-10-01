@@ -22,7 +22,9 @@
 
     <form id="session-builder" method="post" th:action="${sessionId == null} ? @{/train} : @{/train/{id}(id=${sessionId})}" th:object="${form}" data-guard novalidate>
         <div class="flash flash-error" th:if="${#fields.hasErrors('*')}" role="alert">
-            <svg><use href="#i-alert"/></svg><span>Some values need a look — check the highlighted fields.</span>
+            <svg><use href="#i-alert"/></svg>
+            <div><strong>Nothing was saved yet. Fix these and save again:</strong>
+                <ul style="margin:6px 0 0;padding-left:18px"><li th:each="m : ${problems}" th:text="${m}">problem</li></ul></div>
         </div>
 
         <div class="grid split">
@@ -51,23 +53,25 @@
                                 </header>
                                 <div class="last-time"></div>
                                 <table class="set-table">
-                                    <thead><tr><th>Set</th><th>Load (lb)</th><th>Reps</th><th>RPE</th><th class="warm">Warm-up</th><th><span class="sr-only">Remove</span></th></tr></thead>
+                                    <thead><tr><th>Set</th><th>Load (lb)</th><th>Reps</th><th class="rpe-col" title="1 = very easy, 10 = no reps left">Rate of perceived exertion <span class="th-sub">1–10</span></th><th class="warm">Warm-up</th><th><span class="sr-only">Remove</span></th></tr></thead>
                                     <tbody>
-                                    <tr class="set-row" th:each="r, rs : ${b.rows}" th:with="i=${bs.index * 20 + rs.index}">
+                                    <tr class="set-row" th:each="r, rs : ${b.rows}" th:with="i=${bs.index * 20 + rs.index}, err=${rowErrors.get(r)}">
                                         <td class="set-no" th:text="${rs.count}">1</td>
                                         <td>
                                             <input type="hidden" data-hidden="exerciseName" th:name="|sets[${i}].exerciseName|" th:value="${b.exerciseName}">
                                             <input type="hidden" data-hidden="muscleGroup" th:name="|sets[${i}].muscleGroup|" th:value="${b.muscleGroup}">
                                             <input type="hidden" data-hidden="block" th:name="|sets[${i}].block|" th:value="${bs.index}">
-                                            <input class="input" data-field="weightLb" th:name="|sets[${i}].weightLb|" th:value="${r.weightLb}" type="number" step="0.5" min="0" inputmode="decimal" placeholder="lb" aria-label="Load in pounds">
+                                            <input class="input" data-field="weightLb" th:name="|sets[${i}].weightLb|" th:value="${@fmt.input(r.weightLb)}" th:classappend="${err != null and err['weightLb'] != null} ? 'is-invalid'" th:title="${err == null ? null : err['weightLb']}" type="number" step="0.5" min="0" inputmode="decimal" placeholder="lb" aria-label="Load in pounds">
                                         </td>
-                                        <td><input class="input" data-field="reps" th:name="|sets[${i}].reps|" th:value="${r.reps}" type="number" min="0" step="1" inputmode="numeric" placeholder="reps" aria-label="Reps"></td>
-                                        <td><input class="input" data-field="rpe" th:name="|sets[${i}].rpe|" th:value="${r.rpe}" type="number" min="1" max="10" step="0.5" inputmode="decimal" placeholder="—" aria-label="RPE"></td>
+                                        <td><input class="input" data-field="reps" th:name="|sets[${i}].reps|" th:value="${r.reps}" th:classappend="${err != null and err['reps'] != null} ? 'is-invalid'" th:title="${err == null ? null : err['reps']}" type="number" min="0" step="1" inputmode="numeric" placeholder="reps" aria-label="Reps"></td>
+                                        <td><input class="input" data-field="rpe" th:name="|sets[${i}].rpe|" th:value="${@fmt.input(r.rpe)}" th:classappend="${err != null and err['rpe'] != null} ? 'is-invalid'" th:title="${err == null ? null : err['rpe']}" type="number" min="1" max="10" step="0.5" inputmode="decimal" placeholder="—" aria-label="Rate of perceived exertion, 1 to 10"></td>
                                         <td class="warm"><input type="checkbox" data-field="warmup" th:name="|sets[${i}].warmup|" value="true" th:checked="${r.warmup}" aria-label="Warm-up set" style="width:18px;height:18px;accent-color:var(--blue)"></td>
                                         <td><button class="icon-btn" type="button" data-action="remove-set" aria-label="Remove set"><svg><use href="#i-trash"/></svg></button></td>
                                     </tr>
                                     </tbody>
                                 </table>
+                                <th:block th:each="r, rs : ${b.rows}" th:with="err=${rowErrors.get(r)}"><p class="field-error" style="margin:4px 0 0"
+                                    th:each="e : ${err == null ? {} : err.values()}" th:text="|Set ${rs.count}: ${e}|">Set 1: problem</p></th:block>
                                 <footer><button class="btn btn-sm" type="button" data-action="add-set"><svg><use href="#i-plus"/></svg>Add set</button></footer>
                             </div>
                         </div>
@@ -89,10 +93,10 @@
                                 <select class="input" data-field="activity" th:name="|cardio[${cs.index}].activity|">
                                     <option th:each="a : ${activities}" th:value="${a}" th:text="${a.label}" th:selected="${c.activity == a}"></option>
                                 </select></div>
-                            <div class="field"><label>Minutes</label><input class="input" data-field="durationMin" th:name="|cardio[${cs.index}].durationMin|" th:value="${c.durationMin}" type="number" step="0.5" min="0"></div>
-                            <div class="field"><label>Miles</label><input class="input" data-field="distanceMi" th:name="|cardio[${cs.index}].distanceMi|" th:value="${c.distanceMi}" type="number" step="0.01" min="0"></div>
-                            <div class="field"><label>Avg HR</label><input class="input" data-field="avgHr" th:name="|cardio[${cs.index}].avgHr|" th:value="${c.avgHr}" type="number" min="30" max="230"></div>
-                            <div class="field"><label>kcal</label><input class="input" data-field="calories" th:name="|cardio[${cs.index}].calories|" th:value="${c.calories}" type="number" min="0"></div>
+                            <div class="field"><label>Minutes</label><input class="input" data-field="durationMin" th:name="|cardio[${cs.index}].durationMin|" th:classappend="${#fields.hasErrors('cardio[__${cs.index}__].durationMin')} ? 'is-invalid'" th:value="${@fmt.input(c.durationMin)}" type="number" step="0.5" min="0"></div>
+                            <div class="field"><label>Miles</label><input class="input" data-field="distanceMi" th:name="|cardio[${cs.index}].distanceMi|" th:classappend="${#fields.hasErrors('cardio[__${cs.index}__].distanceMi')} ? 'is-invalid'" th:value="${@fmt.input(c.distanceMi)}" type="number" step="0.01" min="0"></div>
+                            <div class="field"><label>Avg HR</label><input class="input" data-field="avgHr" th:name="|cardio[${cs.index}].avgHr|" th:classappend="${#fields.hasErrors('cardio[__${cs.index}__].avgHr')} ? 'is-invalid'" th:value="${c.avgHr}" type="number" min="30" max="230"></div>
+                            <div class="field"><label>kcal</label><input class="input" data-field="calories" th:name="|cardio[${cs.index}].calories|" th:classappend="${#fields.hasErrors('cardio[__${cs.index}__].calories')} ? 'is-invalid'" th:value="${c.calories}" type="number" min="0"></div>
                             <button class="icon-btn" type="button" data-action="remove-cardio" aria-label="Remove cardio"><svg><use href="#i-trash"/></svg></button>
                         </div>
                     </div>
@@ -133,7 +137,7 @@
                             </select>
                         </div>
                         <div class="field span-all">
-                            <label for="sessionRpe">Session effort (RPE 1–10)</label>
+                            <label for="sessionRpe">Session effort (rate of perceived exertion, 1–10)</label>
                             <select class="input" id="sessionRpe" th:field="*{sessionRpe}">
                                 <option value="">Not rated</option>
                                 <option th:each="n : ${#numbers.sequence(1, 10)}" th:value="${n}" th:text="|${n}${n == 10 ? ' — maximal' : (n <= 3 ? ' — easy' : (n >= 8 ? ' — very hard' : ''))}|"></option>
@@ -181,7 +185,7 @@
             </header>
             <div class="last-time"></div>
             <table class="set-table">
-                <thead><tr><th>Set</th><th>Load (lb)</th><th>Reps</th><th>RPE</th><th class="warm">Warm-up</th><th><span class="sr-only">Remove</span></th></tr></thead>
+                <thead><tr><th>Set</th><th>Load (lb)</th><th>Reps</th><th class="rpe-col" title="1 = very easy, 10 = no reps left">Rate of perceived exertion <span class="th-sub">1–10</span></th><th class="warm">Warm-up</th><th><span class="sr-only">Remove</span></th></tr></thead>
                 <tbody></tbody>
             </table>
             <footer><button class="btn btn-sm" type="button" data-action="add-set"><svg><use href="#i-plus"/></svg>Add set</button></footer>
@@ -197,7 +201,7 @@
                 <input class="input" data-field="weightLb" type="number" step="0.5" min="0" inputmode="decimal" placeholder="lb" aria-label="Load in pounds">
             </td>
             <td><input class="input" data-field="reps" type="number" min="0" step="1" inputmode="numeric" placeholder="reps" aria-label="Reps"></td>
-            <td><input class="input" data-field="rpe" type="number" min="1" max="10" step="0.5" inputmode="decimal" placeholder="—" aria-label="RPE"></td>
+            <td><input class="input" data-field="rpe" type="number" min="1" max="10" step="0.5" inputmode="decimal" placeholder="—" aria-label="Rate of perceived exertion, 1 to 10"></td>
             <td class="warm"><input type="checkbox" data-field="warmup" value="true" aria-label="Warm-up set" style="width:18px;height:18px;accent-color:var(--blue)"></td>
             <td><button class="icon-btn" type="button" data-action="remove-set" aria-label="Remove set"><svg><use href="#i-trash"/></svg></button></td>
         </tr>

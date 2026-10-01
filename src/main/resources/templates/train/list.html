@@ -93,7 +93,7 @@
                 <div class="row mt-1" style="gap:6px">
                     <span class="badge" th:if="${s.focus}" th:text="${s.focus.label}">Strength</span>
                     <span class="badge badge-dark" th:if="${s.locationType != null and s.locationType.name() == 'GYM'}">Gym</span>
-                    <span class="badge" th:if="${s.sessionRpe}" th:text="|RPE ${s.sessionRpe}|">RPE</span>
+                    <span class="badge" th:if="${s.sessionRpe}" th:text="|Perceived exertion ${s.sessionRpe}/10|">Perceived exertion</span>
                 </div>
             </div>
             <div class="figures">

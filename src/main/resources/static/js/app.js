@@ -46,6 +46,7 @@
     }, true);
 
     document.addEventListener("submit", (event) => {
+        if (event.defaultPrevented) return; // a check stopped the submit: don't leave the button spinning
         const form = event.target;
         const button = event.submitter || $("button[type=submit]", form);
         if (button && !button.hasAttribute("data-no-loading")) {
@@ -260,8 +261,26 @@
                 setTimeout(() => $$("button.is-loading", builder).forEach((b) => b.classList.remove("is-loading")), 0);
             }
         }, true);
+        // Out-of-range numbers (e.g. 75 for rate of perceived exertion) would come back as a server error: point at the field now.
+        const rangeHint = { rpe: "Rate of perceived exertion is 1–10 (10 = nothing left)", avgHr: "Heart rate is 30–230" };
+        builder.addEventListener("submit", (event) => {
+            if (event.defaultPrevented) return;
+            const bad = $$("input[data-field][type=number]", builder)
+                .find((i) => i.validity.rangeOverflow || i.validity.rangeUnderflow || i.validity.badInput);
+            if (!bad) return;
+            event.preventDefault();
+            bad.classList.add("is-invalid");
+            bad.setCustomValidity(rangeHint[bad.dataset.field] || `Use a value between ${bad.min || "0"} and ${bad.max || "any"}`);
+            bad.reportValidity();
+            setTimeout(() => $$("button.is-loading", builder).forEach((b) => b.classList.remove("is-loading")), 0);
+        }, true);
         builder.addEventListener("input", (event) => {
             if (event.target.matches("[data-block-exercise]")) event.target.setCustomValidity("");
+            if (event.target.matches("input[data-field]")) {
+                event.target.setCustomValidity("");
+                event.target.classList.remove("is-invalid");
+                event.target.removeAttribute("title");
+            }
         });
 
         $$(".exercise-block", blocks).forEach(describe);
