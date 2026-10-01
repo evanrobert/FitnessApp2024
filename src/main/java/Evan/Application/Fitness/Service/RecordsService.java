@@ -152,7 +152,7 @@ public class RecordsService {
     }
 
     public enum PrKind {
-        HEAVIEST("Heaviest set"), E1RM("Estimated 1RM");
+        HEAVIEST("Heaviest set"), E1RM("Estimated max");
 
         private final String label;
 

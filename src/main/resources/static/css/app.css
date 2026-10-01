@@ -851,3 +851,61 @@ img.brand-mark { background: none; border-radius: 9px; box-shadow: 0 0 0 1px #34
 .food-icon { flex: none; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: var(--tan-soft); color: var(--tan-ink); }
 .food-icon svg { width: 17px; height: 17px; stroke: currentColor; }
 .action-tile svg { color: var(--blue-ink); }
+
+/* ---------- Polish ---------------------------------------------------------- */
+
+/* Wins: goal reached, new level, personal bests */
+.flash-win {
+    position: relative; overflow: hidden;
+    background: var(--ink); color: #fff; border: 0;
+    box-shadow: inset 0 -3px 0 var(--blue), 0 10px 28px rgba(11, 11, 11, 0.18);
+    font-size: 15.5px; padding: 16px 18px;
+    animation: win-pop 420ms cubic-bezier(.2, 1.4, .4, 1);
+}
+.flash-win > svg { color: var(--tan); width: 22px; height: 22px; }
+.flash-win .flash-close { color: #bdb6aa; }
+.confetti { position: absolute; inset: 0; pointer-events: none; }
+.confetti i { position: absolute; top: -10px; width: 7px; height: 12px; border-radius: 2px; opacity: 0; animation: confetti-fall 1.4s ease-out forwards; }
+.confetti i:nth-child(odd) { background: var(--blue); }
+.confetti i:nth-child(even) { background: var(--tan); }
+.confetti i:nth-child(1) { left: 8%; animation-delay: .05s; }
+.confetti i:nth-child(2) { left: 20%; animation-delay: .2s; }
+.confetti i:nth-child(3) { left: 33%; animation-delay: .1s; }
+.confetti i:nth-child(4) { left: 47%; animation-delay: .3s; }
+.confetti i:nth-child(5) { left: 60%; animation-delay: .15s; }
+.confetti i:nth-child(6) { left: 72%; animation-delay: .25s; }
+.confetti i:nth-child(7) { left: 84%; animation-delay: .05s; }
+.confetti i:nth-child(8) { left: 94%; animation-delay: .35s; }
+@keyframes win-pop { 0% { transform: scale(.96); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+@keyframes confetti-fall { 0% { opacity: 1; transform: translateY(0) rotate(0); } 100% { opacity: 0; transform: translateY(70px) rotate(220deg); } }
+
+/* Strength level badges: one color per rung */
+.level-badge { font-weight: 800; letter-spacing: 0.04em; }
+.level-badge.level-0 { background: var(--surface-2); color: var(--muted); border: 1px solid var(--line); }
+.level-badge.level-1 { background: var(--tan-soft); color: var(--tan-ink); }
+.level-badge.level-2 { background: var(--tan); color: var(--ink); }
+.level-badge.level-3 { background: var(--blue-soft); color: var(--blue-ink); }
+.level-badge.level-4 { background: var(--blue); color: #fff; }
+.level-badge.level-5 { background: var(--ink); color: var(--tan); box-shadow: inset 0 0 0 1px var(--tan); }
+
+/* Action tiles: icon chip, arrow, press feedback */
+.action-tile { position: relative; }
+.action-tile svg { width: 26px; height: 26px; padding: 9px; box-sizing: content-box; border-radius: 12px; background: var(--blue-soft); margin-bottom: 8px; }
+.action-tile::after { content: "→"; position: absolute; right: 16px; top: 16px; font-weight: 800; color: var(--line-strong); transition: transform 150ms ease, color 150ms ease; }
+.action-tile:hover::after { transform: translateX(3px); color: var(--blue-ink); }
+.action-tile:active { transform: translateY(0) scale(.99); }
+
+/* Buttons feel pressable */
+.btn:active:not(:disabled) { transform: translateY(1px); }
+
+/* Today: strength levels at a glance */
+.levels-list { list-style: none; margin: 0; padding: 0; }
+.levels-list li { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 20px; border-top: 1px solid var(--line); }
+.levels-list li:first-child { border-top: 0; }
+.levels-list a { color: inherit; text-decoration: none; font-weight: 700; }
+.levels-list .meter { flex: 0 0 90px; }
+
+@media (prefers-reduced-motion: reduce) {
+    .flash-win, .confetti i { animation: none; }
+    .confetti { display: none; }
+}

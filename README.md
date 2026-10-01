@@ -120,6 +120,11 @@ unsubscribe link (and `List-Unsubscribe` headers).
 
 ### Servers and deployments
 
+Use the **`prod` profile** (`SPRING_PROFILES_ACTIVE=prod`) on a host such as Render. It trusts the
+host's HTTPS proxy (so per-IP sign-in limits apply per visitor, redirects stay on https and HSTS
+is sent), forces secure cookies, never prints emails to the log, and refuses to start without
+database credentials or with an `APP_BASE_URL` that isn't a public https address.
+
 Instead of the file, supply credentials as environment variables:
 
 | Variable | Default | Purpose |
@@ -202,7 +207,7 @@ every chart has hover/focus tooltips and a "View as table" equivalent.
 ./gradlew test
 ```
 
-71 tests cover migrations (legacy replay), security and member isolation, password
+75 tests cover migrations (legacy replay), security and member isolation, password
 reset and lockout, email confirmation and the weekly summary, every
 tracking area end to end, analytics rules, and rendering every page against months of
 synthetic data. All test data is synthetic.

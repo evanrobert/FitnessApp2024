@@ -53,6 +53,30 @@ public class StrengthLevelService {
         return levels(setup(userId), records.summary(userId));
     }
 
+    /** One lift's level, for lists. */
+    public record LiftLevel(Long exerciseId, String name, StrengthStandards.Level level) {
+    }
+
+    /** Lifts with a level, strongest level first, then closest to the next one. */
+    @Transactional(readOnly = true)
+    public java.util.List<LiftLevel> ranked(Long userId) {
+        Setup setup = setup(userId);
+        RecordsService.Summary summary = records.summary(userId);
+        Map<Long, StrengthStandards.Level> levels = levels(setup, summary);
+        return summary.records().stream().filter(r -> levels.containsKey(r.exercise().getId()))
+                .map(r -> new LiftLevel(r.exercise().getId(), r.exercise().getName(), levels.get(r.exercise().getId())))
+                .sorted(java.util.Comparator.comparingInt((LiftLevel l) -> l.level().rank()).reversed()
+                        .thenComparing(java.util.Comparator.comparingDouble((LiftLevel l) -> l.level().pctToNext()).reversed()))
+                .toList();
+    }
+
+    /** True when the member has logged a lift that has levels but is missing sex or weight. */
+    @Transactional(readOnly = true)
+    public boolean needsSetupFor(Long userId) {
+        return !setup(userId).ready() && records.summary(userId).records().stream()
+                .anyMatch(r -> StrengthStandards.covers(r.exercise().getName()) && r.bestE1rm() > 0);
+    }
+
     public Map<Long, StrengthStandards.Level> levels(Setup setup, RecordsService.Summary summary) {
         Map<Long, StrengthStandards.Level> out = new LinkedHashMap<>();
         for (RecordsService.ExerciseRecord r : summary.records()) {

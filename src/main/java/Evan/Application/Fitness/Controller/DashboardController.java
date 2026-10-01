@@ -4,6 +4,7 @@ import Evan.Application.Fitness.Repositorys.UserLoginDetailsRepository;
 import Evan.Application.Fitness.Security.AppUserPrincipal;
 import Evan.Application.Fitness.Service.AnalyticsService;
 import Evan.Application.Fitness.Service.ProfileService;
+import Evan.Application.Fitness.Service.StrengthLevelService;
 import Evan.Application.Fitness.Web.ChartJson;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -19,9 +20,11 @@ public class DashboardController {
     private final ProfileService profiles;
     private final ChartJson charts;
     private final UserLoginDetailsRepository users;
+    private final StrengthLevelService strength;
 
     public DashboardController(AnalyticsService analytics, ProfileService profiles, ChartJson charts,
-                               UserLoginDetailsRepository users) {
+                               UserLoginDetailsRepository users, StrengthLevelService strength) {
+        this.strength = strength;
         this.users = users;
         this.analytics = analytics;
         this.profiles = profiles;
@@ -34,6 +37,8 @@ public class DashboardController {
         model.addAttribute("d", dash);
         model.addAttribute("onboarded", profiles.onboarded(me.getId()));
         model.addAttribute("account", users.findById(me.getId()).orElseThrow());
+        model.addAttribute("liftLevels", strength.ranked(me.getId()).stream().limit(4).toList());
+        model.addAttribute("levelsNeedSetup", strength.needsSetupFor(me.getId()));
         model.addAttribute("calendarChart", charts.write(dash.calendar()));
         model.addAttribute("weightSpark", dash.weightSpark() == null ? null : charts.write(dash.weightSpark()));
         return "home";

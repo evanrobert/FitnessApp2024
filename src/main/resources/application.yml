@@ -80,3 +80,23 @@ spring:
 app:
   mail:
     log-contents: true
+
+---
+# "prod" profile: the hosted app (e.g. Render), behind the host's HTTPS proxy.
+# Set SPRING_PROFILES_ACTIVE=prod plus DB_URL, DB_USERNAME, DB_PASSWORD, APP_BASE_URL and the
+# SPRING_MAIL_* settings as secrets on the host.
+spring:
+  config:
+    activate:
+      on-profile: prod
+server:
+  # Trust the host's proxy for the client address and https scheme, so per-IP sign-in
+  # limits apply per visitor, links and redirects use https, and HSTS is sent.
+  forward-headers-strategy: native
+  servlet:
+    session:
+      cookie:
+        secure: true
+app:
+  mail:
+    log-contents: false
