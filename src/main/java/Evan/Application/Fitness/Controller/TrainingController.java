@@ -104,7 +104,7 @@ public class TrainingController {
         }
         WorkoutSession saved = training.create(me.getId(), form);
         long prs = records.prsIn(records.summary(me.getId()), saved.getId()).size();
-        Flash.success(redirect, prs > 0 ? "Session saved — " + prs + (prs == 1 ? " new personal record!" : " new personal records!") : "Session saved");
+        Flash.success(redirect, prs > 0 ? "Great workout! You set " + prs + (prs == 1 ? " new personal best!" : " new personal bests!") : "Saved! Nice work.");
         return "redirect:/train/" + saved.getId();
     }
 
@@ -136,14 +136,14 @@ public class TrainingController {
             return builder(me.getId(), form, id, model, result);
         }
         training.update(me.getId(), id, form);
-        Flash.success(redirect, "Session updated");
+        Flash.success(redirect, "Changes saved");
         return "redirect:/train/" + id;
     }
 
     @PostMapping("/{id}/delete")
     public String delete(@AuthenticationPrincipal AppUserPrincipal me, @PathVariable Long id, RedirectAttributes redirect) {
         training.delete(me.getId(), id);
-        Flash.success(redirect, "Session deleted");
+        Flash.success(redirect, "Workout deleted");
         return "redirect:/train";
     }
 
@@ -219,6 +219,9 @@ public class TrainingController {
         model.addAttribute("form", form);
         model.addAttribute("blocks", blocks);
         model.addAttribute("rowErrors", rowErrors);
+        // Effort and warm-up columns are optional: shown when already used or when they need fixing.
+        model.addAttribute("showSetDetails", form.getSets().stream().anyMatch(r -> r != null && (r.getRpe() != null || r.isWarmup()))
+                || rowErrors.values().stream().anyMatch(e -> e.containsKey("rpe")));
         model.addAttribute("problems", problems.stream().distinct().toList());
         model.addAttribute("sessionId", sessionId);
         model.addAttribute("grouped", grouped);

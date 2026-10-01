@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: page(title=${sessionId == null ? 'Log workout' : 'Edit session'}, active='train', content=~{::content})}">
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: page(title=${sessionId == null ? 'Add a workout' : 'Change workout'}, active='train', content=~{::content})}">
 <body>
 <th:block th:fragment="content">
     <header class="page-head">
         <div>
-            <nav class="breadcrumb"><a href="/train">Training</a><span>/</span><span th:text="${sessionId == null ? 'New session' : 'Edit'}">New</span></nav>
-            <h1 class="display" th:text="${sessionId == null ? 'Log workout' : 'Edit session'}">Log workout</h1>
+            <nav class="breadcrumb"><a href="/train">Workouts</a><span>/</span><span th:text="${sessionId == null ? 'New workout' : 'Change'}">New</span></nav>
+            <h1 class="display" th:text="${sessionId == null ? 'Add a workout' : 'Change this workout'}">Add a workout</h1>
             <p class="lede" th:if="${repeatOf != null}">Repeating <strong th:text="${repeatOf.displayTitle()}">session</strong> from <th:block th:text="${@fmt.shortDate(repeatOf.sessionDate)}">date</th:block>. Loads are pre-filled; adjust what changed.</p>
-            <p class="lede" th:if="${repeatOf == null}">Add exercises, then sets. Press <strong>Enter</strong> in the last set to add another, pre-filled from the one above.</p>
+            <p class="lede" th:if="${repeatOf == null}"><strong>1.</strong> Type the exercise. <strong>2.</strong> Type the weight and how many times you did it. <strong>3.</strong> Press <strong>Save</strong>.</p>
         </div>
     </header>
 
@@ -20,7 +20,7 @@
         </div>
     </div>
 
-    <form id="session-builder" method="post" th:action="${sessionId == null} ? @{/train} : @{/train/{id}(id=${sessionId})}" th:object="${form}" data-guard novalidate>
+    <form id="session-builder" th:classappend="${showSetDetails} ? 'show-set-details'" method="post" th:action="${sessionId == null} ? @{/train} : @{/train/{id}(id=${sessionId})}" th:object="${form}" data-guard novalidate>
         <div class="flash flash-error" th:if="${#fields.hasErrors('*')}" role="alert">
             <svg><use href="#i-alert"/></svg>
             <div><strong>Nothing was saved yet. Fix these and save again:</strong>
@@ -31,7 +31,7 @@
             <div class="stack">
                 <section class="card ledger">
                     <div class="card-head">
-                        <div><span class="eyebrow">Strength</span><h2>Exercises &amp; sets</h2></div>
+                        <div><span class="eyebrow">Strength</span><h2>What did you do?</h2></div>
                         <span class="badge badge-blue" id="builder-summary">0 sets</span>
                     </div>
                     <div class="card-body">
@@ -40,20 +40,20 @@
                                 <header>
                                     <span class="block-no" th:text="${bs.count}">1</span>
                                     <input class="input" data-block-exercise list="exercise-options" autocomplete="off" th:value="${b.exerciseName}"
-                                           placeholder="Search or type any exercise…" aria-label="Exercise" maxlength="100">
+                                           placeholder="Type an exercise, e.g. Push-ups" aria-label="Exercise" maxlength="100">
                                     <button class="btn btn-ghost btn-sm" type="button" data-action="remove-block">Remove</button>
                                     <div class="new-exercise" hidden>
                                         <span class="badge badge-blue">New</span>
-                                        <span class="small muted">Not in your library yet — it'll be added. Which muscle group?</span>
+                                        <span class="small muted">New exercise! Which body part does it work?</span>
                                         <select class="input input-sm" data-block-muscle aria-label="Muscle group for the new exercise">
-                                            <option value="">Muscle group…</option>
+                                            <option value="">Body part…</option>
                                             <option th:each="m : ${muscles}" th:value="${m}" th:text="${m.label}" th:selected="${b.muscleGroup == m}"></option>
                                         </select>
                                     </div>
                                 </header>
                                 <div class="last-time"></div>
                                 <table class="set-table">
-                                    <thead><tr><th>Set</th><th>Load (lb)</th><th>Reps</th><th class="rpe-col" title="1 = very easy, 10 = no reps left">Rate of perceived exertion <span class="th-sub">1–10</span></th><th class="warm">Warm-up</th><th><span class="sr-only">Remove</span></th></tr></thead>
+                                    <thead><tr><th>Set</th><th>Weight (lb)</th><th>How many times</th><th class="rpe-col detail-col" title="1 = very easy, 10 = no reps left">Rate of perceived exertion <span class="th-sub">1–10</span></th><th class="warm detail-col">Warm-up</th><th><span class="sr-only">Remove</span></th></tr></thead>
                                     <tbody>
                                     <tr class="set-row" th:each="r, rs : ${b.rows}" th:with="i=${bs.index * 20 + rs.index}, err=${rowErrors.get(r)}">
                                         <td class="set-no" th:text="${rs.count}">1</td>
@@ -61,11 +61,11 @@
                                             <input type="hidden" data-hidden="exerciseName" th:name="|sets[${i}].exerciseName|" th:value="${b.exerciseName}">
                                             <input type="hidden" data-hidden="muscleGroup" th:name="|sets[${i}].muscleGroup|" th:value="${b.muscleGroup}">
                                             <input type="hidden" data-hidden="block" th:name="|sets[${i}].block|" th:value="${bs.index}">
-                                            <input class="input" data-field="weightLb" th:name="|sets[${i}].weightLb|" th:value="${@fmt.input(r.weightLb)}" th:classappend="${err != null and err['weightLb'] != null} ? 'is-invalid'" th:title="${err == null ? null : err['weightLb']}" type="number" step="0.5" min="0" inputmode="decimal" placeholder="lb" aria-label="Load in pounds">
+                                            <input class="input" data-field="weightLb" th:name="|sets[${i}].weightLb|" th:value="${@fmt.input(r.weightLb)}" th:classappend="${err != null and err['weightLb'] != null} ? 'is-invalid'" th:title="${err == null ? null : err['weightLb']}" type="number" step="0.5" min="0" inputmode="decimal" placeholder="lb" aria-label="Weight in pounds">
                                         </td>
-                                        <td><input class="input" data-field="reps" th:name="|sets[${i}].reps|" th:value="${r.reps}" th:classappend="${err != null and err['reps'] != null} ? 'is-invalid'" th:title="${err == null ? null : err['reps']}" type="number" min="0" step="1" inputmode="numeric" placeholder="reps" aria-label="Reps"></td>
-                                        <td><input class="input" data-field="rpe" th:name="|sets[${i}].rpe|" th:value="${@fmt.input(r.rpe)}" th:classappend="${err != null and err['rpe'] != null} ? 'is-invalid'" th:title="${err == null ? null : err['rpe']}" type="number" min="1" max="10" step="0.5" inputmode="decimal" placeholder="—" aria-label="Rate of perceived exertion, 1 to 10"></td>
-                                        <td class="warm"><input type="checkbox" data-field="warmup" th:name="|sets[${i}].warmup|" value="true" th:checked="${r.warmup}" aria-label="Warm-up set" style="width:18px;height:18px;accent-color:var(--blue)"></td>
+                                        <td><input class="input" data-field="reps" th:name="|sets[${i}].reps|" th:value="${r.reps}" th:classappend="${err != null and err['reps'] != null} ? 'is-invalid'" th:title="${err == null ? null : err['reps']}" type="number" min="0" step="1" inputmode="numeric" placeholder="times" aria-label="How many times (reps)"></td>
+                                        <td class="detail-col"><input class="input" data-field="rpe" th:name="|sets[${i}].rpe|" th:value="${@fmt.input(r.rpe)}" th:classappend="${err != null and err['rpe'] != null} ? 'is-invalid'" th:title="${err == null ? null : err['rpe']}" type="number" min="1" max="10" step="0.5" inputmode="decimal" placeholder="—" aria-label="Rate of perceived exertion, 1 to 10"></td>
+                                        <td class="warm detail-col"><input type="checkbox" data-field="warmup" th:name="|sets[${i}].warmup|" value="true" th:checked="${r.warmup}" aria-label="Warm-up set" style="width:18px;height:18px;accent-color:var(--blue)"></td>
                                         <td><button class="icon-btn" type="button" data-action="remove-set" aria-label="Remove set"><svg><use href="#i-trash"/></svg></button></td>
                                     </tr>
                                     </tbody>
@@ -76,15 +76,17 @@
                             </div>
                         </div>
                         <div class="row">
-                            <button class="btn btn-dark" type="button" data-action="add-block"><svg><use href="#i-plus"/></svg>Add exercise</button>
-                            <span class="small muted">Start typing to search <th:block th:text="${#lists.size(exerciseCount)}"></th:block> exercises, or type any name to add your own.</span>
+                            <button class="btn btn-dark" type="button" data-action="add-block"><svg><use href="#i-plus"/></svg>Add another exercise</button>
+                            <span class="small muted">Pick from <th:block th:text="${#lists.size(exerciseCount)}"></th:block> exercises, or type any name.</span>
                         </div>
+                        <button class="btn btn-ghost btn-sm mt-2" type="button" data-action="toggle-set-details"
+                                th:text="${showSetDetails} ? 'Hide effort and warm-up' : 'Add effort or mark warm-ups (optional)'">Add effort or mark warm-ups (optional)</button>
                     </div>
                 </section>
 
                 <section class="card">
                     <div class="card-head">
-                        <div><span class="eyebrow">Conditioning</span><h2>Cardio</h2></div>
+                        <div><span class="eyebrow">Optional</span><h2>Running, biking, walking…</h2></div>
                         <button class="btn btn-sm" type="button" data-action="add-cardio"><svg><use href="#i-plus"/></svg>Add cardio</button>
                     </div>
                     <div id="cardio-rows">
@@ -100,27 +102,30 @@
                             <button class="icon-btn" type="button" data-action="remove-cardio" aria-label="Remove cardio"><svg><use href="#i-trash"/></svg></button>
                         </div>
                     </div>
-                    <p class="card-body small muted">Runs, rides, rows, intervals — pace is calculated from minutes and miles.</p>
+                    <p class="card-body small muted">Add how many minutes. Miles, heart rate and calories are optional.</p>
                 </section>
             </div>
 
             <aside class="stack">
                 <section class="card">
-                    <div class="card-head"><div><span class="eyebrow">Session</span><h2>Details</h2></div></div>
+                    <div class="card-head"><div><span class="eyebrow">When</span><h2>Date</h2></div></div>
                     <div class="card-body form-grid">
                         <div class="field">
                             <label for="sessionDate">Date</label>
                             <input class="input" id="sessionDate" type="date" th:field="*{sessionDate}" th:errorclass="is-invalid" required>
                             <p class="field-error" th:if="${#fields.hasErrors('sessionDate')}" th:errors="*{sessionDate}"></p>
                         </div>
+                        <div class="field span-all">
+                            <label for="title">Name it <span class="muted">(optional)</span></label>
+                            <input class="input" id="title" type="text" th:field="*{title}" placeholder="e.g. Leg day">
+                        </div>
+                        <details class="more-details span-all" th:open="${form.durationMin != null or form.focus != null or form.sessionRpe != null or (form.notes != null and !form.notes.isBlank()) or #fields.hasErrors('durationMin')}">
+                        <summary>More details (optional)</summary>
+                        <div class="form-grid mt-2">
                         <div class="field">
-                            <label for="durationMin">Duration</label>
+                            <label for="durationMin">How long</label>
                             <div class="unit-wrap"><input class="input" id="durationMin" type="number" min="0" max="600" th:field="*{durationMin}" th:errorclass="is-invalid" placeholder="60"><span class="unit">min</span></div>
                             <p class="field-error" th:if="${#fields.hasErrors('durationMin')}" th:errors="*{durationMin}"></p>
-                        </div>
-                        <div class="field span-all">
-                            <label for="title">Title <span class="muted">(optional)</span></label>
-                            <input class="input" id="title" type="text" th:field="*{title}" placeholder="e.g. Lower A, Push day">
                         </div>
                         <div class="field">
                             <label for="focus">Focus</label>
@@ -142,12 +147,14 @@
                                 <option value="">Not rated</option>
                                 <option th:each="n : ${#numbers.sequence(1, 10)}" th:value="${n}" th:text="|${n}${n == 10 ? ' — maximal' : (n <= 3 ? ' — easy' : (n >= 8 ? ' — very hard' : ''))}|"></option>
                             </select>
-                            <p class="hint">How hard was the whole session? Tracks load vs. recovery over time.</p>
+                            <p class="hint">How hard was the whole workout? 1 = very easy, 10 = as hard as you can go.</p>
                         </div>
                         <div class="field span-all">
                             <label for="notes">Notes</label>
-                            <textarea class="input" id="notes" th:field="*{notes}" placeholder="How it felt, cues, equipment, anything worth remembering"></textarea>
+                            <textarea class="input" id="notes" th:field="*{notes}" placeholder="How it felt, anything worth remembering"></textarea>
                         </div>
+                        </div>
+                        </details>
                     </div>
                 </section>
             </aside>
@@ -155,7 +162,7 @@
 
         <div class="card form-actions sticky-actions mt-3">
             <a class="btn btn-ghost spacer" th:href="${sessionId == null} ? '/train' : @{/train/{id}(id=${sessionId})}">Cancel</a>
-            <button class="btn btn-primary" type="submit"><svg><use href="#i-check"/></svg><th:block th:text="${sessionId == null ? 'Save session' : 'Save changes'}">Save</th:block></button>
+            <button class="btn btn-primary" type="submit"><svg><use href="#i-check"/></svg><th:block th:text="${sessionId == null ? 'Save' : 'Save changes'}">Save</th:block></button>
         </div>
     </form>
 
@@ -172,20 +179,20 @@
             <header>
                 <span class="block-no">1</span>
                 <input class="input" data-block-exercise list="exercise-options" autocomplete="off"
-                       placeholder="Search or type any exercise…" aria-label="Exercise" maxlength="100">
+                       placeholder="Type an exercise, e.g. Push-ups" aria-label="Exercise" maxlength="100">
                 <button class="btn btn-ghost btn-sm" type="button" data-action="remove-block">Remove</button>
                 <div class="new-exercise" hidden>
                     <span class="badge badge-blue">New</span>
-                    <span class="small muted">Not in your library yet — it'll be added. Which muscle group?</span>
+                    <span class="small muted">New exercise! Which body part does it work?</span>
                     <select class="input input-sm" data-block-muscle aria-label="Muscle group for the new exercise">
-                        <option value="">Muscle group…</option>
+                        <option value="">Body part…</option>
                         <option th:each="m : ${muscles}" th:value="${m}" th:text="${m.label}"></option>
                     </select>
                 </div>
             </header>
             <div class="last-time"></div>
             <table class="set-table">
-                <thead><tr><th>Set</th><th>Load (lb)</th><th>Reps</th><th class="rpe-col" title="1 = very easy, 10 = no reps left">Rate of perceived exertion <span class="th-sub">1–10</span></th><th class="warm">Warm-up</th><th><span class="sr-only">Remove</span></th></tr></thead>
+                <thead><tr><th>Set</th><th>Weight (lb)</th><th>How many times</th><th class="rpe-col detail-col" title="1 = very easy, 10 = no reps left">Rate of perceived exertion <span class="th-sub">1–10</span></th><th class="warm detail-col">Warm-up</th><th><span class="sr-only">Remove</span></th></tr></thead>
                 <tbody></tbody>
             </table>
             <footer><button class="btn btn-sm" type="button" data-action="add-set"><svg><use href="#i-plus"/></svg>Add set</button></footer>
@@ -198,11 +205,11 @@
                 <input type="hidden" data-hidden="exerciseName">
                 <input type="hidden" data-hidden="muscleGroup">
                 <input type="hidden" data-hidden="block">
-                <input class="input" data-field="weightLb" type="number" step="0.5" min="0" inputmode="decimal" placeholder="lb" aria-label="Load in pounds">
+                <input class="input" data-field="weightLb" type="number" step="0.5" min="0" inputmode="decimal" placeholder="lb" aria-label="Weight in pounds">
             </td>
-            <td><input class="input" data-field="reps" type="number" min="0" step="1" inputmode="numeric" placeholder="reps" aria-label="Reps"></td>
-            <td><input class="input" data-field="rpe" type="number" min="1" max="10" step="0.5" inputmode="decimal" placeholder="—" aria-label="Rate of perceived exertion, 1 to 10"></td>
-            <td class="warm"><input type="checkbox" data-field="warmup" value="true" aria-label="Warm-up set" style="width:18px;height:18px;accent-color:var(--blue)"></td>
+            <td><input class="input" data-field="reps" type="number" min="0" step="1" inputmode="numeric" placeholder="times" aria-label="How many times (reps)"></td>
+            <td class="detail-col"><input class="input" data-field="rpe" type="number" min="1" max="10" step="0.5" inputmode="decimal" placeholder="—" aria-label="Rate of perceived exertion, 1 to 10"></td>
+            <td class="warm detail-col"><input type="checkbox" data-field="warmup" value="true" aria-label="Warm-up set" style="width:18px;height:18px;accent-color:var(--blue)"></td>
             <td><button class="icon-btn" type="button" data-action="remove-set" aria-label="Remove set"><svg><use href="#i-trash"/></svg></button></td>
         </tr>
     </template>

@@ -17,7 +17,7 @@
         <article class="card" th:each="p : ${progress}" th:classappend="${p.goal().status.name() == 'ACTIVE'} ? 'ledger'" th:style="${p.goal().status.name() == 'ARCHIVED'} ? 'opacity:.7'">
             <div class="card-head">
                 <div>
-                    <span class="eyebrow" th:text="${p.goal().metric.name() == 'EXERCISE_1RM' and p.goal().exercise != null ? p.goal().exercise.name + ' · e1RM' : (p.goal().metric.name() == 'CUSTOM_METRIC' and p.goal().customMetric != null ? p.goal().customMetric.name : p.goal().metric.label)}">metric</span>
+                    <span class="eyebrow" th:text="${p.goal().metric.name() == 'EXERCISE_1RM' and p.goal().exercise != null ? p.goal().exercise.name + ' · estimated max' : (p.goal().metric.name() == 'CUSTOM_METRIC' and p.goal().customMetric != null ? p.goal().customMetric.name : p.goal().metric.label)}">metric</span>
                     <h3 th:text="${p.goal().title}">Goal</h3>
                 </div>
                 <span th:if="${p.goal().status.name() == 'ACHIEVED'}" class="badge badge-good"><svg><use href="#i-check"/></svg>Achieved</span>

@@ -130,24 +130,24 @@ public class AnalyticsService {
         BodyMeasurement latest = weighIns.isEmpty() ? null : weighIns.get(weighIns.size() - 1);
 
         List<TodayTask> tasks = new ArrayList<>();
-        tasks.add(new TodayTask("Daily check-in", checkIn != null && checkIn.readinessScore() != null
-                ? "Readiness " + checkIn.readinessScore() : "Sleep, energy, soreness — 30 seconds", checkIn != null, "/recover", "recover"));
-        tasks.add(new TodayTask("Log what you eat", todayMeals.isEmpty() ? "Nothing logged yet today"
-                : todayMeals.size() + " entries · " + fmt.num(totals.calories()) + " kcal", !todayMeals.isEmpty(), "/fuel", "fuel"));
+        tasks.add(new TodayTask("Say how you feel", checkIn != null && checkIn.readinessScore() != null
+                ? "Ready-to-train score " + checkIn.readinessScore() : "3 quick questions, 30 seconds", checkIn != null, "/recover", "recover"));
+        tasks.add(new TodayTask("Add what you eat", todayMeals.isEmpty() ? "Nothing added yet today"
+                : todayMeals.size() + (todayMeals.size() == 1 ? " thing · " : " things · ") + fmt.num(totals.calories()) + " calories", !todayMeals.isEmpty(), "/fuel", "fuel"));
         boolean weekDone = week.size() >= d.weeklyTarget();
-        tasks.add(new TodayTask(todaySessions.isEmpty() ? (weekDone ? "Weekly target hit" : "Train") : "Trained today",
-                todaySessions.isEmpty() ? week.size() + " of " + d.weeklyTarget() + " sessions this week"
-                        : todaySessions.get(0).displayTitle() + " · " + fmt.compact(todaySessions.stream().mapToDouble(WorkoutSession::volume).sum()) + " lb",
+        tasks.add(new TodayTask(todaySessions.isEmpty() ? (weekDone ? "Weekly goal done" : "Work out") : "Worked out today",
+                todaySessions.isEmpty() ? week.size() + " of " + d.weeklyTarget() + " workouts this week"
+                        : todaySessions.get(0).displayTitle() + " · " + fmt.compact(todaySessions.stream().mapToDouble(WorkoutSession::volume).sum()) + " lb lifted",
                 !todaySessions.isEmpty() || weekDone, todaySessions.isEmpty() ? "/train/new" : "/train/" + todaySessions.get(0).getId(), "train"));
         Double waterTarget = d.targets() == null ? null : d.targets().getDailyWaterOz();
         double water = checkIn == null || checkIn.getWaterOz() == null ? 0 : checkIn.getWaterOz();
-        tasks.add(new TodayTask("Hydrate", fmt.num(water) + (waterTarget != null ? " of " + fmt.num(waterTarget) : "") + " oz",
+        tasks.add(new TodayTask("Drink water", fmt.num(water) + (waterTarget != null ? " of " + fmt.num(waterTarget) : "") + " oz",
                 waterTarget != null ? water >= waterTarget : water > 0, "/recover", "water"));
         boolean weightGoal = d.goals().stream().anyMatch(p -> p.goal().getStatus() == GoalStatus.ACTIVE
                 && EnumSet.of(GoalMetric.BODY_WEIGHT, GoalMetric.BODY_FAT, GoalMetric.WAIST).contains(p.goal().getMetric()));
         if (weightGoal || latest == null) {
             boolean recent = latest != null && ChronoUnit.DAYS.between(latest.getMeasuredOn(), today) < 7;
-            tasks.add(new TodayTask("Weigh in", latest == null ? "No weigh-ins yet" : "Last " + fmt.relative(latest.getMeasuredOn(), today),
+            tasks.add(new TodayTask("Weigh yourself", latest == null ? "No weight added yet" : "Last " + fmt.relative(latest.getMeasuredOn(), today),
                     recent, "/body#weigh-in", "scale"));
         }
 
@@ -254,8 +254,8 @@ public class AnalyticsService {
                 "unit", "lb", "decimals", 1, "title", "Body weight", "empty", "Weigh in on two or more days to see the trend."));
         charts.put("sleep", ChartJson.spec("line", "labels", dayLabels, "series", List.of(ChartJson.series("Sleep", sleep, "s3", null)),
                 "unit", "h", "decimals", 1, "target", ChartJson.target(8, "8 h"), "height", 180, "title", "Sleep", "empty", "Log sleep in daily check-ins."));
-        charts.put("readiness", ChartJson.spec("line", "labels", dayLabels, "series", List.of(ChartJson.series("Readiness", readiness, "s1", null)),
-                "decimals", 0, "height", 180, "title", "Readiness", "empty", "Check in daily to see readiness."));
+        charts.put("readiness", ChartJson.spec("line", "labels", dayLabels, "series", List.of(ChartJson.series("Ready-to-train score", readiness, "s1", null)),
+                "decimals", 0, "height", 180, "title", "Ready-to-train score", "empty", "Answer the 3 daily questions to see this."));
         charts.put("calendar", calendar(d, Math.max(26, weeks)));
 
         return new Insights(d, days, from, range.size(), range.size() / (days / 7.0),
@@ -344,10 +344,10 @@ public class AnalyticsService {
             boolean hardYesterday = d.sessionsBetween(today.minusDays(1), today.minusDays(1)).stream()
                     .anyMatch(s -> s.getSessionRpe() != null && s.getSessionRpe() >= 8);
             if (score < 50) {
-                out.add(new Insight(Tone.WARN, "Low readiness today (" + score + ")",
+                out.add(new Insight(Tone.WARN, "Low ready-to-train score today (" + score + ")",
                         hardYesterday ? "Yesterday was a hard session. A lighter day or extra rest may pay off." : "Consider easing today's intensity, and check sleep and stress.", "/recover"));
             } else if (score >= 80) {
-                out.add(new Insight(Tone.GOOD, "Readiness is high (" + score + ")", "A good day to push a top set or a harder session.", "/train/new"));
+                out.add(new Insight(Tone.GOOD, "High ready-to-train score (" + score + ")", "A good day to push a top set or a harder session.", "/train/new"));
             }
         });
 
@@ -664,7 +664,7 @@ public class AnalyticsService {
             if (c.getWaterOz() != null) bits.add(fmt.num(c.getWaterOz()) + " oz water");
             if (c.getSteps() != null) bits.add(fmt.num(c.getSteps()) + " steps");
             events.add(new TimelineEvent(c.getCheckInDate(), EventType.RECOVERY, "Check-in", String.join(" · ", bits),
-                    c.readinessScore() == null ? null : "Readiness " + c.readinessScore(), "/recover?date=" + c.getCheckInDate(), ""));
+                    c.readinessScore() == null ? null : "Ready-to-train score " + c.readinessScore(), "/recover?date=" + c.getCheckInDate(), ""));
         }
         for (BodyMeasurement m : d.measurements()) {
             if (m.getMeasuredOn().isBefore(from)) continue;

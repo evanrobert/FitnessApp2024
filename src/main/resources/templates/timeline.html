@@ -6,7 +6,7 @@
         <div>
             <span class="eyebrow">Activity history</span>
             <h1 class="display">Timeline</h1>
-            <p class="lede">Everything you've logged, day by day: sessions, PRs, meals, check-ins, weigh-ins, metrics and milestones.</p>
+            <p class="lede">Everything you've added, day by day: workouts, personal bests, meals, how you felt and your weight.</p>
         </div>
         <nav class="segmented" aria-label="Range">
             <a th:each="r : ${ {7, 30, 90, 365} }" th:href="@{/timeline(days=${r},type=${type})}" th:classappend="${days == r} ? 'is-active'" th:text="${r == 365 ? '1 year' : r + ' days'}">7 days</a>

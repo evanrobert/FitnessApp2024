@@ -20,10 +20,10 @@
 
     <th:block th:if="${record != null}">
         <section class="scoreboard">
-            <div class="score"><div class="score-label">Best e1RM</div><div class="score-value"><th:block th:text="${@fmt.dec(record.bestE1rm())}">0</th:block><small>lb</small></div><div class="score-sub" th:text="${@fmt.shortDate(record.bestE1rmOn())}">date</div></div>
+            <div class="score"><div class="score-label">Best estimated max</div><div class="score-value"><th:block th:text="${@fmt.dec(record.bestE1rm())}">0</th:block><small>lb</small></div><div class="score-sub" th:text="${@fmt.shortDate(record.bestE1rmOn())}">date</div></div>
             <div class="score"><div class="score-label">Heaviest set</div><div class="score-value"><th:block th:text="${@fmt.dec(record.bestWeight())}">0</th:block><small th:text="|lb × ${record.bestWeightReps()}|">lb</small></div><div class="score-sub" th:text="${@fmt.shortDate(record.bestWeightOn())}">date</div></div>
             <div class="score"><div class="score-label">Sessions</div><div class="score-value" th:text="${record.sessions()}">0</div><div class="score-sub" th:text="|${record.sets()} working sets|">sets</div></div>
-            <div class="score"><div class="score-label">Lifetime volume</div><div class="score-value"><th:block th:text="${@fmt.compact(record.totalVolume())}">0</th:block><small>lb</small></div><div class="score-sub" th:text="|last ${@fmt.relative(record.lastDone(), today)}|">last</div></div>
+            <div class="score"><div class="score-label">Total lifted, all time</div><div class="score-value"><th:block th:text="${@fmt.compact(record.totalVolume())}">0</th:block><small>lb</small></div><div class="score-sub" th:text="|last ${@fmt.relative(record.lastDone(), today)}|">last</div></div>
         </section>
 
         <div class="grid cols-2 section">
@@ -32,7 +32,7 @@
                 <div class="card-body"><th:block th:replace="~{fragments/ui :: chart('chart-strength', ${strengthChart})}"></th:block></div>
             </section>
             <section class="card">
-                <div class="card-head"><div><span class="eyebrow">Work</span><h2>Volume per session</h2></div></div>
+                <div class="card-head"><div><span class="eyebrow">Work</span><h2>Total lifted per workout</h2></div></div>
                 <div class="card-body"><th:block th:replace="~{fragments/ui :: chart('chart-ex-volume', ${volumeChart})}"></th:block></div>
             </section>
         </div>
@@ -41,7 +41,7 @@
             <div class="card-head"><div><span class="eyebrow">History</span><h2>Every session</h2></div></div>
             <div class="table-wrap">
                 <table class="table">
-                    <thead><tr><th>Date</th><th>Sets</th><th class="num">Top set</th><th class="num">e1RM</th><th class="num">Volume</th></tr></thead>
+                    <thead><tr><th>Date</th><th>Sets</th><th class="num">Best set</th><th class="num">Estimated max</th><th class="num">Total lifted</th></tr></thead>
                     <tbody>
                     <tr th:each="p : ${history}">
                         <td><a class="row-link" th:href="@{/train/{id}(id=${p.sessionId()})}" th:text="${@fmt.shortDate(p.date())}">date</a></td>
@@ -56,7 +56,7 @@
         </section>
 
         <section class="card section" th:unless="${prs.isEmpty()}">
-            <div class="card-head"><div><span class="eyebrow">Milestones</span><h2>PR history</h2></div></div>
+            <div class="card-head"><div><span class="eyebrow">Milestones</span><h2>Personal bests over time</h2></div></div>
             <ul class="list">
                 <li th:each="p : ${prs}">
                     <div><div class="title" th:text="${p.kind().label}">kind</div><div class="meta" th:text="${@fmt.fullDate(p.date())}">date</div></div>

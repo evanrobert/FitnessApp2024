@@ -4,7 +4,7 @@
 <th:block th:fragment="content">
     <header class="page-head">
         <div>
-            <nav class="breadcrumb"><a href="/fuel">Nutrition</a><span>/</span><span>Targets</span></nav>
+            <nav class="breadcrumb"><a href="/fuel">Food</a><span>/</span><span>Targets</span></nav>
             <h1 class="display">Daily targets</h1>
             <p class="lede">The numbers your nutrition, hydration and adherence scores are measured against.</p>
         </div>
@@ -13,7 +13,7 @@
     <div class="grid split">
         <form class="card ledger" method="post" th:action="@{/fuel/targets}" th:object="${userMacroInformation}" id="targets-form" novalidate>
             <div class="form-section">
-                <h3>Energy &amp; macros</h3>
+                <h3>Calories, protein, carbs and fat</h3>
                 <div class="form-grid">
                     <div class="field"><label for="dailyCalories">Calories</label><div class="unit-wrap"><input class="input" id="dailyCalories" type="number" min="0" step="10" th:field="*{dailyCalories}" th:errorclass="is-invalid"><span class="unit">kcal</span></div></div>
                     <div class="field"><label for="dailyProtein">Protein</label><div class="unit-wrap"><input class="input" id="dailyProtein" type="number" min="0" step="1" th:field="*{dailyProtein}" th:errorclass="is-invalid"><span class="unit">g</span></div></div>

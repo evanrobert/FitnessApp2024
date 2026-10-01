@@ -61,7 +61,7 @@ public class RecoveryController {
         }
         DailyCheckIn saved = checkIns.save(me.getId(), checkIn);
         Integer readiness = saved.readinessScore();
-        Flash.success(redirect, readiness == null ? "Check-in saved" : "Check-in saved · readiness " + readiness);
+        Flash.success(redirect, readiness == null ? "Saved! Thanks for answering." : "Saved! Your ready-to-train score is " + readiness + " out of 100.");
         return "redirect:/recover?date=" + saved.getCheckInDate();
     }
 
@@ -70,7 +70,7 @@ public class RecoveryController {
                         @RequestParam(required = false) String returnTo, RedirectAttributes redirect) {
         double clamped = Math.max(-64, Math.min(64, ounces));
         double total = checkIns.addWater(me.getId(), clamped);
-        Flash.success(redirect, "Water logged · " + Math.round(total) + " oz today");
+        Flash.success(redirect, "Water added · " + Math.round(total) + " oz today");
         return "redirect:" + ViewAdvice.safeReturn(returnTo, "/recover");
     }
 

@@ -1,15 +1,15 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: page(title='Training', active='train', content=~{::content})}">
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: page(title='Workouts', active='train', content=~{::content})}">
 <body>
 <th:block th:fragment="content">
     <header class="page-head">
         <div>
-            <span class="eyebrow">Training log</span>
-            <h1 class="display">Train</h1>
-            <p class="lede">Every session, set and cardio block in one ledger. Filter it, repeat past sessions, and watch your weekly volume.</p>
+            <span class="eyebrow">Your workouts</span>
+            <h1 class="display">Workouts</h1>
+            <p class="lede">All your workouts in one place. Tap one to see it, or do it again.</p>
         </div>
         <div class="page-actions">
-            <a class="btn btn-primary" href="/train/new"><svg><use href="#i-plus"/></svg>Log workout</a>
+            <a class="btn btn-primary" href="/train/new"><svg><use href="#i-plus"/></svg>Add a workout</a>
         </div>
     </header>
 
@@ -20,7 +20,7 @@
             <div class="meter"><span th:style="${@fmt.width(weekCount * 100.0 / weekTarget)}"></span></div>
         </div>
         <div class="score">
-            <div class="score-label">Volume this week</div>
+            <div class="score-label">Lifted this week</div>
             <div class="score-value"><th:block th:text="${@fmt.compact(weekVolume)}">0</th:block><small>lb</small></div>
             <div class="score-sub">working sets × reps × load</div>
         </div>
@@ -38,7 +38,7 @@
 
     <section class="card section">
         <div class="card-head">
-            <div><span class="eyebrow">Last 12 weeks</span><h2>Weekly volume</h2></div>
+            <div><span class="eyebrow">Last 12 weeks</span><h2>Total lifted each week</h2></div>
         </div>
         <div class="card-body">
             <th:block th:replace="~{fragments/ui :: chart('chart-volume', ${volumeChart})}"></th:block>
@@ -79,7 +79,7 @@
 
         <div th:if="${sessions.isEmpty()}" class="card-body">
             <th:block th:if="${filter.active}"><div th:replace="~{fragments/ui :: empty('train', 'No sessions match', 'Try a wider date range or clear the filters.', '/train', 'Clear filters')}"></div></th:block>
-            <th:block th:unless="${filter.active}"><div th:replace="~{fragments/ui :: empty('train', 'Your training ledger is empty', 'Log a session with sets, reps and load. Records, volume and trends build from there.', '/train/new', 'Log your first workout')}"></div></th:block>
+            <th:block th:unless="${filter.active}"><div th:replace="~{fragments/ui :: empty('train', 'No workouts yet', 'Add your first workout: the exercise, the weight and how many times.', '/train/new', 'Add your first workout')}"></div></th:block>
         </div>
 
         <a class="session-card" th:each="s : ${sessions}" th:href="@{/train/{id}(id=${s.id})}">
