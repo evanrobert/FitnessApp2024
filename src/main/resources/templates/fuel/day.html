@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: page(title='Nutrition', active='fuel', content=~{::content})}">
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: page(title='Food', active='fuel', content=~{::content})}">
 <body>
 <th:block th:fragment="content">
     <header class="page-head">
         <div>
             <span class="eyebrow">Nutrition</span>
-            <h1 class="display">Fuel</h1>
-            <p class="lede">What you ate against what you planned: calories, macros and fiber for the day, with your last two weeks for context.</p>
+            <h1 class="display">Food</h1>
+            <p class="lede">What you ate today compared with your daily goal.</p>
         </div>
         <div class="page-actions">
             <div class="day-nav" aria-label="Change day">
@@ -16,7 +16,7 @@
             </div>
             <a class="btn" href="/fuel/ledger">Ledger</a>
             <a class="btn" href="/fuel/targets">Targets</a>
-            <a class="btn btn-primary" th:href="@{/fuel/new(date=${day})}"><svg><use href="#i-plus"/></svg>Log meal</a>
+            <a class="btn btn-primary" th:href="@{/fuel/new(date=${day})}"><svg><use href="#i-plus"/></svg>Add food</a>
         </div>
     </header>
 
@@ -89,7 +89,7 @@
                     </div>
                 </div>
                 <div class="card-foot" th:if="${totals.calories() > 0}" th:with="split=${totals.macroSplit()}">
-                    <div class="small muted" style="margin-bottom:6px">Energy from macros</div>
+                    <div class="small muted" style="margin-bottom:6px">Where your calories came from</div>
                     <span class="sr-only" th:text="|Protein ${@fmt.pct(split[0])}, carbs ${@fmt.pct(split[1])}, fat ${@fmt.pct(split[2])}|"></span>
                     <div style="display:flex;height:10px;border-radius:99px;overflow:hidden;gap:2px;background:var(--surface)" aria-hidden="true">
                         <span th:style="|width:${split[0]}%;background:var(--s1)|"></span>

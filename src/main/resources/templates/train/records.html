@@ -11,19 +11,19 @@
     </header>
 
     <section class="scoreboard">
-        <div class="score"><div class="score-label">PRs last 30 days</div><div class="score-value" th:text="${prs30}">0</div></div>
-        <div class="score"><div class="score-label">PRs last 12 months</div><div class="score-value" th:text="${prs365}">0</div></div>
+        <div class="score"><div class="score-label">Personal bests, last 30 days</div><div class="score-value" th:text="${prs30}">0</div></div>
+        <div class="score"><div class="score-label">Personal bests, last 12 months</div><div class="score-value" th:text="${prs365}">0</div></div>
         <div class="score"><div class="score-label">Lifts tracked</div><div class="score-value" th:text="${#lists.size(records)}">0</div></div>
     </section>
 
-    <th:block th:if="${records.isEmpty()}"><div class="section" th:replace="~{fragments/ui :: empty('trophy', 'No records yet', 'Records appear as soon as you log weighted sets. Beat a previous session and it shows up as a PR.', '/train/new', 'Log a workout')}"></div></th:block>
+    <th:block th:if="${records.isEmpty()}"><div class="section" th:replace="~{fragments/ui :: empty('trophy', 'No personal bests yet', 'Add a workout with weights. When you lift more than before, it shows up here.', '/train/new', 'Add a workout')}"></div></th:block>
 
     <div class="grid split section" th:unless="${records.isEmpty()}">
         <section class="card ledger">
             <div class="card-head"><div><span class="eyebrow">All-time bests</span><h2>By lift</h2></div></div>
             <div class="table-wrap">
                 <table class="table">
-                    <thead><tr><th data-sort="text">Lift</th><th data-sort="num" class="num">Best e1RM</th><th data-sort="num" class="num">Heaviest</th><th data-sort="num" class="num">Sessions</th><th data-sort="text">Set on</th></tr></thead>
+                    <thead><tr><th data-sort="text">Lift</th><th data-sort="num" class="num">Best estimated max</th><th data-sort="num" class="num">Heaviest</th><th data-sort="num" class="num">Workouts</th><th data-sort="text">Set on</th></tr></thead>
                     <tbody>
                     <tr th:each="r : ${records}">
                         <td><a class="row-link" th:href="@{/exercises/{id}(id=${r.exercise().id})}" th:text="${r.exercise().name}">Lift</a><div class="small muted" th:text="${r.exercise().muscleGroup.label}">muscle</div></td>
@@ -37,7 +37,7 @@
             </div>
         </section>
         <section class="card">
-            <div class="card-head"><div><span class="eyebrow">Recent</span><h2>PR feed</h2></div></div>
+            <div class="card-head"><div><span class="eyebrow">Recent</span><h2>Latest personal bests</h2></div></div>
             <div class="card-body" th:if="${events.isEmpty()}"><p class="muted">Beat a previous session on load or estimated 1RM and it lands here.</p></div>
             <ul class="list">
                 <li th:each="p : ${events}">

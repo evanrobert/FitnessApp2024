@@ -32,3 +32,6 @@ spring:
 # app:
 #   mail:
 #     from: "Evan Fitness <no-reply@yourdomain.com>"
+#   # "Support the developer" button: paste your Buy Me a Coffee or Ko-fi page link.
+#   support:
+#     url: https://buymeacoffee.com/yourname

@@ -13,9 +13,12 @@ import java.util.stream.Collectors;
 public class ViewAdvice {
     private final String brandName;
     private final String brandInitials;
+    private final String supportUrl;
 
-    public ViewAdvice(@Value("${app.brand-name}") String brandName) {
+    public ViewAdvice(@Value("${app.brand-name}") String brandName, @Value("${app.support.url:}") String supportUrl) {
         this.brandName = brandName;
+        // Only a secure external page (Buy Me a Coffee, Ko-fi...); the app itself never takes payments.
+        this.supportUrl = supportUrl != null && supportUrl.trim().startsWith("https://") ? supportUrl.trim() : null;
         this.brandInitials = Arrays.stream(brandName.trim().split("\\s+"))
                 .filter(word -> !word.isEmpty())
                 .limit(2)
@@ -31,6 +34,12 @@ public class ViewAdvice {
     @ModelAttribute("brandInitials")
     public String brandInitials() {
         return brandInitials;
+    }
+
+    /** "Support the developer" link, or null when none is configured (the button is then hidden). */
+    @ModelAttribute("supportUrl")
+    public String supportUrl() {
+        return supportUrl;
     }
 
     @ModelAttribute("currentPath")

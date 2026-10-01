@@ -83,6 +83,15 @@
             </div>
         </section>
 
+        <section class="card" id="support" th:if="${supportUrl}">
+            <div class="card-head"><div><span class="eyebrow">Like the app?</span><h2>Support the developer</h2></div><svg class="card-icon" width="22" height="22"><use href="#i-heart"/></svg></div>
+            <div class="card-body stack" style="gap:12px">
+                <p class="small muted">This app is free. If it helps you, you can send a small tip to keep it going. It's completely optional and doesn't change anything in your account.</p>
+                <a class="btn btn-primary" style="justify-self:start" th:href="${supportUrl}" target="_blank" rel="noopener noreferrer"><svg><use href="#i-heart"/></svg>Buy me a coffee</a>
+                <p class="hint">Opens a secure payment page in a new tab. This app never sees your card details.</p>
+            </div>
+        </section>
+
         <section class="card" id="delete">
             <div class="card-head"><div><span class="eyebrow">Your data</span><h2>Export or delete</h2></div></div>
             <div class="card-body stack" style="gap:12px">

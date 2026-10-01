@@ -23,7 +23,7 @@
             </div>
             <div class="table-wrap">
                 <table class="table" id="ex-table">
-                    <thead><tr><th data-sort="text">Exercise</th><th data-sort="text">Muscle</th><th data-sort="num" class="num">Sessions</th><th data-sort="num" class="num">Best e1RM</th><th data-sort="text">Last done</th></tr></thead>
+                    <thead><tr><th data-sort="text">Exercise</th><th data-sort="text">Muscle</th><th data-sort="num" class="num">Workouts</th><th data-sort="num" class="num">Best estimated max</th><th data-sort="text">Last done</th></tr></thead>
                     <tbody>
                     <tr th:each="e : ${exercises}" data-row th:attr="data-muscle=${e.muscleGroup}" th:id="|ex-${e.id}|" th:with="r=${stats[e.id]}">
                         <td>

@@ -375,6 +375,8 @@ class AccountSecurityTests {
         String goals = mvc.perform(get("/goals").with(as(member))).andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
         assertThat(goals).contains("class=\"subnav\"").contains("href=\"/insights\"").contains("href=\"/timeline\"");
         String records = mvc.perform(get("/records").with(as(member))).andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
-        assertThat(records).contains(">Sessions</a>").contains(">Exercises</a>");
+        assertThat(records).contains(">My workouts</a>").contains(">Exercises</a>");
+        // No donation button unless a link is configured.
+        assertThat(home).doesNotContain("Support the developer");
     }
 }

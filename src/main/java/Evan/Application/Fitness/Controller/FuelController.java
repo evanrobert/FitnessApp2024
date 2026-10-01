@@ -118,7 +118,7 @@ public class FuelController {
             return "fuel/form";
         }
         CalorieInformation saved = nutrition.logMeal(me.getId(), calorieInformation);
-        Flash.success(redirect, saved.getItemName() + " logged · " + Math.round(saved.getCalories()) + " kcal");
+        Flash.success(redirect, "Saved! " + saved.getItemName() + (saved.getCalories() > 0 ? " · " + Math.round(saved.getCalories()) + " calories" : ""));
         return another ? "redirect:/fuel/new?date=" + saved.getDate() + "&type=" + saved.getMealType()
                 : "redirect:/fuel?date=" + saved.getDate();
     }
@@ -139,7 +139,7 @@ public class FuelController {
             return "fuel/form";
         }
         nutrition.updateEntry(me.getId(), id, calorieInformation);
-        Flash.success(redirect, "Entry updated");
+        Flash.success(redirect, "Changes saved");
         return "redirect:/fuel?date=" + nutrition.entry(me.getId(), id).getDate();
     }
 
@@ -148,7 +148,7 @@ public class FuelController {
                         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
                         RedirectAttributes redirect) {
         CalorieInformation copy = nutrition.relog(me.getId(), id, date);
-        Flash.success(redirect, copy.getItemName() + " logged again · " + Math.round(copy.getCalories()) + " kcal");
+        Flash.success(redirect, "Added " + copy.getItemName() + " again" + (copy.getCalories() > 0 ? " · " + Math.round(copy.getCalories()) + " calories" : ""));
         return "redirect:/fuel?date=" + copy.getDate();
     }
 
@@ -157,7 +157,7 @@ public class FuelController {
                          @RequestParam(required = false) String returnTo, RedirectAttributes redirect) {
         LocalDate date = nutrition.entry(me.getId(), id).getDate();
         nutrition.deleteEntry(me.getId(), id);
-        Flash.success(redirect, "Entry deleted");
+        Flash.success(redirect, "Deleted");
         return "redirect:" + Evan.Application.Fitness.Web.ViewAdvice.safeReturn(returnTo, "/fuel?date=" + date);
     }
 

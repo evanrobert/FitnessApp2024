@@ -223,6 +223,11 @@
                     break;
                 }
                 case "remove-cardio": t.closest(".cardio-row").remove(); break;
+                case "toggle-set-details": {
+                    const on = builder.classList.toggle("show-set-details");
+                    t.textContent = on ? "Hide effort and warm-up" : "Add effort or mark warm-ups (optional)";
+                    break;
+                }
                 default: return;
             }
             event.preventDefault();
@@ -269,6 +274,7 @@
                 .find((i) => i.validity.rangeOverflow || i.validity.rangeUnderflow || i.validity.badInput);
             if (!bad) return;
             event.preventDefault();
+            if (bad.closest(".detail-col")) builder.classList.add("show-set-details");
             bad.classList.add("is-invalid");
             bad.setCustomValidity(rangeHint[bad.dataset.field] || `Use a value between ${bad.min || "0"} and ${bad.max || "any"}`);
             bad.reportValidity();

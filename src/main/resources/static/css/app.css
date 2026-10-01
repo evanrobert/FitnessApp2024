@@ -803,3 +803,29 @@ a.timeline-item:hover { border-color: var(--ink); color: inherit; }
     body { background: #fff; }
 }
 .card-icon { color: var(--tan-ink); flex: none; }
+
+/* Today: the four everyday actions as big, obvious buttons */
+.action-tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin: 0 0 26px; }
+.action-title { grid-column: 1 / -1; font-size: 20px; margin: 0; }
+.action-tile {
+    display: grid; gap: 4px; align-content: start; min-height: 128px; padding: 18px;
+    background: var(--surface); border: 1px solid var(--line); border-top: 4px solid var(--blue);
+    border-radius: var(--radius-sm); color: var(--ink); text-decoration: none;
+    box-shadow: 0 1px 2px rgba(11, 11, 11, 0.05); transition: transform 120ms ease, box-shadow 120ms ease;
+}
+.action-tile svg { width: 30px; height: 30px; stroke: var(--blue-ink); margin-bottom: 6px; }
+.action-tile strong { font-size: 19px; line-height: 1.2; }
+.action-tile span { font-size: 14px; color: var(--muted); }
+.action-tile:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(11, 11, 11, 0.08); border-top-color: var(--ink); }
+.action-tile:focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
+@media (max-width: 960px) { .action-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 380px) { .action-tile { min-height: 110px; padding: 14px; } .action-tile strong { font-size: 17px; } }
+
+/* "More details": optional fields stay out of the way until asked for */
+.more-details > summary { cursor: pointer; font-weight: 700; color: var(--blue-ink); list-style: none; display: inline-flex; align-items: center; gap: 6px; padding: 6px 0; }
+.more-details > summary::-webkit-details-marker { display: none; }
+.more-details > summary::before { content: "+"; display: inline-grid; place-items: center; width: 20px; height: 20px; border: 1.5px solid currentColor; border-radius: 50%; font-size: 14px; line-height: 1; }
+.more-details[open] > summary::before { content: "−"; }
+.set-table .detail-col { display: none; }
+.show-set-details .set-table .detail-col { display: table-cell; }
+.support-link svg { stroke: var(--tan); }

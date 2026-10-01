@@ -56,7 +56,7 @@ public class MetricController {
             return listView(me.getId(), model);
         }
         CustomMetric saved = metrics.create(me.getId(), metric);
-        Flash.success(redirect, saved.getName() + " added — log your first value");
+        Flash.success(redirect, saved.getName() + " added. Add your first number.");
         return "redirect:/metrics/" + saved.getId();
     }
 
@@ -96,7 +96,7 @@ public class MetricController {
             return detailView(me.getId(), metrics.get(me.getId(), id), model);
         }
         metrics.addEntry(me.getId(), id, entry);
-        Flash.success(redirect, "Entry logged");
+        Flash.success(redirect, "Saved!");
         return "redirect:/metrics/" + id;
     }
 

@@ -57,7 +57,7 @@ public class BodyController {
             return view(me.getId(), model);
         }
         BodyMeasurement saved = body.save(me.getId(), null, measurement);
-        Flash.success(redirect, saved.getWeightLb() != null ? "Weigh-in saved · " + saved.getWeightLb() + " lb" : "Measurements saved");
+        Flash.success(redirect, saved.getWeightLb() != null ? "Saved! You weigh " + saved.getWeightLb() + " lb" : "Measurements saved");
         return "redirect:/body";
     }
 

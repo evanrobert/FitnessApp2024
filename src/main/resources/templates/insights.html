@@ -15,12 +15,12 @@
 
     <section class="scoreboard" aria-label="Range summary">
         <div class="score"><div class="score-label">Sessions</div><div class="score-value" th:text="${v.sessions()}">0</div><div class="score-sub" th:text="|${@fmt.dec(v.perWeek())} per week · target ${v.data().profile().weeklyTargetOrDefault()}|">per week</div></div>
-        <div class="score"><div class="score-label">Volume</div><div class="score-value"><th:block th:text="${@fmt.compact(v.volume())}">0</th:block><small>lb</small></div><div class="score-sub" th:text="|${@fmt.minutes(v.cardioMinutes())} cardio|">cardio</div></div>
+        <div class="score"><div class="score-label">Total lifted</div><div class="score-value"><th:block th:text="${@fmt.compact(v.volume())}">0</th:block><small>lb</small></div><div class="score-sub" th:text="|${@fmt.minutes(v.cardioMinutes())} cardio|">cardio</div></div>
         <div class="score"><div class="score-label">Avg calories</div><div class="score-value" th:text="${@fmt.num(v.avgCalories())}">—</div>
             <div class="score-sub" th:text="${v.calorieAdherence() != null ? @fmt.pct(v.calorieAdherence()) + ' of days on target' : v.loggedFoodDays() + ' days logged'}">adherence</div></div>
         <div class="score"><div class="score-label">Protein vs target</div><div class="score-value" th:text="${@fmt.pct(v.proteinAdherence())}">—</div><div class="score-sub">average of logged days</div></div>
         <div class="score"><div class="score-label">Sleep</div><div class="score-value"><th:block th:text="${@fmt.dec(v.avgSleep())}">—</th:block><small th:if="${v.avgSleep()}">h avg</small></div>
-            <div class="score-sub" th:text="${v.avgReadiness() != null ? 'readiness ' + @fmt.num(v.avgReadiness()) : 'no check-ins'}">readiness</div></div>
+            <div class="score-sub" th:text="${v.avgReadiness() != null ? 'ready-to-train score ' + @fmt.num(v.avgReadiness()) : 'no answers yet'}">score</div></div>
         <div class="score"><div class="score-label">Weight change</div><div class="score-value"><th:block th:text="${v.weightChange() != null ? @fmt.signed(v.weightChange()) : '—'}">—</th:block><small th:if="${v.weightChange() != null}">lb</small></div></div>
     </section>
 
@@ -44,7 +44,7 @@
     </section>
 
     <div class="grid cols-2 section">
-        <section class="card"><div class="card-head"><div><span class="eyebrow">Work</span><h2>Weekly volume</h2></div></div>
+        <section class="card"><div class="card-head"><div><span class="eyebrow">Strength</span><h2>Total lifted each week</h2></div></div>
             <div class="card-body"><th:block th:replace="~{fragments/ui :: chart('chart-vol', ${chart_volume})}"></th:block></div></section>
         <section class="card" id="balance"><div class="card-head"><div><span class="eyebrow">Balance</span><h2>Working sets by muscle group</h2></div></div>
             <div class="card-body">
@@ -70,7 +70,7 @@
             <div class="card-body"><th:block th:replace="~{fragments/ui :: chart('chart-w', ${chart_weight})}"></th:block></div></section>
         <section class="card"><div class="card-head"><div><span class="eyebrow">Recovery</span><h2>Sleep</h2></div></div>
             <div class="card-body"><th:block th:replace="~{fragments/ui :: chart('chart-sl', ${chart_sleep})}"></th:block></div></section>
-        <section class="card"><div class="card-head"><div><span class="eyebrow">Recovery</span><h2>Readiness</h2></div></div>
+        <section class="card"><div class="card-head"><div><span class="eyebrow">Sleep &amp; mood</span><h2>Ready-to-train score</h2></div></div>
             <div class="card-body"><th:block th:replace="~{fragments/ui :: chart('chart-rd', ${chart_readiness})}"></th:block></div></section>
     </div>
 
