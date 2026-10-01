@@ -9,3 +9,6 @@ app:
     log-contents: true
   weekly-email:
     enabled: false
+  support:
+    # Tests check the button is hidden without a link; SupportLinkTests sets one.
+    url: ""

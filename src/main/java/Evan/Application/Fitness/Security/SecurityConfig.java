@@ -84,7 +84,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/login", "/signup", "/error",
                                 "/forgot-password", "/reset-password", "/verify-email", "/email/unsubscribe",
-                                "/css/**", "/js/**", "/images/**", "/fonts/**", "/favicon.svg").permitAll()
+                                "/css/**", "/js/**", "/images/**", "/fonts/**", "/favicon.svg", "/apple-touch-icon.png").permitAll()
                         .anyRequest().authenticated())
                 .formLogin(form -> form
                         .loginPage("/login")

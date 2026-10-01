@@ -29,11 +29,11 @@ sits behind "More details". Labels use everyday words, with no abbreviations.
 Navigation is five sections (Today, Workouts, Food, Sleep & mood, Progress) plus
 Settings; Workouts, Progress and Settings have tabs for their pages.
 
-**Support the developer.** Set `APP_SUPPORT_URL` (or `app.support.url` in
-`config/application-local.yml`) to your Buy Me a Coffee or Ko-fi page and a "Support the
-developer" link appears in the menu and under Settings. Only `https://` links are accepted,
-and payment happens entirely on that site; the app never sees card details. Leave it
-empty to hide the button.
+**Support the developer.** A "Support the developer" link to
+https://buymeacoffee.com/EvanLindsay appears in the menu and under Settings. Change it with
+`APP_SUPPORT_URL` (or `app.support.url` in `config/application-local.yml`). Only `https://` links are accepted,
+and payment happens entirely on that site; the app never sees card details. Set it to an
+empty value to hide the button.
 
 ## Run it locally (no setup)
 
@@ -124,7 +124,7 @@ Instead of the file, supply credentials as environment variables:
 | `SESSION_COOKIE_SECURE` | `false` | Set `true` when served over HTTPS |
 | `APP_DEFAULT_TIME_ZONE` | `America/New_York` | "Today" for members without a time zone set |
 | `APP_BRAND_NAME` | `Evan Fitness` | Name shown in the UI |
-| `APP_SUPPORT_URL` | — | "Support the developer" page (https only; unset hides it) |
+| `APP_SUPPORT_URL` | `https://buymeacoffee.com/EvanLindsay` | "Support the developer" page (https only; empty hides it) |
 | `APP_BASE_URL` | `http://localhost:8080` | Public URL used in email links |
 | `SPRING_MAIL_HOST` / `_PORT` / `_USERNAME` / `_PASSWORD` | — | SMTP server (unset = no email sent) |
 | `MAIL_FROM` | `Evan Fitness <no-reply@localhost>` | Sender address |
