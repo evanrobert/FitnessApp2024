@@ -139,6 +139,21 @@
                 </ul>
             </section>
 
+            <section class="card" th:if="${!liftLevels.isEmpty() or levelsNeedSetup}">
+                <div class="card-head"><div><span class="eyebrow">Strength levels</span><h2>Your strength</h2></div><a class="btn btn-ghost btn-sm" href="/records">See all</a></div>
+                <div class="card-body small muted" th:if="${liftLevels.isEmpty()}">Add your sex in <a href="/profile">Profile</a> and <a href="/body#weigh-in">weigh yourself</a> to see Beginner-to-Elite levels for your lifts.</div>
+                <ul class="levels-list">
+                    <li th:each="l : ${liftLevels}">
+                        <div style="min-width:0">
+                            <a th:href="@{/exercises/{id}(id=${l.exerciseId()})}" th:text="${l.name()}">Bench Press</a>
+                            <div class="meta" th:text="${l.level().next() != null ? @fmt.dec(l.level().lbToNext()) + ' lb to ' + l.level().next() : 'Top level reached'}">to next</div>
+                        </div>
+                        <div class="meter" th:if="${l.level().next() != null}"><span th:style="${@fmt.width(l.level().pctToNext())}"></span></div>
+                        <span class="badge level-badge" th:classappend="${l.level().css()}" th:text="${l.level().label()}">Novice</span>
+                    </li>
+                </ul>
+            </section>
+
             <section class="card" th:unless="${d.recentPrs().isEmpty()}">
                 <div class="card-head"><div><span class="eyebrow">New personal bests</span><h2>You got stronger</h2></div><a class="btn btn-ghost btn-sm" href="/records">See all</a></div>
                 <ul class="list">

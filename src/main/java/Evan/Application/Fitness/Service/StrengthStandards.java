@@ -47,12 +47,9 @@ public final class StrengthStandards {
             return name == null ? "Getting started" : name;
         }
 
+        /** Badge style for this level: each rung has its own color. */
         public String css() {
-            return switch (rank) {
-                case 4, 5 -> "badge-good";
-                case 3 -> "badge-blue";
-                default -> "";
-            };
+            return "level-" + rank;
         }
     }
 

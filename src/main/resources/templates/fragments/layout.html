@@ -65,8 +65,10 @@
 
 <main class="content" id="main">
     <div class="content-inner">
-        <div class="flash flash-success" th:if="${flashSuccess}" role="status">
-            <svg><use href="#i-check"/></svg><span th:text="${flashSuccess}"></span>
+        <div class="flash flash-success" th:if="${flashSuccess}" role="status"
+             th:with="win=${#strings.startsWith(flashSuccess, 'Great workout!')}" th:classappend="${win} ? 'flash-win'">
+            <span class="confetti" th:if="${win}" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
+            <svg><use th:href="${win} ? '#i-trophy' : '#i-check'"/></svg><span th:text="${flashSuccess}"></span>
             <button class="flash-close" type="button" data-dismiss aria-label="Dismiss">&times;</button>
         </div>
         <div class="flash flash-error" th:if="${flashError}" role="alert">

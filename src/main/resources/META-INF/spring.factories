@@ -1,1 +1,2 @@
-org.springframework.boot.env.EnvironmentPostProcessor=Evan.Application.Fitness.Web.LocalProfileCheck
+org.springframework.boot.env.EnvironmentPostProcessor=Evan.Application.Fitness.Web.LocalProfileCheck,\
+  Evan.Application.Fitness.Web.ProdProfileCheck
