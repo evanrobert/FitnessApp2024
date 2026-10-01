@@ -38,6 +38,8 @@ spring:
       mail.smtp.writetimeout: 10000
 
 server:
+  # Hosts like Render tell the app which port to use through PORT.
+  port: ${PORT:8080}
   error:
     whitelabel:
       enabled: false
@@ -58,6 +60,9 @@ app:
   base-url: ${APP_BASE_URL:http://localhost:8080}
   mail:
     from: ${MAIL_FROM:Evan Fitness <no-reply@localhost>}
+    # Brevo (brevo.com) sends over HTTPS, for hosts that block SMTP such as Render's free plan.
+    # When set it's used instead of SMTP.
+    brevo-api-key: ${BREVO_API_KEY:}
   support:
     # Optional "Support the developer" link (e.g. https://buymeacoffee.com/yourname or
     # https://ko-fi.com/yourname). Must be https. Set APP_SUPPORT_URL to an empty value to hide the button.
