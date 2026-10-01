@@ -10,6 +10,7 @@
     <meta name="theme-color" content="#0b0b0b">
     <title th:text="|${title} · ${brandName}|">Evan Fitness</title>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="preload" href="/fonts/archivo-variable.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="/css/app.css">
     <script src="/js/charts.js" defer></script>
@@ -24,7 +25,7 @@
 <header class="topbar">
     <button class="icon-btn" type="button" data-nav-toggle aria-label="Open navigation"><svg><use href="#i-menu"/></svg></button>
     <a class="brand" href="/home">
-        <span class="brand-mark" aria-hidden="true" th:text="${brandInitials}">EF</span>
+        <img class="brand-mark" src="/favicon.svg" alt="" width="34" height="34">
         <span class="brand-name" th:text="${brandName}">Evan Fitness</span>
     </a>
     <th:block th:replace="~{fragments/quicklog :: quickLog('icon')}"></th:block>
@@ -33,7 +34,7 @@
 
 <aside class="rail" id="rail" aria-label="Main navigation">
     <a class="brand" href="/home">
-        <span class="brand-mark" aria-hidden="true" th:text="${brandInitials}">EF</span>
+        <img class="brand-mark" src="/favicon.svg" alt="" width="34" height="34">
         <span class="brand-name"><th:block th:text="${brandName}">Evan Fitness</th:block><small>Training ledger</small></span>
     </a>
 

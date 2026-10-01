@@ -7,6 +7,7 @@
     <meta name="theme-color" content="#0b0b0b">
     <title th:text="|${title} · ${brandName}|">Evan Fitness</title>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="preload" href="/fonts/archivo-variable.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="/css/app.css">
     <script src="/js/app.js" defer></script>
@@ -16,7 +17,7 @@
 <main class="auth">
     <section class="auth-art">
         <a class="brand" href="/">
-            <span class="brand-mark" aria-hidden="true" th:text="${brandInitials}">EF</span>
+            <img class="brand-mark" src="/favicon.svg" alt="" width="34" height="34">
             <span class="brand-name"><th:block th:text="${brandName}">Evan Fitness</th:block><small>Training ledger</small></span>
         </a>
         <div>
