@@ -32,10 +32,12 @@ public class TrainingController {
     private final Fmt fmt;
     private final GoalService goals;
     private final StrengthLevelService strength;
+    private final WorkoutImportService importer;
 
     public TrainingController(TrainingService training, RecordsService records, LimitationService limitations,
                               ProfileService profiles, TodayService todayService, ChartJson charts, Fmt fmt,
-                              GoalService goals, StrengthLevelService strength) {
+                              GoalService goals, StrengthLevelService strength, WorkoutImportService importer) {
+        this.importer = importer;
         this.goals = goals;
         this.strength = strength;
         this.training = training;
@@ -99,6 +101,30 @@ public class TrainingController {
             model.addAttribute("repeatOf", training.get(me.getId(), repeat));
         }
         return builder(me.getId(), form, null, model);
+    }
+
+    /** Paste a workout from a notes app; it opens in the normal form to check before saving. */
+    @GetMapping("/paste")
+    public String pastePage() {
+        return "train/paste";
+    }
+
+    @PostMapping("/paste")
+    public String paste(@AuthenticationPrincipal AppUserPrincipal me, @RequestParam(defaultValue = "") String text, Model model) {
+        if (text.length() > WorkoutTextParser.MAX_TEXT) {
+            model.addAttribute("text", text.substring(0, WorkoutTextParser.MAX_TEXT));
+            model.addAttribute("error", "That's a lot of text. Paste one workout at a time (up to 10,000 characters).");
+            return "train/paste";
+        }
+        WorkoutImportService.Import result = importer.read(me.getId(), text);
+        if (result.setCount() == 0) {
+            model.addAttribute("text", text);
+            model.addAttribute("error", text.isBlank() ? "Paste your workout in the box first."
+                    : "We couldn't find any sets in that. Put each exercise on its own line, with sets below it like \"50 lbs 10 reps\".");
+            return "train/paste";
+        }
+        model.addAttribute("imported", result);
+        return builder(me.getId(), result.form(), null, model);
     }
 
     @PostMapping
