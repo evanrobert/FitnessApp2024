@@ -2,16 +2,24 @@
 <html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: page(title='Today', active='today', content=~{::content})}">
 <body>
 <th:block th:fragment="content" th:with="data=${d.data()}">
-    <header class="page-head">
-        <div>
+    <section class="today-hero" aria-label="Today">
+        <div class="hero-text">
             <span class="eyebrow" th:text="${@fmt.dayTitle(data.today())}">Today</span>
             <h1 class="display" th:text="${data.profile().name != null ? 'Hey, ' + #strings.arraySplit(data.profile().name, ' ')[0] : 'Today'}">Today</h1>
             <p class="lede">
                 <th:block th:text="|You've done ${d.tasksDone()} of ${#lists.size(d.tasks())} things today.|">0 of 4</th:block>
-                <th:block th:if="${d.streak().current() > 1}" th:text="| ${d.streak().current()} days in a row!|"></th:block>
+                <th:block th:if="${d.tasksDone() == #lists.size(d.tasks())}"> All done. Nice!</th:block>
             </p>
+            <div class="hero-chips">
+                <span class="hero-chip is-hot" th:if="${d.streak().current() > 0}"><svg><use href="#i-flame"/></svg><th:block th:text="|${d.streak().current()}-day streak|">streak</th:block></span>
+                <span class="hero-chip"><svg><use href="#i-train"/></svg><th:block th:text="|${d.weekSessions()} of ${data.profile().weeklyTargetOrDefault()} workouts this week|">week</th:block></span>
+            </div>
         </div>
-    </header>
+        <div class="ring" role="img" th:style="${@fmt.width(d.tasksDone() * 100.0 / #lists.size(d.tasks()))}"
+             th:attr="aria-label=|${d.tasksDone()} of ${#lists.size(d.tasks())} done today|">
+            <div class="ring-center"><strong th:text="|${d.tasksDone()}/${#lists.size(d.tasks())}|">0/4</strong><span>done today</span></div>
+        </div>
+    </section>
 
     <!--/* The four things people do every day, as big buttons. */-->
     <section class="action-tiles" aria-label="What do you want to do?">
@@ -105,7 +113,7 @@
                 <div class="card-head"><div><span class="eyebrow">Recently</span><h2>What you added</h2></div><a class="btn btn-ghost btn-sm" href="/timeline">See all</a></div>
                 <div class="card-body">
                     <div class="timeline-day" th:each="day : ${d.recent()}">
-                        <div class="timeline-date" style="background:var(--surface)" th:text="${@fmt.relative(day.date(), data.today()) == 'today' ? 'Today' : @fmt.dayTitle(day.date())}">Day</div>
+                        <div class="timeline-date" style="background:transparent;position:static" th:text="${@fmt.relative(day.date(), data.today()) == 'today' ? 'Today' : @fmt.dayTitle(day.date())}">Day</div>
                         <a class="timeline-item" th:each="e : ${day.events()}" th:href="${e.href()}">
                             <span class="timeline-icon" th:classappend="${e.iconClass()}"><svg><use th:href="${'#i-' + e.icon()}"/></svg></span>
                             <span style="min-width:0"><span class="title" th:text="${e.title()}">Title</span><br><span class="meta" th:text="${e.meta()}">meta</span></span>

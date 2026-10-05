@@ -17,8 +17,14 @@
     "use strict";
 
     const NS = "http://www.w3.org/2000/svg";
-    const COLORS = { s1: "#1e90ff", s2: "#b8792a", s3: "#4a3aa7", ink: "#0b0b0b" };
-    const SEQ = ["#f0e7d8", "#b7d3f6", "#6da7ec", "#2a78d6", "#184f95"]; // sequential blue, 0 -> most
+    // Colors come from the stylesheet's tokens, so charts follow the dark/light theme.
+    let COLORS = {}, SEQ = [];
+    function loadColors() {
+        const css = getComputedStyle(document.documentElement);
+        const v = (name) => css.getPropertyValue(name).trim();
+        COLORS = { s1: v("--s1"), s2: v("--s2"), s3: v("--s3"), ink: v("--ink"), muted: v("--bar-muted"), surface: v("--surface") };
+        SEQ = [v("--seq-0"), v("--seq-1"), v("--seq-2"), v("--seq-3"), v("--seq-4")]; // 0 -> most
+    }
     const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
     function el(name, attrs, parent) {
@@ -225,7 +231,7 @@
             el("path", { d, fill: "none", stroke: c, "stroke-width": 2, "stroke-linejoin": "round", "stroke-linecap": "round" }, svg);
             const lastIdx = s.values.map((v, i) => (v === null || v === undefined ? -1 : i)).reduce((a, b) => Math.max(a, b), -1);
             if (lastIdx >= 0 && !s.hideEnd) {
-                el("circle", { cx: x(lastIdx), cy: y(s.values[lastIdx]), r: 4.5, fill: c, stroke: "#fff", "stroke-width": 2 }, svg);
+                el("circle", { cx: x(lastIdx), cy: y(s.values[lastIdx]), r: 4.5, fill: c, stroke: COLORS.surface, "stroke-width": 2 }, svg);
                 if (series.filter((q) => q.style !== "dots").length === 1) {
                     el("text", { class: "end-label", x: x(lastIdx) + 8, y: y(s.values[lastIdx]) + 4 }, svg).textContent = fmt(s.values[lastIdx], spec.decimals);
                 }
@@ -303,7 +309,7 @@
             const r = Math.min(4, h, bw / 2);
             const x0 = cx - bw / 2;
             const d = h <= 0 ? "" : `M${x0} ${base}V${top + r}Q${x0} ${top} ${x0 + r} ${top}H${x0 + bw - r}Q${x0 + bw} ${top} ${x0 + bw} ${top + r}V${base}Z`;
-            const fill = spec.highlight === undefined || spec.highlight === i ? color(spec.color) : "#b7d3f6";
+            const fill = spec.highlight === undefined || spec.highlight === i ? color(spec.color) : COLORS.muted;
             if (d) el("path", { d, fill, class: "bar" }, svg);
             const hit = el("rect", { x: pad.l + band * i, y: pad.t, width: band, height: H - pad.t - pad.b, fill: "transparent", tabindex: 0, "aria-label": `${shortDate(labels[i])}: ${fmt(v, spec.decimals)}${unit}` }, svg);
             const show = () => tip.show(cx * (container.clientWidth / W), top, shortDate(labels[i]), [{ color: fill, value: fmt(v, spec.decimals) + unit, name: spec.name || "" }]);
@@ -386,13 +392,17 @@
     function render(container) {
         const source = document.getElementById(container.dataset.chart);
         if (!source) return;
+        if (!COLORS.s1) loadColors();
         let spec;
         try { spec = JSON.parse(source.textContent); } catch (e) { return empty(container, "Chart unavailable."); }
         const draw = RENDERERS[spec.type];
-        if (draw) draw(container, spec);
+        if (!draw) return;
+        container.replaceChildren(); // redraws (e.g. after a theme switch) start clean
+        draw(container, spec);
     }
 
     function renderAll() {
+        loadColors();
         document.querySelectorAll("[data-chart]").forEach(render);
     }
 

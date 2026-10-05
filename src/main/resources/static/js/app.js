@@ -27,6 +27,24 @@
         }
     });
 
+    // ---- Dark / light theme ------------------------------------------------------
+    function themeLabel() {
+        const light = document.documentElement.getAttribute("data-theme") === "light";
+        $$("[data-theme-toggle] [data-theme-label]").forEach((n) => { n.textContent = light ? "Dark mode" : "Light mode"; });
+        const meta = $('meta[name="theme-color"]');
+        if (meta) meta.setAttribute("content", light ? "#f3f5f8" : "#0a0c0f");
+    }
+    themeLabel();
+    document.addEventListener("click", (event) => {
+        if (!event.target.closest("[data-theme-toggle]")) return;
+        const light = document.documentElement.getAttribute("data-theme") !== "light";
+        if (light) document.documentElement.setAttribute("data-theme", "light");
+        else document.documentElement.removeAttribute("data-theme");
+        try { localStorage.setItem("theme", light ? "light" : "dark"); } catch (e) { /* not saved, still switches */ }
+        themeLabel();
+        if (window.LedgerCharts) window.LedgerCharts.renderAll();
+    });
+
     // ---- Flash dismiss, confirmations, submit feedback ------------------------
     document.addEventListener("click", (event) => {
         const back = event.target.closest("[data-back]");

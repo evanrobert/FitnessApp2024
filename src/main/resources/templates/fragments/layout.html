@@ -7,7 +7,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#0b0b0b">
+    <meta name="theme-color" content="#0a0c0f">
+    <script src="/js/theme.js"></script>
     <title th:text="|${title} · ${brandName}|">Evan Fitness</title>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -52,6 +53,7 @@
 
     <div class="rail-footer">
         <a class="nav-link support-link" th:if="${supportUrl}" th:href="${supportUrl}" target="_blank" rel="noopener noreferrer"><svg><use href="#i-heart"/></svg>Support the developer</a>
+        <button class="nav-link" type="button" data-theme-toggle><svg><use href="#i-contrast"/></svg><span data-theme-label>Light mode</span></button>
         <a class="nav-link" th:classappend="${section == 'settings'} ? 'is-active'" href="/profile"><svg><use href="#i-settings"/></svg>Settings</a>
         <form th:action="@{/logout}" method="post">
             <button class="nav-link" type="submit"><svg><use href="#i-logout"/></svg>Log out</button>
