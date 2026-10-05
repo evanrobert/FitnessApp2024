@@ -7,9 +7,25 @@
             <nav class="breadcrumb"><a href="/train">Workouts</a><span>/</span><span th:text="${sessionId == null ? 'New workout' : 'Change'}">New</span></nav>
             <h1 class="display" th:text="${sessionId == null ? 'Add a workout' : 'Change this workout'}">Add a workout</h1>
             <p class="lede" th:if="${repeatOf != null}">Repeating <strong th:text="${repeatOf.displayTitle()}">session</strong> from <th:block th:text="${@fmt.shortDate(repeatOf.sessionDate)}">date</th:block>. Loads are pre-filled; adjust what changed.</p>
-            <p class="lede" th:if="${repeatOf == null}"><strong>1.</strong> Type the exercise. <strong>2.</strong> Type the weight and how many times you did it. <strong>3.</strong> Press <strong>Save</strong>.</p>
+            <p class="lede" th:if="${imported != null}">Here's what we read from your notes. Check it, fix anything that's off, then press <strong>Save</strong>.</p>
+            <p class="lede" th:if="${repeatOf == null and imported == null}"><strong>1.</strong> Type the exercise. <strong>2.</strong> Type the weight and how many times you did it. <strong>3.</strong> Press <strong>Save</strong>.</p>
+        </div>
+        <div class="page-actions" th:if="${sessionId == null and imported == null}">
+            <a class="btn" href="/train/paste"><svg><use href="#i-copy"/></svg>Paste from notes</a>
         </div>
     </header>
+
+    <div class="flash flash-info" th:if="${imported != null}" role="status" style="margin-bottom:20px">
+        <svg><use href="#i-info"/></svg>
+        <div>
+            <strong th:text="|Found ${imported.exerciseCount} ${imported.exerciseCount == 1 ? 'exercise' : 'exercises'} and ${imported.setCount} ${imported.setCount == 1 ? 'set' : 'sets'}.|">Found 6 exercises and 19 sets.</strong>
+            <th:block th:if="${imported.matchedCount < imported.exerciseCount}">Exercises marked <span class="badge badge-blue">New</span> will be added to your list; check the body part for each.</th:block>
+            <th:block th:unless="${imported.skipped.isEmpty()}">
+                <div class="mt-1">We skipped these lines. Add them by hand if they matter:</div>
+                <ul style="margin:4px 0 0;padding-left:18px"><li th:each="line : ${imported.skipped}" th:text="${line}">line</li></ul>
+            </th:block>
+        </div>
+    </div>
 
     <div class="limitation-note" th:unless="${limitations.isEmpty()}" style="margin-bottom:20px">
         <svg><use href="#i-bandage"/></svg>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: page(title='Paste a workout', active='train', content=~{::content})}">
+<body>
+<th:block th:fragment="content">
+    <header class="page-head">
+        <div>
+            <nav class="breadcrumb"><a href="/train">Workouts</a><span>/</span><span>Paste from notes</span></nav>
+            <h1 class="display">Paste a workout</h1>
+            <p class="lede">Copy your workout from your notes app and paste it below. We'll fill in the workout for you to check before saving.</p>
+        </div>
+    </header>
+
+    <div class="grid split">
+        <form class="card" method="post" th:action="@{/train/paste}">
+            <div class="flash flash-error" th:if="${error != null}" role="alert" style="margin:16px 16px 0">
+                <svg><use href="#i-alert"/></svg><div th:text="${error}">problem</div>
+            </div>
+            <div class="card-body">
+                <div class="field">
+                    <label for="text">Your workout</label>
+                    <textarea class="input paste-box" id="text" name="text" maxlength="10000" required autofocus spellcheck="false"
+                              th:text="${text}" placeholder="Incline dumbbell press&#10;* 50 lbs 10 reps&#10;* 50 lbs 10 reps&#10;* 50 lbs 10 reps&#10;&#10;Cable chest press&#10;* 80 lbs 12 reps&#10;* 80 lbs 12 reps"></textarea>
+                </div>
+            </div>
+            <div class="form-actions">
+                <a class="btn btn-ghost spacer" href="/train/new">Type it in instead</a>
+                <button class="btn btn-primary" type="submit"><svg><use href="#i-check"/></svg>Read my workout</button>
+            </div>
+        </form>
+
+        <aside class="card">
+            <div class="card-head"><div><span class="eyebrow">Tips</span><h2>What we understand</h2></div></div>
+            <div class="card-body stack small">
+                <p>Put each exercise on its own line, then its sets underneath. Bullets, dashes and numbers are fine.</p>
+                <ul class="paste-examples">
+                    <li><code>50 lbs 10 reps</code> one set</li>
+                    <li><code>135 x 8</code> 135 lb, 8 times</li>
+                    <li><code>3x10 @ 135</code> 3 sets of 10 at 135 lb</li>
+                    <li><code>3 sets of 12 at 50 lbs</code></li>
+                    <li><code>185 lbs: 8, 8, 6</code> three sets</li>
+                    <li><code>Push-ups 3x15</code> exercise and sets on one line</li>
+                    <li><code>12 reps</code> or <code>bodyweight x 12</code></li>
+                    <li><code>60 kg x 5</code> converted to pounds</li>
+                </ul>
+                <p class="muted">A first line like "Push day" becomes the workout's name, and a date like 10/3 sets the day. Nothing is saved until you press Save.</p>
+            </div>
+        </aside>
+    </div>
+</th:block>
+</body>
+</html>

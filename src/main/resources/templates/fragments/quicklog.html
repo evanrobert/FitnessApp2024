@@ -8,6 +8,7 @@
     <summary th:unless="${style == 'full'}" class="icon-btn" aria-label="Add something"><svg><use href="#i-plus"/></svg></summary>
     <div class="quick-menu" role="menu" th:style="${style == 'full'} ? 'left: 0; right: auto'">
         <a href="/train/new" role="menuitem">I worked out</a>
+        <a href="/train/paste" role="menuitem">Paste a workout from notes</a>
         <a href="/fuel/new" role="menuitem">I ate something</a>
         <a href="/recover" role="menuitem">How I feel</a>
         <a href="/body#weigh-in" role="menuitem">Weigh myself</a>

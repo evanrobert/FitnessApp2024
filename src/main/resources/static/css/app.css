@@ -909,3 +909,8 @@ img.brand-mark { background: none; border-radius: 9px; box-shadow: 0 0 0 1px #34
     .flash-win, .confetti i { animation: none; }
     .confetti { display: none; }
 }
+
+/* Paste a workout from notes */
+.paste-box { min-height: 340px; font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace); font-size: 14px; line-height: 1.5; }
+.paste-examples { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
+.paste-examples code { background: var(--blue-soft); color: var(--blue-ink); padding: 1px 6px; border-radius: 6px; white-space: nowrap; }
