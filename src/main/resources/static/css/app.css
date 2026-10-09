@@ -1056,3 +1056,26 @@ img.brand-mark { background: none; border-radius: 10px; box-shadow: 0 0 0 1px rg
 .content-inner > *:nth-child(n+5) { animation-delay: 160ms; }
 @keyframes rise { from { opacity: 0; transform: translateY(8px); } }
 @media (prefers-reduced-motion: reduce) { .ring, .content-inner > *, .meter > span { animation: none; } }
+
+/* ---------- Installable app -------------------------------------------------- */
+.install-card {
+    display: flex; align-items: center; gap: 14px; padding: 14px 16px; margin-bottom: 20px;
+    border: 1px solid rgba(198, 244, 50, 0.35); border-radius: var(--radius);
+    background: linear-gradient(110deg, rgba(198, 244, 50, 0.12), rgba(59, 156, 255, 0.08)), var(--surface);
+}
+.install-card[hidden], .install-card [hidden] { display: none; }
+@media (max-width: 640px) { .install-card { padding: 12px; gap: 10px; } .install-card img { width: 40px; height: 40px; } }
+.install-card img { border-radius: 12px; flex: none; }
+.install-text { display: grid; gap: 2px; flex: 1; min-width: 0; }
+.install-text span { font-size: 13.5px; color: var(--muted); }
+.offline { min-height: 100vh; display: grid; place-content: center; justify-items: center; gap: 14px; padding: 24px; text-align: center; }
+.offline img { border-radius: 18px; box-shadow: var(--lime-glow); }
+.offline h1 { font-size: 40px; }
+.offline p { color: var(--muted); max-width: 36ch; }
+/* Installed app on phones with a notch: keep the top bar clear of the status bar */
+@media (max-width: 960px) {
+    .topbar { padding-top: calc(10px + env(safe-area-inset-top)); }
+}
+@media (display-mode: standalone) {
+    .rail { padding-top: calc(22px + env(safe-area-inset-top)); }
+}

@@ -21,6 +21,17 @@
         </div>
     </section>
 
+    <!--/* Shown by app.js only on browsers that can install the app and haven't yet. */-->
+    <section class="install-card" data-install hidden>
+        <img src="/icons/icon-192.png" alt="" width="48" height="48">
+        <div class="install-text">
+            <strong>Put Evan Fitness on your home screen</strong>
+            <span data-install-how>It opens like an app, so logging is one tap away.</span>
+        </div>
+        <button class="btn btn-primary btn-sm" type="button" data-install-go hidden>Install</button>
+        <button class="icon-btn" type="button" data-install-dismiss aria-label="Not now">&times;</button>
+    </section>
+
     <!--/* The four things people do every day, as big buttons. */-->
     <section class="action-tiles" aria-label="What do you want to do?">
         <h2 class="action-title">What do you want to do?</h2>

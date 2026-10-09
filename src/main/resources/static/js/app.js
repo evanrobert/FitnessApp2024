@@ -27,6 +27,42 @@
         }
     });
 
+    // ---- Installable app ---------------------------------------------------------
+    if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch(() => {}));
+    }
+    (function installCard() {
+        const card = $("[data-install]");
+        const standalone = window.matchMedia("(display-mode: standalone)").matches || navigator.standalone;
+        let dismissed = false;
+        try { dismissed = localStorage.getItem("install-dismissed") === "1"; } catch (e) { /* ignore */ }
+        if (!card || standalone || dismissed) return;
+        const ios = /iphone|ipad|ipod/i.test(navigator.userAgent) && !/crios|fxios/i.test(navigator.userAgent);
+        let deferred = null;
+        if (ios) {
+            $("[data-install-how]", card).textContent = "Tap the Share button, then \u201cAdd to Home Screen\u201d. It opens like an app.";
+            card.hidden = false;
+        }
+        window.addEventListener("beforeinstallprompt", (event) => {
+            event.preventDefault();
+            deferred = event;
+            $("[data-install-go]", card).hidden = false;
+            card.hidden = false;
+        });
+        $("[data-install-go]", card).addEventListener("click", async () => {
+            if (!deferred) return;
+            deferred.prompt();
+            await deferred.userChoice.catch(() => null);
+            deferred = null;
+            card.hidden = true;
+        });
+        $("[data-install-dismiss]", card).addEventListener("click", () => {
+            card.hidden = true;
+            try { localStorage.setItem("install-dismissed", "1"); } catch (e) { /* ignore */ }
+        });
+        window.addEventListener("appinstalled", () => { card.hidden = true; });
+    })();
+
     // ---- Dark / light theme ------------------------------------------------------
     function themeLabel() {
         const light = document.documentElement.getAttribute("data-theme") === "light";

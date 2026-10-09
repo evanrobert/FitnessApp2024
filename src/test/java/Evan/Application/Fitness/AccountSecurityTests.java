@@ -388,4 +388,50 @@ class AccountSecurityTests {
         // No donation button unless a link is configured.
         assertThat(home).doesNotContain("Support the developer");
     }
+
+    // ---- "Keep me signed in on this device" ---------------------------------------------
+
+    private jakarta.servlet.http.Cookie rememberLogin() throws Exception {
+        jakarta.servlet.http.Cookie cookie = mvc.perform(post("/login").with(csrf()).with(fromNewIp())
+                        .param("username", member.getUsername()).param("password", PASSWORD).param("remember", "true"))
+                .andExpect(redirectedUrl("/home")).andReturn().getResponse().getCookie("ef_remember");
+        assertThat(cookie).isNotNull();
+        assertThat(cookie.isHttpOnly()).isTrue();
+        assertThat(cookie.getMaxAge()).isEqualTo(30 * 24 * 3600);
+        return cookie;
+    }
+
+    @Test
+    void keepMeSignedInWorksWithoutASessionAndOnlyWhenAsked() throws Exception {
+        jakarta.servlet.http.Cookie cookie = rememberLogin();
+        // A fresh visit with only the cookie (no session) is signed in; the token rotates.
+        jakarta.servlet.http.Cookie rotated = mvc.perform(get("/home").cookie(cookie)).andExpect(status().isOk())
+                .andReturn().getResponse().getCookie("ef_remember");
+        assertThat(rotated).isNotNull();
+        assertThat(rotated.getValue()).isNotEqualTo(cookie.getValue());
+
+        // Without the box ticked, no cookie is set.
+        assertThat(mvc.perform(post("/login").with(csrf()).with(fromNewIp())
+                        .param("username", member.getUsername()).param("password", PASSWORD))
+                .andReturn().getResponse().getCookie("ef_remember")).isNull();
+    }
+
+    @Test
+    void changingThePasswordForgetsKeptDevices() throws Exception {
+        jakarta.servlet.http.Cookie cookie = rememberLogin();
+        security.changePassword(member.getId(), "brand-new-password-9", null);
+        mvc.perform(get("/home").cookie(cookie)).andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrlPattern("**/login"));
+    }
+
+    @Test
+    void installableAppFilesArePublic() throws Exception {
+        mvc.perform(get("/manifest.json")).andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("\"display\": \"standalone\"")));
+        mvc.perform(get("/sw.js")).andExpect(status().isOk());
+        mvc.perform(get("/offline.html")).andExpect(status().isOk());
+        mvc.perform(get("/icons/icon-192.png")).andExpect(status().isOk());
+        mvc.perform(get("/login")).andExpect(content().string(org.hamcrest.Matchers.containsString("rel=\"manifest\"")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Keep me signed in on this device")));
+    }
 }
