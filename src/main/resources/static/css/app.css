@@ -1079,3 +1079,45 @@ img.brand-mark { background: none; border-radius: 10px; box-shadow: 0 0 0 1px rg
 @media (display-mode: standalone) {
     .rail { padding-top: calc(22px + env(safe-area-inset-top)); }
 }
+
+/* ---------- One-tap food -------------------------------------------------------- */
+.quick-foods { display: grid; gap: 14px; }
+.quick-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.quick-head h2 { font-size: 18px; font-weight: 780; }
+.quick-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; }
+.quick-food { position: relative; }
+.quick-food form { margin: 0; }
+.quick-food-btn {
+    width: 100%; min-height: 86px; display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto auto; column-gap: 10px; align-items: center;
+    padding: 12px 40px 12px 12px; text-align: left; cursor: pointer; font: inherit; color: var(--ink);
+    background: var(--glass), var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+    transition: transform 140ms ease, border-color 140ms ease, box-shadow 140ms ease;
+}
+.quick-food-btn .food-icon { grid-row: span 2; }
+.quick-food-btn .qf-name { font-weight: 720; font-size: 14.5px; line-height: 1.25; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.quick-food-btn .qf-meta { font-size: 12.5px; color: var(--muted); }
+.quick-food-btn:hover { border-color: rgba(198, 244, 50, 0.45); transform: translateY(-2px); }
+.quick-food-btn:active { transform: scale(.98); }
+.quick-food-btn.is-loading, .quick-food-btn:disabled { opacity: .6; }
+.quick-food.is-favorite .quick-food-btn { border-color: rgba(198, 244, 50, 0.35); }
+.qf-star { position: absolute; top: 6px; right: 6px; }
+.qf-star .icon-btn, .star-btn { color: var(--muted); }
+.qf-star .icon-btn svg, .star-btn svg { width: 17px; height: 17px; }
+.quick-food.is-favorite .qf-star .icon-btn, .star-btn.is-on { color: var(--lime); }
+.quick-food.is-favorite .qf-star svg, .star-btn.is-on svg { fill: currentColor; }
+.same-as-yesterday {
+    display: flex; align-items: center; gap: 12px; padding: 12px 14px; margin: 0;
+    border: 1px solid rgba(59, 156, 255, 0.35); border-radius: var(--radius);
+    background: linear-gradient(110deg, rgba(59, 156, 255, 0.14), rgba(198, 244, 50, 0.06)), var(--surface);
+}
+.same-as-yesterday .food-icon { background: var(--blue-soft); color: var(--blue-ink); }
+.say-text { display: grid; gap: 2px; flex: 1; min-width: 0; }
+.say-text span { font-size: 13px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 640px) {
+    .quick-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    .quick-food-btn { min-height: 78px; padding: 10px 34px 10px 10px; grid-template-columns: 1fr; }
+    .quick-food-btn .food-icon { grid-row: auto; width: 26px; height: 26px; margin-bottom: 4px; }
+    .quick-food-btn .qf-name { font-size: 14px; }
+    .quick-food:nth-child(n+9) { display: none; }
+}
+.same-as-yesterday[hidden] { display: none; }

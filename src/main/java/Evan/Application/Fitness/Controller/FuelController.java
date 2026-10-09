@@ -93,7 +93,7 @@ public class FuelController {
         model.addAttribute("totals", nutrition.totals(entries));
         model.addAttribute("targets", targets);
         model.addAttribute("byMeal", byMeal);
-        model.addAttribute("recent", nutrition.recentFoods(userId, 8));
+        addQuickLog(userId, day, quick.getMealType(), model);
         model.addAttribute("calorieChart", charts.write(chart));
         model.addAttribute("calorieInformation", quick);
         return "fuel/day";
@@ -107,7 +107,42 @@ public class FuelController {
         meal.setDate(date == null ? todayService.today(me.getId()) : date);
         meal.setMealType(type != null && MEAL_TYPES.containsKey(type) ? type : defaultMealType(me.getId()));
         model.addAttribute("calorieInformation", meal);
+        addQuickLog(me.getId(), meal.getDate(), meal.getMealType(), model);
         return "fuel/form";
+    }
+
+    /** One-tap foods, starred names and "same as yesterday's lunch" for the day and meal being logged. */
+    private void addQuickLog(Long userId, LocalDate day, String mealType, Model model) {
+        model.addAttribute("quickFoods", nutrition.quickFoods(userId, 12));
+        model.addAttribute("favoriteKeys", nutrition.favoriteKeys(userId));
+        model.addAttribute("quickDay", day);
+        model.addAttribute("quickToday", todayService.today(userId));
+        model.addAttribute("quickType", mealType);
+        model.addAttribute("yesterdayMeal", nutrition.sameAsYesterday(userId, day, mealType));
+    }
+
+    @PostMapping("/{id}/favorite")
+    public String favorite(@AuthenticationPrincipal AppUserPrincipal me, @PathVariable Long id,
+                           @RequestParam(required = false) String returnTo, RedirectAttributes redirect) {
+        String name = nutrition.entry(me.getId(), id).getItemName();
+        boolean starred = nutrition.toggleFavorite(me.getId(), id);
+        Flash.success(redirect, starred ? "Starred " + name + ". It stays at the top of your list." : "Removed the star from " + name);
+        return "redirect:" + Evan.Application.Fitness.Web.ViewAdvice.safeReturn(returnTo, "/fuel");
+    }
+
+    @PostMapping("/copy-meal")
+    public String copyMeal(@AuthenticationPrincipal AppUserPrincipal me,
+                           @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+                           @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
+                           @RequestParam String type, RedirectAttributes redirect) {
+        LocalDate today = todayService.today(me.getId());
+        if (!MEAL_TYPES.containsKey(type) || to.isAfter(today)) {
+            return "redirect:/fuel";
+        }
+        int n = nutrition.copyMeal(me.getId(), from, type, to);
+        Flash.success(redirect, n == 0 ? "Nothing to copy" : "Added " + n + (n == 1 ? " food" : " foods") + " to "
+                + MEAL_TYPES.get(type).toLowerCase(java.util.Locale.ROOT));
+        return "redirect:/fuel?date=" + to;
     }
 
     @PostMapping
@@ -146,8 +181,10 @@ public class FuelController {
     @PostMapping("/{id}/relog")
     public String relog(@AuthenticationPrincipal AppUserPrincipal me, @PathVariable Long id,
                         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
-                        RedirectAttributes redirect) {
-        CalorieInformation copy = nutrition.relog(me.getId(), id, date);
+                        @RequestParam(required = false) String type, RedirectAttributes redirect) {
+        LocalDate today = todayService.today(me.getId());
+        CalorieInformation copy = nutrition.relog(me.getId(), id, date == null || date.isAfter(today) ? today : date,
+                type != null && MEAL_TYPES.containsKey(type) ? type : null);
         Flash.success(redirect, "Added " + copy.getItemName() + " again" + (copy.getCalories() > 0 ? " · " + Math.round(copy.getCalories()) + " calories" : ""));
         return "redirect:/fuel?date=" + copy.getDate();
     }

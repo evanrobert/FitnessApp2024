@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<!--/* One-tap logging: "same as yesterday" for this meal, then starred and most-eaten foods.
+     Needs quickFoods, favoriteKeys, quickDay, quickType, yesterdayMeal, mealTypes. */-->
+<th:block th:fragment="quickLog">
+    <section class="quick-foods" th:unless="${quickFoods.isEmpty() and yesterdayMeal.isEmpty()}" aria-label="Log again with one tap">
+        <form class="same-as-yesterday" method="post" th:action="@{/fuel/copy-meal}" th:unless="${yesterdayMeal.isEmpty()}">
+            <input type="hidden" name="from" th:value="${quickDay.minusDays(1)}">
+            <input type="hidden" name="to" th:value="${quickDay}">
+            <input type="hidden" name="type" th:value="${quickType}">
+            <span class="food-icon" aria-hidden="true"><svg><use href="#i-copy"/></svg></span>
+            <span class="say-text">
+                <strong th:text="|Same as yesterday's ${#strings.toLowerCase(mealTypes.get(quickType))}?|">Same as yesterday's lunch?</strong>
+                <span th:text="|${#strings.listJoin(yesterdayMeal.![itemName], ', ')} · ${@fmt.num(#aggregates.sum(yesterdayMeal.![calories]))} cal|">foods</span>
+            </span>
+            <button class="btn btn-primary btn-sm" type="submit">Add</button>
+        </form>
+
+        <th:block th:unless="${quickFoods.isEmpty()}">
+            <div class="quick-head">
+                <h2>Tap to log again</h2>
+                <span class="small muted" th:text="|Adds to ${#strings.toLowerCase(mealTypes.get(quickType))}${quickDay.equals(quickToday) ? '' : ', ' + @fmt.shortDate(quickDay)}|">Adds to lunch</span>
+            </div>
+            <div class="quick-grid">
+                <div class="quick-food" th:each="f : ${quickFoods}" th:classappend="${f.favorite()} ? 'is-favorite'">
+                    <form method="post" th:action="@{/fuel/{id}/relog(id=${f.entryId()})}">
+                        <input type="hidden" name="date" th:value="${quickDay}">
+                        <input type="hidden" name="type" th:value="${quickType}">
+                        <button class="quick-food-btn" type="submit" th:attr="aria-label=|Log ${f.name()} again|">
+                            <span class="food-icon" aria-hidden="true"><svg><use th:href="${'#i-' + f.icon()}"/></svg></span>
+                            <span class="qf-name" th:text="${f.name()}">Food</span>
+                            <span class="qf-meta" th:text="|${@fmt.num(f.calories())} cal${f.protein() > 0 ? ' · ' + @fmt.num(f.protein()) + ' g protein' : ''}|">cal</span>
+                        </button>
+                    </form>
+                    <form class="qf-star" method="post" th:action="@{/fuel/{id}/favorite(id=${f.entryId()})}">
+                        <input type="hidden" name="returnTo" th:value="${currentPath}">
+                        <button class="icon-btn" type="submit" data-no-loading th:attr="aria-label=${f.favorite()} ? |Remove star from ${f.name()}| : |Star ${f.name()}|,aria-pressed=${f.favorite()}"
+                                th:title="${f.favorite()} ? 'Starred: always at the top' : 'Star to keep it at the top'"><svg><use href="#i-star"/></svg></button>
+                    </form>
+                </div>
+            </div>
+        </th:block>
+    </section>
+</th:block>
+</body>
+</html>
