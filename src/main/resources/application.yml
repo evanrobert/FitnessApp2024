@@ -67,6 +67,8 @@ app:
     # Optional "Support the developer" link (e.g. https://buymeacoffee.com/yourname or
     # https://ko-fi.com/yourname). Must be https. Set APP_SUPPORT_URL to an empty value to hide the button.
     url: ${APP_SUPPORT_URL:https://buymeacoffee.com/EvanLindsay}
+  # Usernames (comma-separated) who can open the usage report at /admin/usage. Empty = nobody.
+  admin-usernames: ${ADMIN_USERNAMES:}
   weekly-email:
     # Local hour on Mondays when opted-in members get last week's summary.
     hour: 7

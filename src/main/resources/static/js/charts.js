@@ -66,12 +66,13 @@
     }
 
     /** Round axis maximum/minimum to clean numbers (0 / 50 / 100...). */
-    function niceScale(min, max, ticks) {
+    function niceScale(min, max, ticks, whole) {
         if (min === max) { min = min - 1; max = max + 1; }
         const span = max - min;
         const raw = span / ticks;
         const mag = Math.pow(10, Math.floor(Math.log10(raw)));
-        const step = [1, 2, 2.5, 5, 10].map((m) => m * mag).find((s) => s >= raw) || raw;
+        let step = [1, 2, 2.5, 5, 10].map((m) => m * mag).find((s) => s >= raw) || raw;
+        if (whole) step = Math.max(1, Math.ceil(step)); // counts: no 0.5 ticks
         return { min: Math.floor(min / step) * step, max: Math.ceil(max / step) * step, step };
     }
 
@@ -187,7 +188,7 @@
         const values = spec.target ? all.concat([spec.target.value]) : all;
         const lo = Math.min(...values), hi = Math.max(...values);
         const headroom = (hi - lo) * 0.12 || 1;
-        const scale = niceScale(spec.zero ? 0 : lo - headroom, hi + headroom, 4);
+        const scale = niceScale(spec.zero ? 0 : lo - headroom, hi + headroom, 4, spec.decimals === 0);
         const x = (i) => pad.l + (i / (labels.length - 1)) * (W - pad.l - pad.r);
         const y = (v) => pad.t + (1 - (v - scale.min) / (scale.max - scale.min)) * (H - pad.t - pad.b);
 
@@ -287,7 +288,7 @@
         const W = Math.max(container.clientWidth, 280), H = spec.height || 200;
         const pad = { t: 18, r: spec.target ? 56 : 12, b: 26, l: 44 };
         const hi = Math.max(...values, spec.target ? spec.target.value : 0);
-        const scale = niceScale(0, hi * 1.08, 4);
+        const scale = niceScale(0, hi * 1.08, 4, spec.decimals === 0);
         const band = (W - pad.l - pad.r) / values.length;
         const bw = Math.min(24, band * 0.62);
         const y = (v) => pad.t + (1 - v / scale.max) * (H - pad.t - pad.b);

@@ -7,7 +7,7 @@
             <nav class="breadcrumb"><a href="/train">Workouts</a><span>/</span><span th:text="${sessionId == null ? 'New workout' : 'Change'}">New</span></nav>
             <h1 class="display" th:text="${sessionId == null ? 'Add a workout' : 'Change this workout'}">Add a workout</h1>
             <p class="lede" th:if="${liveStart}"><strong>Let's go.</strong> Last time's weights are filled in. Tap <strong>✓</strong> after each set and a rest timer starts. Change anything that's different, then press <strong>Save</strong>.</p>
-            <p class="lede" th:if="${repeatOf != null and !liveStart}">Repeating <strong th:text="${repeatOf.displayTitle()}">session</strong> from <th:block th:text="${@fmt.shortDate(repeatOf.sessionDate)}">date</th:block>. Loads are pre-filled; adjust what changed.</p>
+            <p class="lede" th:if="${repeatOf != null and liveStart != true}">Repeating <strong th:text="${repeatOf.displayTitle()}">session</strong> from <th:block th:text="${@fmt.shortDate(repeatOf.sessionDate)}">date</th:block>. Loads are pre-filled; adjust what changed.</p>
             <p class="lede" th:if="${imported != null}">Here's what we read from your notes. Check it, fix anything that's off, then press <strong>Save</strong>.</p>
             <p class="lede" th:if="${repeatOf == null and imported == null}"><strong>1.</strong> Type the exercise. <strong>2.</strong> Type the weight and how many times you did it. <strong>3.</strong> Press <strong>Save</strong>.</p>
         </div>
@@ -38,6 +38,8 @@
     </div>
 
     <form id="session-builder" th:classappend="${(showSetDetails ? 'show-set-details' : '') + (sessionId == null ? ' is-new' : '')}" method="post" th:action="${sessionId == null} ? @{/train} : @{/train/{id}(id=${sessionId})}" th:object="${form}" data-guard novalidate>
+        <input type="hidden" name="_source" th:if="${sessionId == null}"
+               th:value="${imported != null ? 'paste' : (liveStart == true ? 'start' : (repeatOf != null ? 'repeat' : 'typed'))}">
         <div class="flash flash-error" th:if="${#fields.hasErrors('*')}" role="alert">
             <svg><use href="#i-alert"/></svg>
             <div><strong>Nothing was saved yet. Fix these and save again:</strong>

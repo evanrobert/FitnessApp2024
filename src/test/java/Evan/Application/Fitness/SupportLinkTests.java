@@ -34,10 +34,10 @@ class SupportLinkTests {
 
     @Test
     void onlySecureLinksAreAccepted() {
-        assertThat(new ViewAdvice("Evan Fitness", "http://ko-fi.com/example").supportUrl()).isNull();
-        assertThat(new ViewAdvice("Evan Fitness", "javascript:alert(1)").supportUrl()).isNull();
-        assertThat(new ViewAdvice("Evan Fitness", "").supportUrl()).isNull();
-        assertThat(new ViewAdvice("Evan Fitness", " https://buymeacoffee.com/example ").supportUrl())
+        assertThat(new ViewAdvice("Evan Fitness", "http://ko-fi.com/example", new Evan.Application.Fitness.Web.Admins("")).supportUrl()).isNull();
+        assertThat(new ViewAdvice("Evan Fitness", "javascript:alert(1)", new Evan.Application.Fitness.Web.Admins("")).supportUrl()).isNull();
+        assertThat(new ViewAdvice("Evan Fitness", "", new Evan.Application.Fitness.Web.Admins("")).supportUrl()).isNull();
+        assertThat(new ViewAdvice("Evan Fitness", " https://buymeacoffee.com/example ", new Evan.Application.Fitness.Web.Admins("")).supportUrl())
                 .isEqualTo("https://buymeacoffee.com/example");
     }
 }

@@ -137,6 +137,7 @@ Instead of the file, supply credentials as environment variables:
 | `SESSION_COOKIE_SECURE` | `false` | Set `true` when served over HTTPS |
 | `APP_DEFAULT_TIME_ZONE` | `America/New_York` | "Today" for members without a time zone set |
 | `APP_BRAND_NAME` | `Evan Fitness` | Name shown in the UI |
+| `ADMIN_USERNAMES` | — | Usernames (comma-separated) who can open the usage report at `/admin/usage` |
 | `APP_SUPPORT_URL` | `https://buymeacoffee.com/EvanLindsay` | "Support the developer" page (https only; empty hides it) |
 | `APP_BASE_URL` | `http://localhost:8080` | Public URL used in email links |
 | `SPRING_MAIL_HOST` / `_PORT` / `_USERNAME` / `_PASSWORD` | — | SMTP server (unset = no email sent) |
@@ -169,6 +170,10 @@ Flyway owns the schema (`src/main/resources/db/migration`); Hibernate only valid
 - **V5** adds email (unique, optional for existing accounts), sign-in lockout fields,
   email preferences and the `account_token` table for reset/confirmation links.
   Existing members are reminded to add and confirm an email so they can reset their password.
+- **V6** adds `persistent_logins` for "Keep me signed in on this device" (rotating per-device tokens).
+- **V7** adds `favorite_food` (starred foods for one-tap logging).
+- **V8** adds `usage_event`: that something was logged, how (tap, typed, paste, live) and how
+  many seconds it took. No content is stored; rows are deleted after 180 days and with the account.
 
 **Back up the database before the first start of this version.** V2 permanently drops
 the `reports` table (uploaded HRA files) and V3 drops `workout_information` after copying

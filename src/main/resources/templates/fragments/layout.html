@@ -24,7 +24,7 @@
 </head>
 <body class="app" th:with="section=${active == 'exercises' or active == 'records' ? 'train'
         : (active == 'insights' or active == 'goals' or active == 'body' or active == 'metrics' or active == 'timeline' ? 'progress'
-        : (active == 'profile' or active == 'account' or active == 'export' ? 'settings' : active))}">
+        : (active == 'profile' or active == 'account' or active == 'export' or active == 'usage' ? 'settings' : active))}">
 <svg th:replace="~{fragments/icons :: sprite}"></svg>
 <a class="sr-only" href="#main">Skip to content</a>
 
@@ -114,6 +114,7 @@
         <a href="/profile" th:classappend="${active == 'profile'} ? 'is-active'">Profile</a>
         <a href="/account" th:classappend="${active == 'account'} ? 'is-active'">Account &amp; security</a>
         <a href="/export" th:classappend="${active == 'export'} ? 'is-active'">Export data</a>
+        <a href="/admin/usage" th:if="${isAdmin}" th:classappend="${active == 'usage'} ? 'is-active'">Usage</a>
     </th:block>
 </nav>
 </html>

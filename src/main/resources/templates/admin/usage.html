@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: page(title='Usage', active='usage', content=~{::content})}">
+<body>
+<th:block th:fragment="content">
+    <header class="page-head">
+        <div>
+            <span class="eyebrow">Only you can see this</span>
+            <h1 class="display">Usage</h1>
+            <p class="lede">How often members log and how quickly. Totals only: no names and nothing they logged.</p>
+        </div>
+        <div class="page-actions">
+            <div class="segmented" aria-label="Range">
+                <a th:each="n : ${ {7, 30, 90} }" th:href="@{/admin/usage(days=${n})}" th:classappend="${days == n} ? 'is-active'" th:text="|${n} days|">30 days</a>
+            </div>
+        </div>
+    </header>
+
+    <section class="scoreboard" aria-label="Summary">
+        <div class="score">
+            <div class="score-label">Members who logged</div>
+            <div class="score-value" th:text="${r.activeMembers()}">0</div>
+            <div class="score-sub" th:text="|in the last ${days} days|">last 30 days</div>
+        </div>
+        <div class="score">
+            <div class="score-label">Logging days per week</div>
+            <div class="score-value"><th:block th:text="${r.loggingDaysPerMemberPerWeek()}">0</th:block><small>/ 7</small></div>
+            <div class="score-sub">average for members who logged</div>
+        </div>
+        <div class="score">
+            <div class="score-label">Things logged</div>
+            <div class="score-value" th:text="${@fmt.num(r.totalLogs())}">0</div>
+        </div>
+    </section>
+
+    <div class="grid split section">
+        <section class="card">
+            <div class="card-head"><div><span class="eyebrow">How people log</span><h2>Method and speed</h2></div></div>
+            <div class="card-body" th:if="${r.methods().isEmpty()}"><p class="muted">Nothing logged in this range yet.</p></div>
+            <div class="table-wrap" th:unless="${r.methods().isEmpty()}">
+                <table class="table">
+                    <thead><tr><th>What</th><th>How</th><th class="num">Times</th><th class="num">Typical time</th></tr></thead>
+                    <tbody>
+                    <tr th:each="m : ${r.methods()}">
+                        <td th:text="${m.kind()}">food</td>
+                        <td th:text="${m.method()}">tap</td>
+                        <td class="num" th:text="${m.count()}">0</td>
+                        <td class="num" th:text="${m.medianSeconds() == null ? '—' : m.medianSeconds() + ' s'}">—</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-foot small muted">"Typical time" is the median seconds from opening the page to saving. Live workouts count the whole workout, so compare taps and typing instead.</div>
+        </section>
+        <section class="card">
+            <div class="card-head"><div><span class="eyebrow">Daily</span><h2>Members who logged</h2></div></div>
+            <div class="card-body"><th:block th:replace="~{fragments/ui :: chart('chart-members', ${membersChart})}"></th:block></div>
+            <div class="card-foot small muted" th:text="|Events are deleted after ${keepDays} days, and with the member's account.|">Retention</div>
+        </section>
+    </div>
+</th:block>
+</body>
+</html>
