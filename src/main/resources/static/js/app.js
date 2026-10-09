@@ -230,9 +230,11 @@
             $$(".cardio-row", cardioList).forEach((row, i) => {
                 $$("[data-field]", row).forEach((f) => { f.name = `cardio[${i}].${f.dataset.field}`; });
             });
-            const count = $$("tr.set-row", blocks).filter((r) => $("[data-field=reps]", r).value || $("[data-field=weightLb]", r).value).length;
+            const filledRows = $$("tr.set-row", blocks).filter((r) => $("[data-field=reps]", r).value || $("[data-field=weightLb]", r).value);
+            const count = filledRows.length;
+            const doneCount = filledRows.filter((r) => r.classList.contains("is-done")).length;
             const summary = $("#builder-summary");
-            if (summary) summary.textContent = count + (count === 1 ? " set" : " sets");
+            if (summary) summary.textContent = doneCount ? `${doneCount} of ${count} done` : count + (count === 1 ? " set" : " sets");
         };
 
         // "Last time" hint for known exercises; muscle-group picker for new names.
@@ -288,6 +290,35 @@
                     break;
                 }
                 case "remove-cardio": t.closest(".cardio-row").remove(); break;
+                case "done-set": {
+                    const row = t.closest("tr");
+                    const done = row.classList.toggle("is-done");
+                    t.setAttribute("aria-pressed", String(done));
+                    t.setAttribute("aria-label", done ? "Set done (tap to undo)" : "Mark this set done");
+                    if (done) { rest.start(); live.begin(); } else { rest.stop(); }
+                    break;
+                }
+                case "bump":
+                    $$("[data-field=weightLb]", block).forEach((i) => { if (i.value) i.value = Math.round((Number(i.value) + 5) * 2) / 2; });
+                    t.disabled = true;
+                    t.textContent = "+5 lb added";
+                    break;
+                case "rest-add": rest.add(30); break;
+                case "rest-skip": rest.stop(); break;
+                case "save-cancel": choice.hidden = true; break;
+                case "save-done":
+                case "save-all": {
+                    if (t.dataset.action === "save-done") {
+                        $$("tr.set-row:not(.is-done)", blocks).forEach((r) => {
+                            ["reps", "weightLb", "rpe"].forEach((f) => { $(`[data-field=${f}]`, r).value = ""; });
+                        });
+                    }
+                    choice.hidden = true;
+                    skipChoice = true;
+                    renumber();
+                    builder.requestSubmit();
+                    return;
+                }
                 case "toggle-set-details": {
                     const on = builder.classList.toggle("show-set-details");
                     t.textContent = on ? "Hide effort and warm-up" : "Add effort or mark warm-ups (optional)";
@@ -319,6 +350,86 @@
                 addSet(block);
             }
         });
+        // ---- Live workout: tick sets, rest timer, screen stays on ---------------------
+        const hasValues = (r) => $("[data-field=reps]", r).value || $("[data-field=weightLb]", r).value;
+        const rest = (() => {
+            const box = $("[data-rest]", builder);
+            const out = $("[data-rest-time]", builder);
+            let left = 0, timer = null;
+            let base = 90;
+            try { base = Number(localStorage.getItem("rest-seconds")) || 90; } catch (e) { /* default */ }
+            const show = () => {
+                out.textContent = left > 0 ? `${Math.floor(left / 60)}:${String(left % 60).padStart(2, "0")}` : "Go!";
+                box.classList.toggle("is-done", left <= 0);
+            };
+            const stop = () => { clearInterval(timer); timer = null; if (box) box.hidden = true; };
+            const tick = () => {
+                left -= 1;
+                show();
+                if (left === 0) {
+                    if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+                    setTimeout(() => { if (left <= 0) stop(); }, 4000);
+                }
+            };
+            return {
+                start() {
+                    if (!box) return;
+                    clearInterval(timer);
+                    left = base;
+                    box.hidden = false;
+                    show();
+                    timer = setInterval(tick, 1000);
+                },
+                add(seconds) {
+                    left = Math.max(left, 0) + seconds;
+                    base = Math.min(600, base + seconds); // remember a longer rest for next time
+                    try { localStorage.setItem("rest-seconds", String(base)); } catch (e) { /* ignore */ }
+                    if (!timer) timer = setInterval(tick, 1000);
+                    show();
+                },
+                stop,
+            };
+        })();
+        // Keep the screen on and the sign-in alive while a workout is in progress.
+        const live = (() => {
+            let lock = null, ping = null;
+            const wake = () => {
+                if (!("wakeLock" in navigator) || document.visibilityState !== "visible") return;
+                navigator.wakeLock.request("screen").then((l) => { lock = l; }).catch(() => {});
+            };
+            return {
+                begin() {
+                    if (ping) return;
+                    wake();
+                    document.addEventListener("visibilitychange", () => { if (ping && document.visibilityState === "visible") wake(); });
+                    ping = setInterval(() => fetch("/ping", { credentials: "same-origin" }).catch(() => {}), 10 * 60 * 1000);
+                },
+                end() { if (lock) lock.release().catch(() => {}); clearInterval(ping); },
+            };
+        })();
+        if (builder.classList.contains("is-new")) {
+            // Any open workout form keeps the session alive, ticked or not.
+            setInterval(() => fetch("/ping", { credentials: "same-origin" }).catch(() => {}), 10 * 60 * 1000);
+        }
+        // Some sets ticked, others not: ask which to save instead of guessing.
+        const choice = $("[data-save-choice]", builder);
+        let skipChoice = false;
+        builder.addEventListener("submit", (event) => {
+            if (event.defaultPrevented || skipChoice || !choice) return;
+            const filled = $$("tr.set-row", blocks).filter(hasValues);
+            const done = filled.filter((r) => r.classList.contains("is-done"));
+            if (!done.length || done.length === filled.length) return;
+            event.preventDefault();
+            $("[data-save-choice-text]", choice).textContent =
+                `You ticked ${done.length} of ${filled.length} sets. Save only the ${done.length} you did, or every set?`;
+            $("[data-action=save-done]", choice).textContent = `Save the ${done.length} ticked`;
+            $("[data-action=save-all]", choice).textContent = `Save all ${filled.length}`;
+            choice.hidden = false;
+            $("[data-action=save-done]", choice).focus();
+            setTimeout(() => $$("button.is-loading", builder).forEach((b) => b.classList.remove("is-loading")), 0);
+        }, true);
+        builder.addEventListener("submit", (event) => { if (!event.defaultPrevented) { rest.stop(); live.end(); } });
+
         // A set without an exercise would be silently dropped: say so before submitting.
         builder.addEventListener("submit", (event) => {
             const unnamed = $$(".exercise-block", blocks).find((block) => !nameOf(block)

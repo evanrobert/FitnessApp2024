@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<!--/* "Next up": one tap starts the suggested workout with last time's weights filled in. Needs nextUp, today. */-->
+<section class="next-up" th:fragment="card" th:if="${nextUp != null}" th:with="s=${nextUp.session()}" aria-label="Next workout">
+    <div class="next-up-text">
+        <span class="eyebrow" th:text="${nextUp.rotation()} ? 'Next up in your routine' : 'Do it again'">Next up</span>
+        <h2 th:text="${s.displayTitle()}">Upper A</h2>
+        <p class="next-up-meta">
+            <th:block th:text="|Last done ${@fmt.relative(s.sessionDate, today)} · ${s.workingSetCount()} sets|">Last done</th:block>
+        </p>
+        <p class="next-up-exercises" th:text="${s.exerciseSummary()}">Bench Press · Row</p>
+        <div class="chips" th:unless="${nextUp.others().isEmpty()}">
+            <span class="small muted">Or:</span>
+            <a class="chip" th:each="o : ${nextUp.others()}" th:href="@{/train/new(repeat=${o.id},start=true)}" th:text="${o.displayTitle()}">Lower A</a>
+        </div>
+    </div>
+    <a class="btn btn-primary next-up-go" th:href="@{/train/new(repeat=${s.id},start=true)}"><svg><use href="#i-bolt"/></svg>Start workout</a>
+</section>
+</body>
+</html>
