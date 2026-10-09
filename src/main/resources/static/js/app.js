@@ -63,6 +63,17 @@
         window.addEventListener("appinstalled", () => { card.hidden = true; });
     })();
 
+    // ---- One-tap food: chips add to whichever meal is picked on the form ----------
+    document.addEventListener("change", (event) => {
+        const select = event.target.closest("select#mealType");
+        if (!select) return;
+        $$(".quick-food input[name=type], .same-as-yesterday input[name=type]").forEach((i) => { i.value = select.value; });
+        const label = select.options[select.selectedIndex].text.toLowerCase();
+        $$(".quick-head .small").forEach((n) => { n.textContent = "Adds to " + label; });
+        const say = $(".same-as-yesterday");
+        if (say) say.hidden = true; // that suggestion was for the original meal
+    });
+
     // ---- Dark / light theme ------------------------------------------------------
     function themeLabel() {
         const light = document.documentElement.getAttribute("data-theme") === "light";

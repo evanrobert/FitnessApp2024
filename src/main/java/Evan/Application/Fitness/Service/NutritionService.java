@@ -2,7 +2,9 @@ package Evan.Application.Fitness.Service;
 
 import Evan.Application.Fitness.Model.CalorieInformation;
 import Evan.Application.Fitness.Model.UserMacroInformation;
+import Evan.Application.Fitness.Model.FavoriteFood;
 import Evan.Application.Fitness.Repositorys.CalorieInformationRepository;
+import Evan.Application.Fitness.Repositorys.FavoriteFoodRepository;
 import Evan.Application.Fitness.Repositorys.UserLoginDetailsRepository;
 import Evan.Application.Fitness.Repositorys.UserMacroInformationRepository;
 import Evan.Application.Fitness.Web.NotFoundException;
@@ -20,9 +22,11 @@ public class NutritionService {
     private final UserMacroInformationRepository targets;
     private final UserLoginDetailsRepository users;
     private final TodayService todayService;
+    private final FavoriteFoodRepository favorites;
 
     public NutritionService(CalorieInformationRepository entries, UserMacroInformationRepository targets,
-                            UserLoginDetailsRepository users, TodayService todayService) {
+                            UserLoginDetailsRepository users, TodayService todayService, FavoriteFoodRepository favorites) {
+        this.favorites = favorites;
         this.entries = entries;
         this.targets = targets;
         this.users = users;
@@ -82,8 +86,17 @@ public class NutritionService {
     /** Copy a past entry onto today (the most common way people log repeat meals). */
     @Transactional
     public CalorieInformation relog(Long userId, Long entryId, LocalDate date) {
+        return relog(userId, entryId, date, null);
+    }
+
+    /** Logs a past entry again; {@code mealType} (e.g. lunch, by time of day) replaces the original slot when given. */
+    @Transactional
+    public CalorieInformation relog(Long userId, Long entryId, LocalDate date, String mealType) {
         CalorieInformation copy = new CalorieInformation();
         copyEditableFields(entry(userId, entryId), copy);
+        if (mealType != null) {
+            copy.setMealType(mealType);
+        }
         copy.setDate(date == null ? todayService.today(userId) : date);
         copy.setUser(users.getReferenceById(userId));
         return entries.save(copy);
@@ -109,6 +122,94 @@ public class NutritionService {
             }
         }
         return new ArrayList<>(distinct.values());
+    }
+
+    // ---- One-tap logging -------------------------------------------------------------
+
+    /** A food the member can log again with one tap. {@code entryId} is their latest entry of it. */
+    public record QuickFood(Long entryId, String name, double calories, double protein, String icon, boolean favorite) {
+    }
+
+    static String key(String name) {
+        return name == null ? "" : name.trim().replaceAll("\\s+", " ").toLowerCase(Locale.ROOT);
+    }
+
+    /**
+     * Starred foods first, then what the member eats most often (last 60 days), most recent breaking ties.
+     * Each food appears once, with the calories and macros of its latest entry.
+     */
+    public List<QuickFood> quickFoods(Long userId, int limit) {
+        LocalDate since = todayService.today(userId).minusDays(60);
+        Set<String> starred = favoriteKeys(userId);
+        Map<String, CalorieInformation> latest = new LinkedHashMap<>();
+        Map<String, Integer> times = new HashMap<>();
+        for (CalorieInformation c : entries.findAllByUserIdOrderByDateDescIdDesc(userId)) {
+            String k = key(c.getItemName());
+            if (k.isEmpty()) {
+                continue;
+            }
+            latest.putIfAbsent(k, c);
+            if (c.getDate() != null && !c.getDate().isBefore(since)) {
+                times.merge(k, 1, Integer::sum);
+            }
+        }
+        List<String> order = new ArrayList<>(latest.keySet()); // newest first
+        Map<String, Integer> recency = new HashMap<>();
+        for (int i = 0; i < order.size(); i++) {
+            recency.put(order.get(i), i);
+        }
+        order.sort(Comparator.<String>comparingInt(k -> starred.contains(k) ? 0 : 1)
+                .thenComparing(k -> -times.getOrDefault(k, 0))
+                .thenComparing(recency::get));
+        return order.stream().limit(limit).map(k -> {
+            CalorieInformation c = latest.get(k);
+            return new QuickFood(c.getId(), c.getItemName().trim(), c.getCalories(), c.getProteins(), c.foodIcon(), starred.contains(k));
+        }).toList();
+    }
+
+    public Set<String> favoriteKeys(Long userId) {
+        Set<String> keys = new HashSet<>();
+        favorites.findAllByUserId(userId).forEach(f -> keys.add(f.getNameKey()));
+        return keys;
+    }
+
+    /** Stars or un-stars the food of one of the member's entries. Returns true when it's now starred. */
+    @Transactional
+    public boolean toggleFavorite(Long userId, Long entryId) {
+        String k = key(entry(userId, entryId).getItemName());
+        Optional<FavoriteFood> existing = favorites.findByUserIdAndNameKey(userId, k);
+        if (existing.isPresent()) {
+            favorites.delete(existing.get());
+            return false;
+        }
+        FavoriteFood f = new FavoriteFood();
+        f.setUser(users.getReferenceById(userId));
+        f.setNameKey(k.length() > 255 ? k.substring(0, 255) : k);
+        favorites.save(f);
+        return true;
+    }
+
+    /** What was eaten for a meal on the day before {@code day}, when that meal is still empty on {@code day}. */
+    public List<CalorieInformation> sameAsYesterday(Long userId, LocalDate day, String mealType) {
+        if (mealType == null) {
+            return List.of();
+        }
+        boolean already = entriesOn(userId, day).stream().anyMatch(e -> mealType.equals(e.getMealType()));
+        return already ? List.of() : entriesOn(userId, day.minusDays(1)).stream()
+                .filter(e -> mealType.equals(e.getMealType())).toList();
+    }
+
+    /** Copies every entry of one meal from one day to another. Returns how many were added. */
+    @Transactional
+    public int copyMeal(Long userId, LocalDate from, String mealType, LocalDate to) {
+        int n = 0;
+        for (CalorieInformation e : entriesOn(userId, from)) {
+            if (mealType.equals(e.getMealType())) {
+                relog(userId, e.getId(), to, mealType);
+                n++;
+            }
+        }
+        return n;
     }
 
     public DayTotals totals(List<CalorieInformation> dayEntries) {

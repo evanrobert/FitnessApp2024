@@ -56,6 +56,8 @@
         </div>
     </section>
 
+    <div class="section"><th:block th:replace="~{fuel/quick :: quickLog}"></th:block></div>
+
     <div class="grid split section">
         <div class="stack">
             <section class="card ledger">
@@ -81,6 +83,12 @@
                             <a class="icon-btn" th:href="@{/fuel/{id}/edit(id=${e.id})}" aria-label="Edit entry" title="Edit"><svg><use href="#i-edit"/></svg></a>
                             <form class="inline-form" method="post" th:action="@{/fuel/{id}/relog(id=${e.id})}" th:unless="${isToday}">
                                 <button class="icon-btn" type="submit" aria-label="Log again today" title="Log again today" data-no-loading><svg><use href="#i-copy"/></svg></button>
+                            </form>
+                            <form class="inline-form" method="post" th:action="@{/fuel/{id}/favorite(id=${e.id})}"
+                                  th:with="starred=${favoriteKeys.contains(#strings.toLowerCase(#strings.trim(e.itemName)))}">
+                                <input type="hidden" name="returnTo" th:value="${currentPath}">
+                                <button class="icon-btn star-btn" th:classappend="${starred} ? 'is-on'" type="submit" data-no-loading
+                                        th:attr="aria-pressed=${starred}" th:aria-label="${starred} ? 'Remove star' : 'Star this food'" th:title="${starred} ? 'Starred' : 'Star this food'"><svg><use href="#i-star"/></svg></button>
                             </form>
                             <form class="inline-form" method="post" th:action="@{/fuel/{id}/delete(id=${e.id})}">
                                 <button class="icon-btn" type="submit" aria-label="Delete entry" title="Delete" data-confirm="Delete this entry?"><svg><use href="#i-trash"/></svg></button>
@@ -132,21 +140,6 @@
                 </div>
             </form>
 
-            <section class="card" th:unless="${recent.isEmpty()}">
-                <div class="card-head"><div><span class="eyebrow">One click</span><h2>Recent foods</h2></div></div>
-                <ul class="list">
-                    <li th:each="r : ${recent}">
-                        <span class="food-icon" aria-hidden="true"><svg><use th:href="${'#i-' + r.foodIcon()}"/></svg></span>
-                        <div style="min-width:0;flex:1">
-                            <div class="title" th:text="${r.itemName}" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Food</div>
-                            <div class="meta" th:text="|${@fmt.num(r.calories)} kcal · ${@fmt.num(r.proteins)} g protein|">kcal</div>
-                        </div>
-                        <form class="inline-form" method="post" th:action="@{/fuel/{id}/relog(id=${r.id},date=${day})}">
-                            <button class="btn btn-sm" type="submit"><svg><use href="#i-plus"/></svg>Log</button>
-                        </form>
-                    </li>
-                </ul>
-            </section>
         </aside>
     </div>
 </th:block>
