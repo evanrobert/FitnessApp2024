@@ -25,11 +25,19 @@ Keep a notepad open: you'll copy a few values from each site and paste them into
    - **Host** (looks like `mysql-xxxx-yourname.aivencloud.com`)
    - **Port** (a number like `12345`)
    - **User** (`avnadmin`)
-   - **Password** (click the eye icon)
-   - **Database name** (`defaultdb`)
-6. Build your **DB_URL** from the host and port, exactly like this (keep `?sslMode=REQUIRED`, it encrypts the connection):
+   - **Password** (click the eye icon). Don't paste it anywhere but Render, and don't share
+     screenshots of the **Service URI**: it contains the password. If it ever leaks, reset it under
+     **Users → avnadmin → Reset password** and update `DB_PASSWORD` in Render.
+6. **Create the app's database.** Left menu → **Databases** → **Create database** → name it `fitness`
+   (lowercase) → **Create**. It should now be listed next to `defaultdb`.
+7. **Turn off the "primary key required" rule.** Left menu → **Service settings** → **Advanced
+   configuration** → **Configure** → **Add configuration options** → `mysql.sql_require_primary_key`
+   → set it **off** → **Save configuration**. (The app's very first migration creates one table before
+   giving it a key; without this step the first deploy fails with
+   `Unable to create or change a table without a primary key`.)
+8. Build your **DB_URL** from the host and port, exactly like this (keep `?sslMode=REQUIRED`, it encrypts the connection):
    ```
-   jdbc:mysql://HOST:PORT/defaultdb?sslMode=REQUIRED
+   jdbc:mysql://HOST:PORT/fitness?sslMode=REQUIRED
    ```
 
 The app creates all its tables automatically the first time it starts.
@@ -57,7 +65,7 @@ custom domain (about $10/year) verified in Brevo fixes it.
 
    | Setting | Value |
    |---|---|
-   | `DB_URL` | the URL from step 1.6 |
+   | `DB_URL` | the URL from step 1.8 |
    | `DB_USERNAME` | `avnadmin` |
    | `DB_PASSWORD` | the Aiven password |
    | `APP_BASE_URL` | `https://evan-fitness.onrender.com` (see the note below) |
@@ -72,6 +80,11 @@ name is taken, Render adds a few characters. After the first deploy, check the a
 service page. If it's different, go to **Environment**, update `APP_BASE_URL` to match, and save (Render
 redeploys automatically). Email links use this address, so it must match exactly.
 
+**Optional: see how people use the app.** In Render → **Environment**, add `ADMIN_USERNAMES` with your
+own username (several: separate with commas) and save. A **Usage** tab then appears under Settings for
+you only: how many members log, how often, and how many seconds it takes. Totals only, no names or
+content; events are deleted after 180 days.
+
 ## 4. Check it works
 
 1. Open your `https://….onrender.com` address. (After 15 idle minutes on the free plan the first visit takes
@@ -80,9 +93,23 @@ redeploys automatically). Email links use this address, so it must match exactly
 3. Log a workout, a meal and the 3 sleep & mood questions.
 4. Log out → **Forgot password?** → you should get a reset email.
 5. Settings → Account & security → **Send me a preview** to see the weekly summary.
+6. On your phone, open the site and use the **Put Evan Fitness on your home screen** card on Today
+   (iPhone: Share → Add to Home Screen). Log in with **Keep me signed in on this device** ticked.
 
 If an email doesn't arrive, open Render → **Logs** and search for `could not be sent:`. The text after it says why
 (for example, the sender address isn't verified in Brevo yet).
+
+## If a deploy fails
+
+Open Render → **Logs** and look at the last 20–30 lines.
+
+| Log says | Fix |
+|---|---|
+| `Unable to create or change a table without a primary key` | Step 1.7: turn off `mysql.sql_require_primary_key` in Aiven, then **Manual Deploy → Deploy latest commit**. |
+| `Unknown database 'fitness'` | Step 1.6: create the `fitness` database in Aiven → **Databases**. Check `DB_URL` ends in `/fitness?sslMode=REQUIRED`. |
+| `Access denied for user 'avnadmin'` | `DB_PASSWORD` in Render doesn't match Aiven. Copy it again (or reset it in Aiven) and save. |
+| `Communications link failure` | `DB_URL` host or port is wrong, or the Aiven service is powered off (free services pause when unused; power it on). |
+| `refuses to start` / `APP_BASE_URL` | `APP_BASE_URL` must be your `https://…onrender.com` address. |
 
 ## Updating the app later
 
@@ -102,4 +129,7 @@ other changes. (Paid Render plans can also send email over SMTP, but Brevo keeps
 - GitHub's Dependabot (`.github/dependabot.yml`) opens a pull request when a library gets a security update.
 - This stores personal wellness data (weight, sleep, mood). It's fine for you and friends. Don't put clients' or
   patients' data on free hosting without your compliance team's approval.
+- "Keep me signed in" is opt-in per device; changing your password signs out every kept device.
+- The usage report (if you set `ADMIN_USERNAMES`) stores only that something was logged and how fast, never
+  what; it's deleted after 180 days.
 - Back up now and then: each member can download their data as CSV (Settings → Export data).

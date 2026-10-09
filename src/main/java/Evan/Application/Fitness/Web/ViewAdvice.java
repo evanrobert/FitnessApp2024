@@ -14,8 +14,10 @@ public class ViewAdvice {
     private final String brandName;
     private final String brandInitials;
     private final String supportUrl;
+    private final Admins admins;
 
-    public ViewAdvice(@Value("${app.brand-name}") String brandName, @Value("${app.support.url:}") String supportUrl) {
+    public ViewAdvice(@Value("${app.brand-name}") String brandName, @Value("${app.support.url:}") String supportUrl, Admins admins) {
+        this.admins = admins;
         this.brandName = brandName;
         // Only a secure external page (Buy Me a Coffee, Ko-fi...); the app itself never takes payments.
         this.supportUrl = supportUrl != null && supportUrl.trim().startsWith("https://") ? supportUrl.trim() : null;
@@ -40,6 +42,12 @@ public class ViewAdvice {
     @ModelAttribute("supportUrl")
     public String supportUrl() {
         return supportUrl;
+    }
+
+    /** Shows the owner-only "Usage" tab in Settings. */
+    @ModelAttribute("isAdmin")
+    public boolean isAdmin(java.security.Principal principal) {
+        return principal != null && admins.isAdmin(principal.getName());
     }
 
     @ModelAttribute("currentPath")

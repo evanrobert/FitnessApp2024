@@ -27,6 +27,23 @@
         }
     });
 
+    // ---- Usage timing: how long the page was open when something was saved -------
+    const pageOpened = Date.now();
+    document.addEventListener("submit", (event) => {
+        const form = event.target;
+        if (event.defaultPrevented || (form.method || "").toLowerCase() !== "post") return;
+        let field = form.querySelector("input[name=_elapsed]");
+        if (!field) {
+            field = document.createElement("input");
+            field.type = "hidden";
+            field.name = "_elapsed";
+            form.appendChild(field);
+        }
+        field.value = String(Date.now() - pageOpened);
+        const source = form.querySelector("input[name=_source]");
+        if (source && form.querySelector("tr.set-row.is-done")) source.value = "live";
+    });
+
     // ---- Installable app ---------------------------------------------------------
     if ("serviceWorker" in navigator) {
         window.addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch(() => {}));
