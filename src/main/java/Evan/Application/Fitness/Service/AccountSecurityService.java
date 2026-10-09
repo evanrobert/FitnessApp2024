@@ -8,6 +8,7 @@ import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,9 +37,12 @@ public class AccountSecurityService {
     private final MailService mail;
     private final SessionRegistry sessions;
     private final Clock clock;
+    private final PersistentTokenRepository rememberedDevices;
 
     public AccountSecurityService(UserLoginDetailsRepository users, AccountTokenService tokens,
-                                  PasswordEncoder passwordEncoder, MailService mail, SessionRegistry sessions, Clock clock) {
+                                  PasswordEncoder passwordEncoder, MailService mail, SessionRegistry sessions, Clock clock,
+                                  PersistentTokenRepository rememberedDevices) {
+        this.rememberedDevices = rememberedDevices;
         this.users = users;
         this.tokens = tokens;
         this.passwordEncoder = passwordEncoder;
@@ -129,6 +133,8 @@ public class AccountSecurityService {
         user.setLockedUntil(null);
         tokens.invalidateAll(user.getId(), Purpose.PASSWORD_RESET);
         endSessions(user.getUsername(), keepSessionId);
+        // Devices that were kept signed in must sign in again with the new password.
+        rememberedDevices.removeUserTokens(user.getUsername());
         if (user.isEmailVerified()) {
             String link = mail.link("/forgot-password");
             mail.send(user.getEmail(), "Your password was changed", "password-changed",

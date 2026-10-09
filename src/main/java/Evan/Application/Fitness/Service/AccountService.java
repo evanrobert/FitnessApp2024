@@ -88,6 +88,8 @@ public class AccountService {
         for (String jpql : statements) {
             em.createQuery(jpql).setParameter("u", userId).executeUpdate();
         }
+        em.createNativeQuery("DELETE FROM persistent_logins WHERE username = (SELECT username FROM user_login_details WHERE id = :u)")
+                .setParameter("u", userId).executeUpdate();
         em.createNativeQuery("DELETE FROM users_roles WHERE user_login_details_id = :u").setParameter("u", userId).executeUpdate();
         em.createQuery("DELETE FROM UserLoginDetails u WHERE u.id = :u").setParameter("u", userId).executeUpdate();
         em.clear();
