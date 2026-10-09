@@ -6,7 +6,8 @@
         <div>
             <nav class="breadcrumb"><a href="/train">Workouts</a><span>/</span><span th:text="${sessionId == null ? 'New workout' : 'Change'}">New</span></nav>
             <h1 class="display" th:text="${sessionId == null ? 'Add a workout' : 'Change this workout'}">Add a workout</h1>
-            <p class="lede" th:if="${repeatOf != null}">Repeating <strong th:text="${repeatOf.displayTitle()}">session</strong> from <th:block th:text="${@fmt.shortDate(repeatOf.sessionDate)}">date</th:block>. Loads are pre-filled; adjust what changed.</p>
+            <p class="lede" th:if="${liveStart}"><strong>Let's go.</strong> Last time's weights are filled in. Tap <strong>✓</strong> after each set and a rest timer starts. Change anything that's different, then press <strong>Save</strong>.</p>
+            <p class="lede" th:if="${repeatOf != null and !liveStart}">Repeating <strong th:text="${repeatOf.displayTitle()}">session</strong> from <th:block th:text="${@fmt.shortDate(repeatOf.sessionDate)}">date</th:block>. Loads are pre-filled; adjust what changed.</p>
             <p class="lede" th:if="${imported != null}">Here's what we read from your notes. Check it, fix anything that's off, then press <strong>Save</strong>.</p>
             <p class="lede" th:if="${repeatOf == null and imported == null}"><strong>1.</strong> Type the exercise. <strong>2.</strong> Type the weight and how many times you did it. <strong>3.</strong> Press <strong>Save</strong>.</p>
         </div>
@@ -36,7 +37,7 @@
         </div>
     </div>
 
-    <form id="session-builder" th:classappend="${showSetDetails} ? 'show-set-details'" method="post" th:action="${sessionId == null} ? @{/train} : @{/train/{id}(id=${sessionId})}" th:object="${form}" data-guard novalidate>
+    <form id="session-builder" th:classappend="${(showSetDetails ? 'show-set-details' : '') + (sessionId == null ? ' is-new' : '')}" method="post" th:action="${sessionId == null} ? @{/train} : @{/train/{id}(id=${sessionId})}" th:object="${form}" data-guard novalidate>
         <div class="flash flash-error" th:if="${#fields.hasErrors('*')}" role="alert">
             <svg><use href="#i-alert"/></svg>
             <div><strong>Nothing was saved yet. Fix these and save again:</strong>
@@ -69,7 +70,7 @@
                                 </header>
                                 <div class="last-time"></div>
                                 <table class="set-table">
-                                    <thead><tr><th>Set</th><th>Weight (lb)</th><th>How many times</th><th class="rpe-col detail-col" title="1 = very easy, 10 = no reps left">Rate of perceived exertion <span class="th-sub">1–10</span></th><th class="warm detail-col">Warm-up</th><th><span class="sr-only">Remove</span></th></tr></thead>
+                                    <thead><tr><th>Set</th><th>Weight (lb)</th><th>How many times</th><th class="rpe-col detail-col" title="1 = very easy, 10 = no reps left">Rate of perceived exertion <span class="th-sub">1–10</span></th><th class="warm detail-col">Warm-up</th><th class="done-col">Done</th><th><span class="sr-only">Remove</span></th></tr></thead>
                                     <tbody>
                                     <tr class="set-row" th:each="r, rs : ${b.rows}" th:with="i=${bs.index * 20 + rs.index}, err=${rowErrors.get(r)}">
                                         <td class="set-no" th:text="${rs.count}">1</td>
@@ -82,13 +83,15 @@
                                         <td><input class="input" data-field="reps" th:name="|sets[${i}].reps|" th:value="${r.reps}" th:classappend="${err != null and err['reps'] != null} ? 'is-invalid'" th:title="${err == null ? null : err['reps']}" type="number" min="0" step="1" inputmode="numeric" placeholder="times" aria-label="How many times (reps)"></td>
                                         <td class="detail-col"><input class="input" data-field="rpe" th:name="|sets[${i}].rpe|" th:value="${@fmt.input(r.rpe)}" th:classappend="${err != null and err['rpe'] != null} ? 'is-invalid'" th:title="${err == null ? null : err['rpe']}" type="number" min="1" max="10" step="0.5" inputmode="decimal" placeholder="—" aria-label="Rate of perceived exertion, 1 to 10"></td>
                                         <td class="warm detail-col"><input type="checkbox" data-field="warmup" th:name="|sets[${i}].warmup|" value="true" th:checked="${r.warmup}" aria-label="Warm-up set" style="width:18px;height:18px;accent-color:var(--blue)"></td>
+                                        <td class="done-col"><button class="done-btn" type="button" data-action="done-set" aria-label="Mark this set done" aria-pressed="false"><svg><use href="#i-check"/></svg></button></td>
                                         <td><button class="icon-btn" type="button" data-action="remove-set" aria-label="Remove set"><svg><use href="#i-trash"/></svg></button></td>
                                     </tr>
                                     </tbody>
                                 </table>
                                 <th:block th:each="r, rs : ${b.rows}" th:with="err=${rowErrors.get(r)}"><p class="field-error" style="margin:4px 0 0"
                                     th:each="e : ${err == null ? {} : err.values()}" th:text="|Set ${rs.count}: ${e}|">Set 1: problem</p></th:block>
-                                <footer><button class="btn btn-sm" type="button" data-action="add-set"><svg><use href="#i-plus"/></svg>Add set</button></footer>
+                                <footer><button class="btn btn-sm" type="button" data-action="add-set"><svg><use href="#i-plus"/></svg>Add set</button>
+                                    <button class="btn btn-ghost btn-sm" type="button" data-action="bump" th:if="${repeatOf != null}" title="Add 5 lb to every set of this exercise">Felt easy last time? +5 lb</button></footer>
                             </div>
                         </div>
                         <div class="row">
@@ -176,6 +179,19 @@
             </aside>
         </div>
 
+        <div class="rest-timer" data-rest hidden role="timer" aria-live="polite">
+            <span class="rest-label">Rest</span><strong class="rest-time" data-rest-time>1:30</strong>
+            <button class="btn btn-sm" type="button" data-action="rest-add">+30s</button>
+            <button class="btn btn-ghost btn-sm" type="button" data-action="rest-skip">Skip</button>
+        </div>
+        <div class="save-choice card" data-save-choice hidden role="dialog" aria-label="Which sets to save">
+            <p data-save-choice-text>You ticked some sets.</p>
+            <div class="row">
+                <button class="btn btn-primary" type="button" data-action="save-done">Save only ticked sets</button>
+                <button class="btn" type="button" data-action="save-all">Save every set</button>
+                <button class="btn btn-ghost" type="button" data-action="save-cancel">Keep going</button>
+            </div>
+        </div>
         <div class="card form-actions sticky-actions mt-3">
             <a class="btn btn-ghost spacer" th:href="${sessionId == null} ? '/train' : @{/train/{id}(id=${sessionId})}">Cancel</a>
             <button class="btn btn-primary" type="submit"><svg><use href="#i-check"/></svg><th:block th:text="${sessionId == null ? 'Save' : 'Save changes'}">Save</th:block></button>
@@ -208,7 +224,7 @@
             </header>
             <div class="last-time"></div>
             <table class="set-table">
-                <thead><tr><th>Set</th><th>Weight (lb)</th><th>How many times</th><th class="rpe-col detail-col" title="1 = very easy, 10 = no reps left">Rate of perceived exertion <span class="th-sub">1–10</span></th><th class="warm detail-col">Warm-up</th><th><span class="sr-only">Remove</span></th></tr></thead>
+                <thead><tr><th>Set</th><th>Weight (lb)</th><th>How many times</th><th class="rpe-col detail-col" title="1 = very easy, 10 = no reps left">Rate of perceived exertion <span class="th-sub">1–10</span></th><th class="warm detail-col">Warm-up</th><th class="done-col">Done</th><th><span class="sr-only">Remove</span></th></tr></thead>
                 <tbody></tbody>
             </table>
             <footer><button class="btn btn-sm" type="button" data-action="add-set"><svg><use href="#i-plus"/></svg>Add set</button></footer>
@@ -226,6 +242,7 @@
             <td><input class="input" data-field="reps" type="number" min="0" step="1" inputmode="numeric" placeholder="times" aria-label="How many times (reps)"></td>
             <td class="detail-col"><input class="input" data-field="rpe" type="number" min="1" max="10" step="0.5" inputmode="decimal" placeholder="—" aria-label="Rate of perceived exertion, 1 to 10"></td>
             <td class="warm detail-col"><input type="checkbox" data-field="warmup" value="true" aria-label="Warm-up set" style="width:18px;height:18px;accent-color:var(--blue)"></td>
+            <td class="done-col"><button class="done-btn" type="button" data-action="done-set" aria-label="Mark this set done" aria-pressed="false"><svg><use href="#i-check"/></svg></button></td>
             <td><button class="icon-btn" type="button" data-action="remove-set" aria-label="Remove set"><svg><use href="#i-trash"/></svg></button></td>
         </tr>
     </template>

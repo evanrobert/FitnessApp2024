@@ -21,14 +21,27 @@ public class DashboardController {
     private final ChartJson charts;
     private final UserLoginDetailsRepository users;
     private final StrengthLevelService strength;
+    private final Evan.Application.Fitness.Service.TrainingService training;
+    private final Evan.Application.Fitness.Service.TodayService todayService;
 
     public DashboardController(AnalyticsService analytics, ProfileService profiles, ChartJson charts,
-                               UserLoginDetailsRepository users, StrengthLevelService strength) {
+                               UserLoginDetailsRepository users, StrengthLevelService strength,
+                               Evan.Application.Fitness.Service.TrainingService training,
+                               Evan.Application.Fitness.Service.TodayService todayService) {
+        this.training = training;
+        this.todayService = todayService;
         this.strength = strength;
         this.users = users;
         this.analytics = analytics;
         this.profiles = profiles;
         this.charts = charts;
+    }
+
+    /** Keeps the session alive while a long form (a workout in progress) is open. */
+    @GetMapping("/ping")
+    @org.springframework.web.bind.annotation.ResponseBody
+    public org.springframework.http.ResponseEntity<Void> ping() {
+        return org.springframework.http.ResponseEntity.noContent().build();
     }
 
     @GetMapping("/home")
@@ -40,6 +53,11 @@ public class DashboardController {
         model.addAttribute("liftLevels", strength.ranked(me.getId()).stream().limit(4).toList());
         model.addAttribute("levelsNeedSetup", strength.needsSetupFor(me.getId()));
         model.addAttribute("calendarChart", charts.write(dash.calendar()));
+        // "Next up" until today's workout is logged.
+        java.time.LocalDate today = todayService.today(me.getId());
+        boolean trainedToday = training.history(me.getId()).stream().anyMatch(s -> s.getSessionDate().equals(today));
+        model.addAttribute("today", today);
+        model.addAttribute("nextUp", trainedToday ? null : training.nextUp(me.getId()).orElse(null));
         model.addAttribute("weightSpark", dash.weightSpark() == null ? null : charts.write(dash.weightSpark()));
         return "home";
     }

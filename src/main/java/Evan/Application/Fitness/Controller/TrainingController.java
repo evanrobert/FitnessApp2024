@@ -78,6 +78,7 @@ public class TrainingController {
                     .mapToDouble(WorkoutSession::volume).sum());
         }
 
+        model.addAttribute("nextUp", training.nextUp(userId).orElse(null));
         model.addAttribute("sessions", shown);
         model.addAttribute("filter", filter);
         model.addAttribute("focuses", SessionFocus.values());
@@ -95,12 +96,18 @@ public class TrainingController {
 
     @GetMapping("/new")
     public String newSession(@AuthenticationPrincipal AppUserPrincipal me, @RequestParam(required = false) Long repeat,
-                             Model model) {
+                             @RequestParam(defaultValue = "false") boolean start, Model model) {
+        model.addAttribute("liveStart", start && repeat != null);
         SessionForm form = repeat == null ? training.blankForm(me.getId()) : training.repeatForm(me.getId(), repeat);
         if (repeat != null) {
             model.addAttribute("repeatOf", training.get(me.getId(), repeat));
         }
-        return builder(me.getId(), form, null, model);
+        String view = builder(me.getId(), form, null, model);
+        if (start) {
+            // Mid-workout on a phone: keep weight, reps and the done tick roomy. Effort values are kept, just tucked away.
+            model.addAttribute("showSetDetails", false);
+        }
+        return view;
     }
 
     /** Paste a workout from a notes app; it opens in the normal form to check before saving. */

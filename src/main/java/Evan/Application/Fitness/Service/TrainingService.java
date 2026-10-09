@@ -109,6 +109,44 @@ public class TrainingService {
     }
 
     /** "Repeat" a past session: same exercises and loads, dated today, nothing saved yet. */
+    /**
+     * The workout to suggest next. Members who rotate named workouts (Upper A, Lower A...) get the
+     * one they did longest ago among those done at least twice in the last 8 weeks; everyone else
+     * gets their latest strength workout. {@code others} are the remaining routine workouts.
+     */
+    public record NextUp(WorkoutSession session, boolean rotation, List<WorkoutSession> others) {
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<NextUp> nextUp(Long userId) {
+        LocalDate today = todayService.today(userId);
+        List<WorkoutSession> strength = history(userId).stream()
+                .filter(s -> !s.getSets().isEmpty() && !s.getSessionDate().isAfter(today)).toList();
+        if (strength.isEmpty()) {
+            return Optional.empty();
+        }
+        LocalDate since = today.minusWeeks(8);
+        Map<String, WorkoutSession> latestByTitle = new LinkedHashMap<>(); // most recently done first
+        Map<String, Integer> times = new HashMap<>();
+        for (WorkoutSession s : strength) {
+            if (s.getSessionDate().isBefore(since)) {
+                break;
+            }
+            String key = s.displayTitle().trim().toLowerCase(Locale.ROOT);
+            latestByTitle.putIfAbsent(key, s);
+            times.merge(key, 1, Integer::sum);
+        }
+        List<WorkoutSession> routine = latestByTitle.entrySet().stream()
+                .filter(e -> times.get(e.getKey()) >= 2).map(Map.Entry::getValue).toList();
+        if (routine.size() >= 2) {
+            WorkoutSession next = routine.get(routine.size() - 1);
+            List<WorkoutSession> others = new ArrayList<>(routine.subList(0, routine.size() - 1));
+            Collections.reverse(others); // next-most-due first
+            return Optional.of(new NextUp(next, true, others.stream().limit(3).toList()));
+        }
+        return Optional.of(new NextUp(strength.get(0), false, List.of()));
+    }
+
     public SessionForm repeatForm(Long userId, Long sessionId) {
         SessionForm form = toForm(get(userId, sessionId));
         form.setSessionDate(todayService.today(userId));
